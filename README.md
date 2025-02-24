@@ -2,6 +2,8 @@
 
 A Neovim plugin for seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim.
 
+This plugin was entirely built with Claude Code in a Neovim terminal, and then inside itself using Claude Code for everything.
+
 ![Claude Code in Neovim](https://github.com/greggh/claude-code.nvim/assets/claude-code-demo.gif)
 
 ## Features
