@@ -182,19 +182,19 @@ function M.setup(user_config)
   -- Set up keymaps
   local map_opts = { noremap = true, silent = true }
   
-  -- Normal mode toggle keymap
+  -- Normal mode toggle keymaps
   vim.api.nvim_set_keymap("n", M.config.keymaps.toggle.normal, 
+    [[<cmd>ClaudeCode<CR>]], 
+    vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" }))
+  
+  -- Add <C-.> for normal mode
+  vim.api.nvim_set_keymap("n", "<C-.>", 
     [[<cmd>ClaudeCode<CR>]], 
     vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" }))
   
   -- Terminal mode toggle keymap
   -- In terminal mode, special keys like Ctrl need different handling
   -- We use a direct escape sequence approach for more reliable terminal mappings
-  vim.api.nvim_set_keymap("t", M.config.keymaps.toggle.terminal, 
-    [[<C-\><C-n>:ClaudeCode<CR>]], 
-    vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" }))
-    
-  -- Always add a direct mapping for Ctrl-. as it's more reliable
   vim.api.nvim_set_keymap("t", "<C-.>", 
     [[<C-\><C-n>:ClaudeCode<CR>]], 
     vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" }))
@@ -205,7 +205,8 @@ function M.setup(user_config)
     if status_ok then
       which_key.add({
         mode = "n",
-        { M.config.keymaps.toggle.normal, desc = "Claude Code: Toggle", icon = "🤖" }
+        { M.config.keymaps.toggle.normal, desc = "Claude Code: Toggle", icon = "🤖" },
+        { "<C-.>", desc = "Claude Code: Toggle", icon = "🤖" }
       })
     end
   end, 100)

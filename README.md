@@ -91,7 +91,7 @@ require("claude-code").setup({
 Default key mappings:
 
 - `<leader>ac` - Toggle Claude Code terminal window (normal mode)
-- `<C-.>` - Toggle Claude Code terminal window (terminal mode)
+- `<C-.>` - Toggle Claude Code terminal window (both normal and terminal modes)
 
 When Claude Code modifies files that are open in Neovim, they'll be automatically reloaded.
 
