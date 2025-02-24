@@ -24,7 +24,7 @@ M.default_config = {
   keymaps = {
     toggle = {
       normal = "<leader>ac",  -- Normal mode keymap for toggling Claude Code
-      terminal = "<C-o>",     -- Terminal mode keymap for toggling Claude Code
+      terminal = "<C-O>",     -- Terminal mode keymap for toggling Claude Code
     }
   }
 }
