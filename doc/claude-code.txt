@@ -114,7 +114,7 @@ default configuration:
 Default key mappings:
 
   <leader>ac   Toggle Claude Code terminal window (normal mode)
-  <C-O>        Toggle Claude Code terminal window (terminal mode)
+  <C-.>        Toggle Claude Code terminal window (terminal mode)
 
 You can customize these mappings in the configuration.
 

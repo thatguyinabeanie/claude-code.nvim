@@ -24,7 +24,7 @@ M.default_config = {
   keymaps = {
     toggle = {
       normal = "<leader>ac",  -- Normal mode keymap for toggling Claude Code
-      terminal = "<C-O>",     -- Terminal mode keymap for toggling Claude Code
+      terminal = "<C-.>",     -- Terminal mode keymap for toggling Claude Code
     }
   }
 }
@@ -194,12 +194,10 @@ function M.setup(user_config)
     [[<C-\><C-n>:ClaudeCode<CR>]], 
     vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" }))
     
-  -- Alternative approach with a direct key mapping (if the user customized the key)
-  if M.config.keymaps.toggle.terminal ~= "<C-O>" then
-    vim.api.nvim_set_keymap("t", "<C-O>", 
-      [[<C-\><C-n>:ClaudeCode<CR>]], 
-      vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle (Alt)" }))
-  end
+  -- Always add a direct mapping for Ctrl-. as it's more reliable
+  vim.api.nvim_set_keymap("t", "<C-.>", 
+    [[<C-\><C-n>:ClaudeCode<CR>]], 
+    vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" }))
   
   -- Register with which-key if it's available
   vim.defer_fn(function()
