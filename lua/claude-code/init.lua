@@ -197,7 +197,7 @@ function M.setup(user_config)
     local status_ok, which_key = pcall(require, "which-key")
     if status_ok then
       which_key.register({
-        [M.config.keymaps.toggle.normal] = { "Claude Code: Toggle", icon = "🤖" }
+        { M.config.keymaps.toggle.normal, desc = "Claude Code: Toggle", icon = "🤖" }
       }, { mode = "n" })
     end
   end, 100)
