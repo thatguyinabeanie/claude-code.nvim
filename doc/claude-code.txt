@@ -1,0 +1,126 @@
+*claude-code.txt*             Seamless integration between Claude Code AI and Neovim
+
+==============================================================================
+CONTENTS                                                   *claude-code-contents*
+
+  1. Introduction .......................... |claude-code-introduction|
+  2. Installation .......................... |claude-code-installation|
+  3. Usage ................................ |claude-code-usage|
+  4. Configuration ........................ |claude-code-configuration|
+  5. Commands ............................. |claude-code-commands|
+  6. Mappings ............................. |claude-code-mappings|
+  7. License .............................. |claude-code-license|
+
+==============================================================================
+1. INTRODUCTION                                        *claude-code-introduction*
+
+Claude Code is a plugin that provides seamless integration between the Claude
+Code AI assistant (command-line tool) and Neovim. It allows you to:
+
+- Toggle Claude Code in a terminal window at the bottom of your Neovim screen
+- Automatically detect and reload files modified by Claude Code
+- Keep your Neovim buffers in sync with any changes made by Claude
+
+NOTE: This plugin requires the official Claude Code CLI tool to be installed
+and available in your system's PATH.
+
+==============================================================================
+2. INSTALLATION                                        *claude-code-installation*
+
+Install using your favorite plugin manager:
+
+Using lazy.nvim:
+>lua
+  return {
+    "greggh/claude-code.nvim",
+    config = function()
+      require("claude-code").setup()
+    end
+  }
+<
+
+Using vim-plug:
+>vim
+  Plug 'greggh/claude-code.nvim'
+  " After installing, add this to your init.vim:
+  " lua require('claude-code').setup()
+<
+
+Using packer.nvim:
+>lua
+  use {
+    'greggh/claude-code.nvim',
+    config = function()
+      require('claude-code').setup()
+    end
+  }
+<
+
+PREREQUISITES:
+- Neovim 0.7.0 or later
+- Claude Code CLI tool (https://github.com/anthropics/claude-code)
+
+==============================================================================
+3. USAGE                                                    *claude-code-usage*
+
+- Use the `:ClaudeCode` command to toggle the Claude Code terminal window
+- Press <leader>ac in normal mode to toggle Claude Code terminal window
+- Press <C-o> in the terminal to close the Claude Code window
+- When Claude Code modifies files that are open in Neovim, they'll be
+  automatically reloaded
+
+==============================================================================
+4. CONFIGURATION                                    *claude-code-configuration*
+
+Configure the plugin by passing a table to the setup function. Below is the
+default configuration:
+
+>lua
+  require("claude-code").setup({
+    -- Terminal window settings
+    window = {
+      height_ratio = 0.3,     -- Percentage of screen height for the terminal window
+      position = "botright",  -- Position of the window: "botright", "topleft", etc.
+      enter_insert = true,    -- Whether to enter insert mode when opening Claude Code
+      hide_numbers = true,    -- Hide line numbers in the terminal window
+      hide_signcolumn = true, -- Hide the sign column in the terminal window
+    },
+    -- File refresh settings
+    refresh = {
+      enable = true,           -- Enable file change detection
+      updatetime = 100,        -- updatetime when Claude Code is active (milliseconds)
+      timer_interval = 1000,   -- How often to check for file changes (milliseconds)
+      show_notifications = true, -- Show notification when files are reloaded
+    },
+    -- Keymaps
+    keymaps = {
+      toggle = {
+        normal = "<leader>ac",  -- Normal mode keymap for toggling Claude Code
+        terminal = "<C-o>",     -- Terminal mode keymap for toggling Claude Code
+      }
+    }
+  })
+<
+
+==============================================================================
+5. COMMANDS                                                *claude-code-commands*
+
+:ClaudeCode                                                       *:ClaudeCode*
+    Toggle the Claude Code terminal window.
+
+==============================================================================
+6. MAPPINGS                                                *claude-code-mappings*
+
+Default key mappings:
+
+  <leader>ac   Toggle Claude Code terminal window (normal mode)
+  <C-o>        Toggle Claude Code terminal window (terminal mode)
+
+You can customize these mappings in the configuration.
+
+==============================================================================
+7. LICENSE                                                  *claude-code-license*
+
+MIT License
+
+ vim:tw=78:ts=8:ft=help:norl:
