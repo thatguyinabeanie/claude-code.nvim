@@ -110,6 +110,16 @@ This plugin:
 
 MIT License - See [LICENSE](LICENSE) for more information.
 
+## Development Cost
+
+This entire plugin was developed using Claude Code. Here's what it cost to build:
+
+```
+Total cost: $5.42
+Total duration (API): 17m 12.9s
+Total duration (wall): 2h 29m 29.2s
+```
+
 ---
 
 💻 Created by [greggh](https://github.com/greggh)
