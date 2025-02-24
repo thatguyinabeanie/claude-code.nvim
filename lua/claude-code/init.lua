@@ -188,9 +188,18 @@ function M.setup(user_config)
     vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" }))
   
   -- Terminal mode toggle keymap
+  -- In terminal mode, special keys like Ctrl need different handling
+  -- We use a direct escape sequence approach for more reliable terminal mappings
   vim.api.nvim_set_keymap("t", M.config.keymaps.toggle.terminal, 
-    [[<cmd>ClaudeCode<CR>]], 
+    [[<C-\><C-n>:ClaudeCode<CR>]], 
     vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" }))
+    
+  -- Alternative approach with a direct key mapping (if the user customized the key)
+  if M.config.keymaps.toggle.terminal ~= "<C-O>" then
+    vim.api.nvim_set_keymap("t", "<C-O>", 
+      [[<C-\><C-n>:ClaudeCode<CR>]], 
+      vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle (Alt)" }))
+  end
   
   -- Register with which-key if it's available
   vim.defer_fn(function()
