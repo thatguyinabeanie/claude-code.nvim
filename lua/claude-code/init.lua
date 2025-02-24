@@ -196,8 +196,9 @@ function M.setup(user_config)
   vim.defer_fn(function()
     local status_ok, which_key = pcall(require, "which-key")
     if status_ok then
-      which_key.register({
-        [M.config.keymaps.toggle.normal] = { desc = "Claude Code: Toggle", icon = "🤖" }
+      which_key.add({
+        mode = "n",
+        { M.config.keymaps.toggle.normal, desc = "Claude Code: Toggle", icon = "🤖" }
       })
     end
   end, 100)
