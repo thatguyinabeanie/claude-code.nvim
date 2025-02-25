@@ -112,7 +112,7 @@ MIT License - See [LICENSE](LICENSE) for more information.
 
 ## Development Cost
 
-This entire plugin was developed using Claude Code. Here's what it cost to build:
+This entire plugin was developed using Claude Code. Here's what it cost to build the initial version:
 
 ```
 Total cost: $5.42
