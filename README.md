@@ -19,6 +19,7 @@ This plugin was entirely built with Claude Code in a Neovim terminal, and then i
 
 - Neovim 0.7.0 or later
 - [Claude Code CLI](https://github.com/anthropics/claude-code) tool installed and available in your PATH
+- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (dependency for git operations)
 
 ## Installation
 
@@ -27,6 +28,9 @@ This plugin was entirely built with Claude Code in a Neovim terminal, and then i
 ```lua
 return {
   "greggh/claude-code.nvim",
+  dependencies = {
+    "nvim-lua/plenary.nvim", -- Required for git operations
+  },
   config = function()
     require("claude-code").setup()
   end
@@ -38,6 +42,9 @@ return {
 ```lua
 use {
   'greggh/claude-code.nvim',
+  requires = {
+    'nvim-lua/plenary.nvim', -- Required for git operations
+  },
   config = function()
     require('claude-code').setup()
   end
@@ -47,6 +54,7 @@ use {
 ### Using [vim-plug](https://github.com/junegunn/vim-plug)
 
 ```vim
+Plug 'nvim-lua/plenary.nvim'
 Plug 'greggh/claude-code.nvim'
 " After installing, add this to your init.vim:
 " lua require('claude-code').setup()

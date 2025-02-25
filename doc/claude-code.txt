@@ -33,6 +33,9 @@ Using lazy.nvim:
 >lua
   return {
     "greggh/claude-code.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim", -- Required for git operations
+    },
     config = function()
       require("claude-code").setup()
     end
@@ -41,6 +44,7 @@ Using lazy.nvim:
 
 Using vim-plug:
 >vim
+  Plug 'nvim-lua/plenary.nvim'
   Plug 'greggh/claude-code.nvim'
   " After installing, add this to your init.vim:
   " lua require('claude-code').setup()
@@ -50,6 +54,9 @@ Using packer.nvim:
 >lua
   use {
     'greggh/claude-code.nvim',
+    requires = {
+      'nvim-lua/plenary.nvim', -- Required for git operations
+    },
     config = function()
       require('claude-code').setup()
     end
@@ -59,6 +66,7 @@ Using packer.nvim:
 PREREQUISITES:
 - Neovim 0.7.0 or later
 - Claude Code CLI tool (https://github.com/anthropics/claude-code)
+- plenary.nvim plugin (https://github.com/nvim-lua/plenary.nvim) for git operations
 
 ==============================================================================
 3. USAGE                                                    *claude-code-usage*
