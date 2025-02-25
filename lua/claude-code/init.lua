@@ -207,11 +207,7 @@ function M.setup_terminal_navigation()
     vim.api.nvim_buf_set_keymap(buf, "n", "<C-l>", [[<C-w>l]], 
       { noremap = true, silent = true, desc = "Window: move right" })
     
-    -- Add scrolling keymaps
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-d>", [[<C-\><C-n><C-d>i]], 
-      { noremap = true, silent = true, desc = "Scroll half page down" })
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-u>", [[<C-\><C-n><C-u>i]], 
-      { noremap = true, silent = true, desc = "Scroll half page up" })
+    -- Add scrolling keymaps (only full-page scrolling as half-page doesn't work correctly)
     vim.api.nvim_buf_set_keymap(buf, "t", "<C-f>", [[<C-\><C-n><C-f>i]], 
       { noremap = true, silent = true, desc = "Scroll full page down" })
     vim.api.nvim_buf_set_keymap(buf, "t", "<C-b>", [[<C-\><C-n><C-b>i]], 

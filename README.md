@@ -101,10 +101,10 @@ Additionally, when in the Claude Code terminal:
 - `<C-j>` - Move to the window below
 - `<C-k>` - Move to the window above
 - `<C-l>` - Move to the window on the right
-- `<C-d>` - Scroll half-page down
-- `<C-u>` - Scroll half-page up
 - `<C-f>` - Scroll full-page down
 - `<C-b>` - Scroll full-page up
+
+Note: After scrolling with `<C-f>` or `<C-b>`, you'll need to press the `i` key to re-enter insert mode so you can continue typing to Claude Code.
 
 When Claude Code modifies files that are open in Neovim, they'll be automatically reloaded.
 
