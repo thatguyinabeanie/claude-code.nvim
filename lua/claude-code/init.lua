@@ -38,6 +38,21 @@ M.claude_code = {
   saved_updatetime = nil,   -- Original updatetime before Claude Code was opened
 }
 
+-- Set up function to force insert mode when entering the Claude Code window
+function M.force_insert_mode()
+  local bufnr = M.claude_code.bufnr
+  if bufnr and vim.api.nvim_buf_is_valid(bufnr) and vim.fn.bufnr("%") == bufnr then
+    -- Only enter insert mode if we're in the terminal buffer and not already in insert mode
+    local mode = vim.api.nvim_get_mode().mode
+    if vim.bo.buftype == "terminal" and mode ~= "t" and mode ~= "i" then
+      vim.cmd("silent! stopinsert")
+      vim.schedule(function()
+        vim.cmd("silent! startinsert")
+      end)
+    end
+  end
+end
+
 -- Setup autocommands for file change detection
 local function setup_file_refresh(config)
   if not config.refresh.enable then return end
@@ -133,9 +148,10 @@ function M.toggle()
       vim.cmd(M.config.window.position .. " split")
       vim.cmd("resize " .. math.floor(vim.o.lines * M.config.window.height_ratio))
       vim.cmd("buffer " .. bufnr)
-      if M.config.window.enter_insert then
-        vim.cmd("startinsert")
-      end
+      -- Force insert mode more aggressively
+      vim.schedule(function()
+        vim.cmd("stopinsert | startinsert")
+      end)
     end
   else
     -- Claude Code is not running, start it in a new split
@@ -171,13 +187,24 @@ function M.setup_terminal_navigation()
   local buf = M.claude_code.bufnr
   if buf and vim.api.nvim_buf_is_valid(buf) then
     -- Window navigation keymaps
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-h>", [[<C-\><C-n><C-w>h]], 
+    -- Window navigation keymaps with special handling to force insert mode in the target window
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-h>", [[<C-\><C-n><C-w>h:lua require("claude-code").force_insert_mode()<CR>]], 
       { noremap = true, silent = true, desc = "Window: move left" })
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-j>", [[<C-\><C-n><C-w>j]], 
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-j>", [[<C-\><C-n><C-w>j:lua require("claude-code").force_insert_mode()<CR>]], 
       { noremap = true, silent = true, desc = "Window: move down" })
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-k>", [[<C-\><C-n><C-w>k]], 
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-k>", [[<C-\><C-n><C-w>k:lua require("claude-code").force_insert_mode()<CR>]], 
       { noremap = true, silent = true, desc = "Window: move up" })
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-l>", [[<C-\><C-n><C-w>l]], 
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-l>", [[<C-\><C-n><C-w>l:lua require("claude-code").force_insert_mode()<CR>]], 
+      { noremap = true, silent = true, desc = "Window: move right" })
+      
+    -- Also add normal mode mappings for when user is in normal mode in the terminal
+    vim.api.nvim_buf_set_keymap(buf, "n", "<C-h>", [[<C-w>h]], 
+      { noremap = true, silent = true, desc = "Window: move left" })
+    vim.api.nvim_buf_set_keymap(buf, "n", "<C-j>", [[<C-w>j]], 
+      { noremap = true, silent = true, desc = "Window: move down" })
+    vim.api.nvim_buf_set_keymap(buf, "n", "<C-k>", [[<C-w>k]], 
+      { noremap = true, silent = true, desc = "Window: move up" })
+    vim.api.nvim_buf_set_keymap(buf, "n", "<C-l>", [[<C-w>l]], 
       { noremap = true, silent = true, desc = "Window: move right" })
     
     -- Add scrolling keymaps
@@ -192,17 +219,25 @@ function M.setup_terminal_navigation()
     
     -- Create autocommand to enter insert mode when the terminal window gets focus
     local augroup = vim.api.nvim_create_augroup("ClaudeCodeTerminalFocus", { clear = true })
-    vim.api.nvim_create_autocmd("BufEnter", {
+    
+    -- Set up multiple events for more reliable focus detection
+    vim.api.nvim_create_autocmd({"WinEnter", "BufEnter", "WinLeave", "FocusGained", "CmdLineLeave"}, {
       group = augroup,
-      buffer = buf,
       callback = function()
-        -- Only switch to insert mode if we're in normal mode and in a terminal buffer
-        if vim.bo.buftype == "terminal" and vim.api.nvim_get_mode().mode == "n" then
-          vim.cmd("startinsert")
-        end
+        vim.schedule(M.force_insert_mode)
       end,
       desc = "Auto-enter insert mode when focusing Claude Code terminal"
     })
+    
+    -- Also install keymaps to run force_insert_mode after window navigation
+    vim.api.nvim_buf_set_keymap(buf, "n", "<C-h>", [[<C-w>h:lua require("claude-code").force_insert_mode()<CR>]], 
+      { noremap = true, silent = true, desc = "Window: move left" })
+    vim.api.nvim_buf_set_keymap(buf, "n", "<C-j>", [[<C-w>j:lua require("claude-code").force_insert_mode()<CR>]], 
+      { noremap = true, silent = true, desc = "Window: move down" })
+    vim.api.nvim_buf_set_keymap(buf, "n", "<C-k>", [[<C-w>k:lua require("claude-code").force_insert_mode()<CR>]], 
+      { noremap = true, silent = true, desc = "Window: move up" })
+    vim.api.nvim_buf_set_keymap(buf, "n", "<C-l>", [[<C-w>l:lua require("claude-code").force_insert_mode()<CR>]], 
+      { noremap = true, silent = true, desc = "Window: move right" })
   end
 end
 
