@@ -68,6 +68,8 @@ PREREQUISITES:
 - Press <C-o> in the terminal to close the Claude Code window
 - When Claude Code modifies files that are open in Neovim, they'll be
   automatically reloaded
+- When in a git repository, Claude Code will automatically use the git root
+  directory as its working directory (configurable)
 
 ==============================================================================
 4. CONFIGURATION                                    *claude-code-configuration*
@@ -91,6 +93,10 @@ default configuration:
       updatetime = 100,        -- updatetime when Claude Code is active (milliseconds)
       timer_interval = 1000,   -- How often to check for file changes (milliseconds)
       show_notifications = true, -- Show notification when files are reloaded
+    },
+    -- Git project settings
+    git = {
+      use_git_root = true,     -- Set CWD to git root when opening Claude Code (if in git project)
     },
     -- Keymaps
     keymaps = {

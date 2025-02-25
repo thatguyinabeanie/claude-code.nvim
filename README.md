@@ -13,6 +13,7 @@ This plugin was entirely built with Claude Code in a Neovim terminal, and then i
 - ⚡ Real-time buffer updates when files are changed externally
 - 📱 Customizable window position and size
 - 🤖 Integration with which-key (if available)
+- 📂 Automatically uses git project root as working directory (when available)
 
 ## Requirements
 
@@ -72,6 +73,10 @@ require("claude-code").setup({
     timer_interval = 1000,   -- How often to check for file changes (milliseconds)
     show_notifications = true, -- Show notification when files are reloaded
   },
+  -- Git project settings
+  git = {
+    use_git_root = true,     -- Set CWD to git root when opening Claude Code (if in git project)
+  },
   -- Keymaps
   keymaps = {
     toggle = {
@@ -116,6 +121,7 @@ This plugin:
 2. Sets up autocommands to detect file changes on disk
 3. Automatically reloads files when they're modified by Claude Code
 4. Provides convenient keymaps and commands for toggling the terminal
+5. Automatically detects git repositories and sets working directory to the git root
 
 ## License
 
