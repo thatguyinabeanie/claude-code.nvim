@@ -4,7 +4,7 @@ A Neovim plugin for seamless integration between [Claude Code](https://github.co
 
 This plugin was entirely built with Claude Code in a Neovim terminal, and then inside itself using Claude Code for everything.
 
-![Claude Code in Neovim](https://github.com/greggh/claude-code.nvim/assets/claude-code.png)
+![Claude Code in Neovim](https://github.com/greggh/claude-code.nvim/blob/main/assets/claude-code.png?raw=true)
 
 ## Features
 
@@ -123,4 +123,3 @@ Total duration (wall): 2h 29m 29.2s
 ---
 
 💻 Created by [greggh](https://github.com/greggh)
-
