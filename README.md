@@ -95,6 +95,17 @@ Default key mappings:
 - `<leader>ac` - Toggle Claude Code terminal window (normal mode)
 - `<C-.>` - Toggle Claude Code terminal window (both normal and terminal modes)
 
+Additionally, when in the Claude Code terminal:
+
+- `<C-h>` - Move to the window on the left
+- `<C-j>` - Move to the window below
+- `<C-k>` - Move to the window above
+- `<C-l>` - Move to the window on the right
+- `<C-d>` - Scroll half-page down
+- `<C-u>` - Scroll half-page up
+- `<C-f>` - Scroll full-page down
+- `<C-b>` - Scroll full-page up
+
 When Claude Code modifies files that are open in Neovim, they'll be automatically reloaded.
 
 ## How it Works

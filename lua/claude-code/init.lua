@@ -156,10 +156,39 @@ function M.toggle()
     -- Store buffer number for future reference
     M.claude_code.bufnr = vim.fn.bufnr("%")
     
+    -- Set up window navigation keymaps for this buffer
+    M.setup_terminal_navigation()
+    
     -- Automatically enter insert mode in terminal
     if M.config.window.enter_insert then
       vim.cmd("startinsert")
     end
+  end
+end
+
+-- Set up terminal keymaps for window navigation
+function M.setup_terminal_navigation()
+  local buf = M.claude_code.bufnr
+  if buf and vim.api.nvim_buf_is_valid(buf) then
+    -- Window navigation keymaps
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-h>", [[<C-\><C-n><C-w>h]], 
+      { noremap = true, silent = true, desc = "Window: move left" })
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-j>", [[<C-\><C-n><C-w>j]], 
+      { noremap = true, silent = true, desc = "Window: move down" })
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-k>", [[<C-\><C-n><C-w>k]], 
+      { noremap = true, silent = true, desc = "Window: move up" })
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-l>", [[<C-\><C-n><C-w>l]], 
+      { noremap = true, silent = true, desc = "Window: move right" })
+    
+    -- Add scrolling keymaps
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-d>", [[<C-\><C-n><C-d>i]], 
+      { noremap = true, silent = true, desc = "Scroll half page down" })
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-u>", [[<C-\><C-n><C-u>i]], 
+      { noremap = true, silent = true, desc = "Scroll half page up" })
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-f>", [[<C-\><C-n><C-f>i]], 
+      { noremap = true, silent = true, desc = "Scroll full page down" })
+    vim.api.nvim_buf_set_keymap(buf, "t", "<C-b>", [[<C-\><C-n><C-b>i]], 
+      { noremap = true, silent = true, desc = "Scroll full page up" })
   end
 end
 
@@ -198,6 +227,11 @@ function M.setup(user_config)
   vim.api.nvim_set_keymap("t", "<C-.>", 
     [[<C-\><C-n>:ClaudeCode<CR>]], 
     vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" }))
+    
+  -- Apply buffer-specific keymaps if claude code is already running
+  if M.claude_code.bufnr and vim.api.nvim_buf_is_valid(M.claude_code.bufnr) then
+    M.setup_terminal_navigation()
+  end
   
   -- Register with which-key if it's available
   vim.defer_fn(function()
