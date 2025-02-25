@@ -189,6 +189,20 @@ function M.setup_terminal_navigation()
       { noremap = true, silent = true, desc = "Scroll full page down" })
     vim.api.nvim_buf_set_keymap(buf, "t", "<C-b>", [[<C-\><C-n><C-b>i]], 
       { noremap = true, silent = true, desc = "Scroll full page up" })
+    
+    -- Create autocommand to enter insert mode when the terminal window gets focus
+    local augroup = vim.api.nvim_create_augroup("ClaudeCodeTerminalFocus", { clear = true })
+    vim.api.nvim_create_autocmd("BufEnter", {
+      group = augroup,
+      buffer = buf,
+      callback = function()
+        -- Only switch to insert mode if we're in normal mode and in a terminal buffer
+        if vim.bo.buftype == "terminal" and vim.api.nvim_get_mode().mode == "n" then
+          vim.cmd("startinsert")
+        end
+      end,
+      desc = "Auto-enter insert mode when focusing Claude Code terminal"
+    })
   end
 end
 
