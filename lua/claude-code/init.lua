@@ -25,7 +25,9 @@ M.default_config = {
     toggle = {
       normal = "<leader>ac",  -- Normal mode keymap for toggling Claude Code
       terminal = "<C-.>",     -- Terminal mode keymap for toggling Claude Code
-    }
+    },
+    window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)
+    scrolling = true,         -- Enable scrolling keymaps (<C-f/b>) for page up/down
   }
 }
 
@@ -186,33 +188,6 @@ end
 function M.setup_terminal_navigation()
   local buf = M.claude_code.bufnr
   if buf and vim.api.nvim_buf_is_valid(buf) then
-    -- Window navigation keymaps
-    -- Window navigation keymaps with special handling to force insert mode in the target window
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-h>", [[<C-\><C-n><C-w>h:lua require("claude-code").force_insert_mode()<CR>]], 
-      { noremap = true, silent = true, desc = "Window: move left" })
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-j>", [[<C-\><C-n><C-w>j:lua require("claude-code").force_insert_mode()<CR>]], 
-      { noremap = true, silent = true, desc = "Window: move down" })
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-k>", [[<C-\><C-n><C-w>k:lua require("claude-code").force_insert_mode()<CR>]], 
-      { noremap = true, silent = true, desc = "Window: move up" })
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-l>", [[<C-\><C-n><C-w>l:lua require("claude-code").force_insert_mode()<CR>]], 
-      { noremap = true, silent = true, desc = "Window: move right" })
-      
-    -- Also add normal mode mappings for when user is in normal mode in the terminal
-    vim.api.nvim_buf_set_keymap(buf, "n", "<C-h>", [[<C-w>h]], 
-      { noremap = true, silent = true, desc = "Window: move left" })
-    vim.api.nvim_buf_set_keymap(buf, "n", "<C-j>", [[<C-w>j]], 
-      { noremap = true, silent = true, desc = "Window: move down" })
-    vim.api.nvim_buf_set_keymap(buf, "n", "<C-k>", [[<C-w>k]], 
-      { noremap = true, silent = true, desc = "Window: move up" })
-    vim.api.nvim_buf_set_keymap(buf, "n", "<C-l>", [[<C-w>l]], 
-      { noremap = true, silent = true, desc = "Window: move right" })
-    
-    -- Add scrolling keymaps (only full-page scrolling as half-page doesn't work correctly)
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-f>", [[<C-\><C-n><C-f>i]], 
-      { noremap = true, silent = true, desc = "Scroll full page down" })
-    vim.api.nvim_buf_set_keymap(buf, "t", "<C-b>", [[<C-\><C-n><C-b>i]], 
-      { noremap = true, silent = true, desc = "Scroll full page up" })
-    
     -- Create autocommand to enter insert mode when the terminal window gets focus
     local augroup = vim.api.nvim_create_augroup("ClaudeCodeTerminalFocus", { clear = true })
     
@@ -225,15 +200,36 @@ function M.setup_terminal_navigation()
       desc = "Auto-enter insert mode when focusing Claude Code terminal"
     })
     
-    -- Also install keymaps to run force_insert_mode after window navigation
-    vim.api.nvim_buf_set_keymap(buf, "n", "<C-h>", [[<C-w>h:lua require("claude-code").force_insert_mode()<CR>]], 
-      { noremap = true, silent = true, desc = "Window: move left" })
-    vim.api.nvim_buf_set_keymap(buf, "n", "<C-j>", [[<C-w>j:lua require("claude-code").force_insert_mode()<CR>]], 
-      { noremap = true, silent = true, desc = "Window: move down" })
-    vim.api.nvim_buf_set_keymap(buf, "n", "<C-k>", [[<C-w>k:lua require("claude-code").force_insert_mode()<CR>]], 
-      { noremap = true, silent = true, desc = "Window: move up" })
-    vim.api.nvim_buf_set_keymap(buf, "n", "<C-l>", [[<C-w>l:lua require("claude-code").force_insert_mode()<CR>]], 
-      { noremap = true, silent = true, desc = "Window: move right" })
+    -- Window navigation keymaps
+    if M.config.keymaps.window_navigation then
+      -- Window navigation keymaps with special handling to force insert mode in the target window
+      vim.api.nvim_buf_set_keymap(buf, "t", "<C-h>", [[<C-\><C-n><C-w>h:lua require("claude-code").force_insert_mode()<CR>]], 
+        { noremap = true, silent = true, desc = "Window: move left" })
+      vim.api.nvim_buf_set_keymap(buf, "t", "<C-j>", [[<C-\><C-n><C-w>j:lua require("claude-code").force_insert_mode()<CR>]], 
+        { noremap = true, silent = true, desc = "Window: move down" })
+      vim.api.nvim_buf_set_keymap(buf, "t", "<C-k>", [[<C-\><C-n><C-w>k:lua require("claude-code").force_insert_mode()<CR>]], 
+        { noremap = true, silent = true, desc = "Window: move up" })
+      vim.api.nvim_buf_set_keymap(buf, "t", "<C-l>", [[<C-\><C-n><C-w>l:lua require("claude-code").force_insert_mode()<CR>]], 
+        { noremap = true, silent = true, desc = "Window: move right" })
+        
+      -- Also add normal mode mappings for when user is in normal mode in the terminal
+      vim.api.nvim_buf_set_keymap(buf, "n", "<C-h>", [[<C-w>h:lua require("claude-code").force_insert_mode()<CR>]], 
+        { noremap = true, silent = true, desc = "Window: move left" })
+      vim.api.nvim_buf_set_keymap(buf, "n", "<C-j>", [[<C-w>j:lua require("claude-code").force_insert_mode()<CR>]], 
+        { noremap = true, silent = true, desc = "Window: move down" })
+      vim.api.nvim_buf_set_keymap(buf, "n", "<C-k>", [[<C-w>k:lua require("claude-code").force_insert_mode()<CR>]], 
+        { noremap = true, silent = true, desc = "Window: move up" })
+      vim.api.nvim_buf_set_keymap(buf, "n", "<C-l>", [[<C-w>l:lua require("claude-code").force_insert_mode()<CR>]], 
+        { noremap = true, silent = true, desc = "Window: move right" })
+    end
+    
+    -- Add scrolling keymaps
+    if M.config.keymaps.scrolling then
+      vim.api.nvim_buf_set_keymap(buf, "t", "<C-f>", [[<C-\><C-n><C-f>i]], 
+        { noremap = true, silent = true, desc = "Scroll full page down" })
+      vim.api.nvim_buf_set_keymap(buf, "t", "<C-b>", [[<C-\><C-n><C-b>i]], 
+        { noremap = true, silent = true, desc = "Scroll full page up" })
+    end
   end
 end
 
