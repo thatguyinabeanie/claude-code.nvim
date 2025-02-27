@@ -27,7 +27,7 @@ M.default_config = {
   -- Keymaps
   keymaps = {
     toggle = {
-      normal = '<leader>ac', -- Normal mode keymap for toggling Claude Code
+      normal = '<C-,>', -- Normal mode keymap for toggling Claude Code
       terminal = '<C-,>', -- Terminal mode keymap for toggling Claude Code
     },
     window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)
@@ -359,30 +359,26 @@ function M.setup(user_config)
   local map_opts = { noremap = true, silent = true }
 
   -- Normal mode toggle keymaps
-  vim.api.nvim_set_keymap(
-    'n',
-    M.config.keymaps.toggle.normal,
-    [[<cmd>ClaudeCode<CR>]],
-    vim.tbl_extend('force', map_opts, { desc = 'Claude Code: Toggle' })
-  )
+  if M.config.keymaps.toggle.normal then
+    vim.api.nvim_set_keymap(
+      'n',
+      M.config.keymaps.toggle.normal,
+      [[<cmd>ClaudeCode<CR>]],
+      vim.tbl_extend('force', map_opts, { desc = 'Claude Code: Toggle' })
+    )
+  end
 
-  -- Add <C-,> for normal mode
-  vim.api.nvim_set_keymap(
-    'n',
-    '<C-,>',
-    [[<cmd>ClaudeCode<CR>]],
-    vim.tbl_extend('force', map_opts, { desc = 'Claude Code: Toggle' })
-  )
-
-  -- Terminal mode toggle keymap
-  -- In terminal mode, special keys like Ctrl need different handling
-  -- We use a direct escape sequence approach for more reliable terminal mappings
-  vim.api.nvim_set_keymap(
-    't',
-    '<C-,>',
-    [[<C-\><C-n>:ClaudeCode<CR>]],
-    vim.tbl_extend('force', map_opts, { desc = 'Claude Code: Toggle' })
-  )
+  if M.config.keymaps.toggle.terminal then
+    -- Terminal mode toggle keymap
+    -- In terminal mode, special keys like Ctrl need different handling
+    -- We use a direct escape sequence approach for more reliable terminal mappings
+    vim.api.nvim_set_keymap(
+      't',
+      M.config.keymaps.toggle.terminal,
+      [[<C-\><C-n>:ClaudeCode<CR>]],
+      vim.tbl_extend('force', map_opts, { desc = 'Claude Code: Toggle' })
+    )
+  end
 
   -- Apply buffer-specific keymaps if claude code is already running
   if M.claude_code.bufnr and vim.api.nvim_buf_is_valid(M.claude_code.bufnr) then
@@ -393,11 +389,18 @@ function M.setup(user_config)
   vim.defer_fn(function()
     local status_ok, which_key = pcall(require, 'which-key')
     if status_ok then
-      which_key.add {
-        mode = 'n',
-        { M.config.keymaps.toggle.normal, desc = 'Claude Code: Toggle', icon = '🤖' },
-        { '<C-,>', desc = 'Claude Code: Toggle', icon = '🤖' },
-      }
+      if M.config.keymaps.toggle.normal then
+        which_key.add {
+          mode = 'n',
+          { M.config.keymaps.toggle.normal, desc = 'Claude Code: Toggle', icon = '🤖' },
+        }
+      end
+      if M.config.keymaps.toggle.terminal then
+        which_key.add {
+          mode = 't',
+          { M.config.keymaps.toggle.terminal, desc = 'Claude Code: Toggle', icon = '🤖' },
+        }
+      end
     end
   end, 100)
 end
