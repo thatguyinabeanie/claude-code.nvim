@@ -88,9 +88,11 @@ require("claude-code").setup({
   -- Keymaps
   keymaps = {
     toggle = {
-      normal = "<leader>ac",  -- Normal mode keymap for toggling Claude Code
-      terminal = "<C-.>",     -- Terminal mode keymap for toggling Claude Code
-    }
+      normal = "<C-,>",       -- Normal mode keymap for toggling Claude Code, false to disable
+      terminal = "<C-,>",     -- Terminal mode keymap for toggling Claude Code, false to disable
+    },
+    window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)
+    scrolling = true,         -- Enable scrolling keymaps (<C-f/b>) for page up/down
   }
 })
 ```
