@@ -106,7 +106,7 @@ require("claude-code").setup({
 Default key mappings:
 
 - `<leader>ac` - Toggle Claude Code terminal window (normal mode)
-- `<C-.>` - Toggle Claude Code terminal window (both normal and terminal modes)
+- `<C-,>` - Toggle Claude Code terminal window (both normal and terminal modes)
 
 Additionally, when in the Claude Code terminal:
 

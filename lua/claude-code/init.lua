@@ -28,7 +28,7 @@ M.default_config = {
 	keymaps = {
 		toggle = {
 			normal = "<leader>ac", -- Normal mode keymap for toggling Claude Code
-			terminal = "<C-.>", -- Terminal mode keymap for toggling Claude Code
+			terminal = "<C-,>", -- Terminal mode keymap for toggling Claude Code
 		},
 		window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)
 		scrolling = true, -- Enable scrolling keymaps (<C-f/b>) for page up/down
@@ -359,10 +359,10 @@ function M.setup(user_config)
 		vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" })
 	)
 
-	-- Add <C-.> for normal mode
+	-- Add <C-,> for normal mode
 	vim.api.nvim_set_keymap(
 		"n",
-		"<C-.>",
+		"<C-,>",
 		[[<cmd>ClaudeCode<CR>]],
 		vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" })
 	)
@@ -372,7 +372,7 @@ function M.setup(user_config)
 	-- We use a direct escape sequence approach for more reliable terminal mappings
 	vim.api.nvim_set_keymap(
 		"t",
-		"<C-.>",
+		"<C-,>",
 		[[<C-\><C-n>:ClaudeCode<CR>]],
 		vim.tbl_extend("force", map_opts, { desc = "Claude Code: Toggle" })
 	)
@@ -389,7 +389,7 @@ function M.setup(user_config)
 			which_key.add({
 				mode = "n",
 				{ M.config.keymaps.toggle.normal, desc = "Claude Code: Toggle", icon = "🤖" },
-				{ "<C-.>", desc = "Claude Code: Toggle", icon = "🤖" },
+				{ "<C-,>", desc = "Claude Code: Toggle", icon = "🤖" },
 			})
 		end
 	end, 100)
