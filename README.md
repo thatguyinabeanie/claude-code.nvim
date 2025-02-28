@@ -14,12 +14,20 @@ This plugin was entirely built with Claude Code in a Neovim terminal, and then i
 - 📱 Customizable window position and size
 - 🤖 Integration with which-key (if available)
 - 📂 Automatically uses git project root as working directory (when available)
+- 🧩 Modular and maintainable code structure
+- 📋 Type annotations with LuaCATS for better IDE support
+- ✅ Configuration validation to prevent errors
+- 🧪 Testing framework for reliability
 
 ## Requirements
 
 - Neovim 0.7.0 or later
 - [Claude Code CLI](https://github.com/anthropics/claude-code) tool installed and available in your PATH
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (dependency for git operations)
+
+## Version
+
+Current version: 0.2.0 - See [CHANGELOG.md](CHANGELOG.md) for details
 
 ## Installation
 
