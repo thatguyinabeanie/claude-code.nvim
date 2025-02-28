@@ -79,82 +79,92 @@ local function validate_config(config)
   if type(config.window) ~= 'table' then
     return false, 'window config must be a table'
   end
-  
-  if type(config.window.height_ratio) ~= 'number' or config.window.height_ratio <= 0 or config.window.height_ratio > 1 then
+
+  if
+    type(config.window.height_ratio) ~= 'number'
+    or config.window.height_ratio <= 0
+    or config.window.height_ratio > 1
+  then
     return false, 'window.height_ratio must be a number between 0 and 1'
   end
-  
+
   if type(config.window.position) ~= 'string' then
     return false, 'window.position must be a string'
   end
-  
+
   if type(config.window.enter_insert) ~= 'boolean' then
     return false, 'window.enter_insert must be a boolean'
   end
-  
+
   if type(config.window.hide_numbers) ~= 'boolean' then
     return false, 'window.hide_numbers must be a boolean'
   end
-  
+
   if type(config.window.hide_signcolumn) ~= 'boolean' then
     return false, 'window.hide_signcolumn must be a boolean'
   end
-  
+
   -- Validate refresh settings
   if type(config.refresh) ~= 'table' then
     return false, 'refresh config must be a table'
   end
-  
+
   if type(config.refresh.enable) ~= 'boolean' then
     return false, 'refresh.enable must be a boolean'
   end
-  
+
   if type(config.refresh.updatetime) ~= 'number' or config.refresh.updatetime <= 0 then
     return false, 'refresh.updatetime must be a positive number'
   end
-  
+
   if type(config.refresh.timer_interval) ~= 'number' or config.refresh.timer_interval <= 0 then
     return false, 'refresh.timer_interval must be a positive number'
   end
-  
+
   if type(config.refresh.show_notifications) ~= 'boolean' then
     return false, 'refresh.show_notifications must be a boolean'
   end
-  
+
   -- Validate git settings
   if type(config.git) ~= 'table' then
     return false, 'git config must be a table'
   end
-  
+
   if type(config.git.use_git_root) ~= 'boolean' then
     return false, 'git.use_git_root must be a boolean'
   end
-  
+
   -- Validate keymaps settings
   if type(config.keymaps) ~= 'table' then
     return false, 'keymaps config must be a table'
   end
-  
+
   if type(config.keymaps.toggle) ~= 'table' then
     return false, 'keymaps.toggle must be a table'
   end
-  
-  if not (config.keymaps.toggle.normal == false or type(config.keymaps.toggle.normal) == 'string') then
+
+  if
+    not (config.keymaps.toggle.normal == false or type(config.keymaps.toggle.normal) == 'string')
+  then
     return false, 'keymaps.toggle.normal must be a string or false'
   end
-  
-  if not (config.keymaps.toggle.terminal == false or type(config.keymaps.toggle.terminal) == 'string') then
+
+  if
+    not (
+      config.keymaps.toggle.terminal == false or type(config.keymaps.toggle.terminal) == 'string'
+    )
+  then
     return false, 'keymaps.toggle.terminal must be a string or false'
   end
-  
+
   if type(config.keymaps.window_navigation) ~= 'boolean' then
     return false, 'keymaps.window_navigation must be a boolean'
   end
-  
+
   if type(config.keymaps.scrolling) ~= 'boolean' then
     return false, 'keymaps.scrolling must be a boolean'
   end
-  
+
   return true, nil
 end
 
@@ -163,14 +173,14 @@ end
 --- @return ClaudeCodeConfig
 function M.parse_config(user_config)
   local config = vim.tbl_deep_extend('force', {}, M.default_config, user_config or {})
-  
+
   local valid, err = validate_config(config)
   if not valid then
     vim.notify('Claude Code: ' .. err, vim.log.levels.ERROR)
     -- Fall back to default config in case of error
     return vim.deepcopy(M.default_config)
   end
-  
+
   return config
 end
 

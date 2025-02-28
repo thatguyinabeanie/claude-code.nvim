@@ -16,7 +16,7 @@ function M.register_commands(claude_code)
   vim.api.nvim_create_user_command('ClaudeCode', function()
     claude_code.toggle()
   end, { desc = 'Toggle Claude Code terminal' })
-  
+
   -- Add version command
   vim.api.nvim_create_user_command('ClaudeCodeVersion', function()
     vim.notify('Claude Code version: ' .. claude_code.version(), vim.log.levels.INFO)
