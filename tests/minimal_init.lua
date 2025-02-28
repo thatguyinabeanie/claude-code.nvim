@@ -1,14 +1,16 @@
 -- Minimal init.lua for tests
 -- This configuration is used by test scripts to set up a minimal Neovim environment
 
--- Set runtimepath to include the test directory and plugin directory
-vim.cmd [[set runtimepath=$VIMRUNTIME]]
-vim.cmd [[set packpath=/tmp/nvim/site]]
+-- Get the absolute path to the plugin root
+local plugin_root = vim.fn.fnamemodify(vim.fn.expand('%:p'), ':h:h')
 
--- Add plugin and test directories to runtimepath
-local plugin_root = vim.fn.expand('%:p:h:h')
+-- Setup runtime path properly
+vim.cmd('set runtimepath=$VIMRUNTIME')
 vim.opt.runtimepath:append(plugin_root)
 vim.opt.runtimepath:append(plugin_root .. '/tests')
+
+-- Set packpath for plugins
+vim.cmd('set packpath=/tmp/nvim/site')
 
 -- Add Plenary to runtime path (for tests)
 local plenary_root = vim.fn.expand('~/.local/share/nvim/site/pack/vendor/start/plenary.nvim')

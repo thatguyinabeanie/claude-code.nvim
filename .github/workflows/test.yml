@@ -25,7 +25,14 @@ jobs:
           mkdir -p ~/.local/share/nvim/site/pack/vendor/start
           git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
       
+      - name: Verify test directory structure
+        run: |
+          ls -la ./tests/
+          ls -la ./tests/spec/
+          
       - name: Run tests
         run: |
-          ./scripts/test.sh
+          export PLUGIN_ROOT="$(pwd)"
+          cd tests
+          ../scripts/test.sh
         continue-on-error: false
