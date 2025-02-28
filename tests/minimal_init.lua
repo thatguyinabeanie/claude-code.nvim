@@ -9,6 +9,16 @@ vim.cmd [[set packpath=/tmp/nvim/site]]
 local plugin_root = vim.fn.expand('%:p:h:h')
 vim.opt.runtimepath:append(plugin_root)
 
+-- Add Plenary to runtime path (for tests)
+local plenary_root = vim.fn.expand('~/.local/share/nvim/site/pack/vendor/start/plenary.nvim')
+vim.opt.runtimepath:append(plenary_root)
+
+-- Print some debug information
+print("Runtime path: " .. vim.o.runtimepath)
+print("Checking for plenary.nvim...")
+local plenary_available, _ = pcall(require, 'plenary')
+print("Plenary available: " .. tostring(plenary_available))
+
 -- Optional: Set up some basic vim options
 vim.o.termguicolors = true
 vim.o.swapfile = false
