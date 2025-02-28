@@ -5,9 +5,10 @@
 vim.cmd [[set runtimepath=$VIMRUNTIME]]
 vim.cmd [[set packpath=/tmp/nvim/site]]
 
--- Add parent directory to runtimepath
+-- Add plugin and test directories to runtimepath
 local plugin_root = vim.fn.expand('%:p:h:h')
 vim.opt.runtimepath:append(plugin_root)
+vim.opt.runtimepath:append(plugin_root .. '/tests')
 
 -- Add Plenary to runtime path (for tests)
 local plenary_root = vim.fn.expand('~/.local/share/nvim/site/pack/vendor/start/plenary.nvim')

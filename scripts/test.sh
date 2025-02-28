@@ -24,6 +24,7 @@ if [ ! -d "$PLENARY_DIR" ]; then
 fi
 
 # Run tests with nvim headless mode
-$NVIM --headless --noplugin -u tests/minimal_init.lua -c "lua require('plenary.busted').run('./tests/**/*_spec.lua')" -c "qa!"
+# We explicitly run tests in the spec directory
+$NVIM --headless --noplugin -u tests/minimal_init.lua -c "lua require('plenary.busted').run('./tests/spec/')" -c "qa!"
 
 echo "Test run completed successfully"
