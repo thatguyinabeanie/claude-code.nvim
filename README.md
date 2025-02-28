@@ -133,6 +133,10 @@ This plugin:
 4. Provides convenient keymaps and commands for toggling the terminal
 5. Automatically detects git repositories and sets working directory to the git root
 
+## Contributing
+
+Contributions are welcome! Please check out our [contribution guidelines](CONTRIBUTING.md) for details on how to get started.
+
 ## License
 
 MIT License - See [LICENSE](LICENSE) for more information.

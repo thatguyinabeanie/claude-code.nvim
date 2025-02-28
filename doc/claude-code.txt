@@ -9,7 +9,8 @@ CONTENTS                                                   *claude-code-contents
   4. Configuration ........................ |claude-code-configuration|
   5. Commands ............................. |claude-code-commands|
   6. Mappings ............................. |claude-code-mappings|
-  7. License .............................. |claude-code-license|
+  7. Contributing ......................... |claude-code-contributing|
+  8. License .............................. |claude-code-license|
 
 ==============================================================================
 1. INTRODUCTION                                        *claude-code-introduction*
@@ -145,7 +146,14 @@ to re-enter insert mode so you can continue typing to Claude Code.
 You can customize these mappings in the configuration.
 
 ==============================================================================
-7. LICENSE                                                  *claude-code-license*
+7. CONTRIBUTING                                          *claude-code-contributing*
+
+Contributions to Claude Code are welcome! If you would like to contribute,
+please check the CONTRIBUTING.md file in the repository for guidelines:
+https://github.com/greggh/claude-code.nvim/blob/main/CONTRIBUTING.md
+
+==============================================================================
+8. LICENSE                                                  *claude-code-license*
 
 MIT License
 
