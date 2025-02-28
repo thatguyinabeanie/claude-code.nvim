@@ -1,4 +1,4 @@
-name: Tests
+name: CI
 
 on:
   push:
@@ -7,10 +7,48 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
-    name: Run tests
+  lint:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Lua
+        uses: leafo/gh-actions-lua@v9
+        with:
+          luaVersion: "5.1"
+      
+      - name: Install LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Cache LuaRocks dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.luarocks
+          key: ${{ runner.os }}-luarocks-${{ hashFiles('**/*.rockspec') }}
+          restore-keys: |
+            ${{ runner.os }}-luarocks-
+      
+      - name: Install luacheck
+        run: luarocks install luacheck
+      
+      - name: Check formatting with stylua
+        uses: JohnnyMorganz/stylua-action@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
+          args: --check lua/
+        
+      - name: Run Luacheck
+        run: luacheck lua/
+  
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        neovim-version: [v0.8.0, v0.9.0, stable, nightly]
     
+    name: Test with Neovim ${{ matrix.neovim-version }}
     steps:
       - uses: actions/checkout@v3
       
@@ -18,7 +56,15 @@ jobs:
         uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
-          version: stable
+          version: ${{ matrix.neovim-version }}
+      
+      - name: Cache plugin dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/share/nvim/site/pack
+          key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-${{ matrix.neovim-version }}
+          restore-keys: |
+            ${{ runner.os }}-nvim-plugins-
       
       - name: Install dependencies
         run: |
@@ -30,9 +76,60 @@ jobs:
           ls -la ./tests/
           ls -la ./tests/spec/
           
+      - name: Display Neovim version
+        run: nvim --version
+        
       - name: Run tests
         run: |
           export PLUGIN_ROOT="$(pwd)"
-          cd tests
-          ../scripts/test.sh
+          ./scripts/test.sh
         continue-on-error: false
+  
+  documentation:
+    needs: [lint, test]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Lua
+        uses: leafo/gh-actions-lua@v9
+        with:
+          luaVersion: "5.1"
+      
+      - name: Install LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Cache LuaRocks dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.luarocks
+          key: ${{ runner.os }}-luarocks-docs-${{ hashFiles('**/*.rockspec') }}
+          restore-keys: |
+            ${{ runner.os }}-luarocks-docs-
+      
+      - name: Install dependencies for ldoc
+        run: |
+          # Install dependencies required by ldoc
+          sudo apt-get update
+          sudo apt-get install -y lua-discount
+          
+      - name: Install ldoc
+        run: luarocks install ldoc
+      
+      - name: Verify ldoc installation
+        run: |
+          which ldoc || echo "ldoc not found in PATH"
+          ldoc --version || echo "ldoc command failed"
+          
+      - name: Generate documentation
+        run: |
+          mkdir -p doc/luadoc
+          if [ -f .ldoc.cfg ]; then
+            ldoc lua/ -d doc/luadoc -c .ldoc.cfg || echo "ldoc generation failed, but continuing"
+          else
+            echo "No .ldoc.cfg found, skipping documentation generation"
+          fi
+          
+      - name: List generated documentation
+        run: ls -la doc/luadoc || echo "No documentation generated"

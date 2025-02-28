@@ -53,6 +53,19 @@ git clone https://github.com/YOUR_USERNAME/claude-code.nvim.git
 
 3. Make sure you have the Claude Code CLI tool installed and properly configured
 
+4. Set up the Git hooks for automatic code formatting:
+```bash
+./scripts/setup-hooks.sh
+```
+
+This will set up pre-commit hooks to automatically format Lua code using StyLua before each commit.
+
+### Development Dependencies
+
+- [StyLua](https://github.com/JohnnyMorganz/StyLua) - For automatic code formatting
+- [LuaCheck](https://github.com/mpeterv/luacheck) - For static analysis (linting)
+- [LDoc](https://github.com/lunarmodules/LDoc) - For documentation generation (optional)
+
 ## Coding Standards
 
 - Follow the existing code style and structure
@@ -63,21 +76,46 @@ git clone https://github.com/YOUR_USERNAME/claude-code.nvim.git
 
 ## Lua Style Guide
 
-- Use 2 spaces for indentation (or match the existing style)
-- Keep line length reasonable (preferably under 100 characters)
+We use [StyLua](https://github.com/JohnnyMorganz/StyLua) to enforce consistent formatting of the codebase. The formatting is done automatically via pre-commit hooks if you've set them up using the script provided.
+
+Key style guidelines:
+- Configuration is in `stylua.toml` at the project root
+- Maximum line length is 120 characters
+- Use 2 spaces for indentation
 - Use local variables when possible
 - Group related functions together
 - Follow existing naming conventions:
   - `snake_case` for variables and functions
   - `PascalCase` for classes and constructors
 
+Files are linted using [LuaCheck](https://github.com/mpeterv/luacheck) according to `.luacheckrc`.
+
 ## Testing
 
 Before submitting your changes, please test them thoroughly:
 
-- Test in different environments (Linux, macOS, Windows)
+### Running Tests
+
+You can run the test suite using the Makefile:
+
+```bash
+# Run all tests
+make test
+
+# Run specific test groups
+make test-basic    # Run basic functionality tests
+make test-config   # Run configuration tests
+make test-plenary  # Run plenary tests
+```
+
+See `test/README.md` and `tests/README.md` for more details on the different test types.
+
+### Manual Testing
+
+- Test in different environments (Linux, macOS, Windows if possible)
 - Test with different configurations
 - Test the integration with the Claude Code CLI
+- Use the minimal test configuration (`tests/minimal_init.lua`) to verify your changes in isolation
 
 ## Documentation
 
