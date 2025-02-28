@@ -1,4 +1,7 @@
 -- Tests for the config module
+local assert = require('luassert')
+local describe = require('plenary.busted').describe
+local it = require('plenary.busted').it
 
 local config = require('claude-code.config')
 
@@ -6,7 +9,7 @@ describe('config', function()
   describe('parse_config', function()
     it('should return default config when no user config is provided', function()
       local result = config.parse_config()
-      assert.same(config.default_config, result)
+      assert.are.same(config.default_config, result)
     end)
 
     it('should merge user config with default config', function()
@@ -16,11 +19,11 @@ describe('config', function()
         },
       }
       local result = config.parse_config(user_config)
-      assert.equal(0.5, result.window.height_ratio)
+      assert.are.equal(0.5, result.window.height_ratio)
       
       -- Other values should be set to defaults
-      assert.equal('botright', result.window.position)
-      assert.equal(true, result.window.enter_insert)
+      assert.are.equal('botright', result.window.position)
+      assert.are.equal(true, result.window.enter_insert)
     end)
 
     it('should validate config values', function()
@@ -33,7 +36,7 @@ describe('config', function()
       
       -- When validation fails, it should return the default config
       local result = config.parse_config(invalid_config)
-      assert.equal(config.default_config.window.height_ratio, result.window.height_ratio)
+      assert.are.equal(config.default_config.window.height_ratio, result.window.height_ratio)
     end)
   end)
 end)
