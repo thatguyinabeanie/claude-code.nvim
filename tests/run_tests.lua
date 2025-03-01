@@ -26,8 +26,30 @@ end
 local old_it = busted.it
 busted.it = function(name, fn)
   return old_it(name, function()
+    -- Create a tracking variable for this specific test
+    local test_failed = false
+
+    -- Override assert temporarily to track failures in this test
+    local old_local_assert = luassert.assert
+    luassert.assert = function(...)
+      local success, result = pcall(old_local_assert, ...)
+      if not success then
+        test_failed = true
+        _G.TEST_RESULTS.failures = _G.TEST_RESULTS.failures + 1
+        print('  ✗ Assertion failed: ' .. result)
+        error(result) -- Propagate the error to fail the test
+      end
+      return result
+    end
+
+    -- Run the test
     local success, result = pcall(fn)
-    if not success then
+
+    -- Restore the normal assert
+    luassert.assert = old_local_assert
+
+    -- If the test failed with a non-assertion error
+    if not success and not test_failed then
       _G.TEST_RESULTS.errors = _G.TEST_RESULTS.errors + 1
       print('  ✗ Error: ' .. result)
     end
