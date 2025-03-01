@@ -27,7 +27,7 @@ This plugin was entirely built with Claude Code in a Neovim terminal, and then i
 
 ## Version
 
-Current version: 0.2.0 - See [CHANGELOG.md](CHANGELOG.md) for details
+Current version: 0.3.0 - See [CHANGELOG.md](CHANGELOG.md) for details
 
 ## Installation
 
@@ -141,13 +141,35 @@ This plugin:
 4. Provides convenient keymaps and commands for toggling the terminal
 5. Automatically detects git repositories and sets working directory to the git root
 
-## Contributing
+## Contributing 
 
 Contributions are welcome! Please check out our [contribution guidelines](CONTRIBUTING.md) for details on how to get started.
 
 ## License
 
 MIT License - See [LICENSE](LICENSE) for more information.
+
+For a complete guide on setting up a development environment, installing all required tools, and understanding the project structure, please refer to [DEVELOPMENT.md](DEVELOPMENT.md).
+
+### Development Setup
+
+The project includes comprehensive setup for development:
+
+- Complete installation instructions for all platforms in [DEVELOPMENT.md](DEVELOPMENT.md)
+- Pre-commit hooks for code quality
+- Testing framework with Plenary.nvim
+- Linting and formatting tools
+
+```bash
+# Run tests
+make test
+
+# Check code quality
+make lint
+
+# Format code
+make format
+```
 
 ## Development Cost
 

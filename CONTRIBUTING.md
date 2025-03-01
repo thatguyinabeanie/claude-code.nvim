@@ -42,18 +42,26 @@ For significant changes, please open an issue first to discuss your proposed cha
 
 ## Development Setup
 
+For detailed instructions on setting up a development environment, required tools, and testing procedures, please refer to the [DEVELOPMENT.md](DEVELOPMENT.md) file. This comprehensive guide includes:
+
+- Installation instructions for all required development tools on various platforms
+- Detailed explanation of the project structure
+- Testing processes and guidelines
+- Troubleshooting common issues
+
 To set up a development environment:
 
-1. Clone your fork of the repository
+1. Read the [DEVELOPMENT.md](DEVELOPMENT.md) guide to ensure you have all necessary tools installed
+2. Clone your fork of the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/claude-code.nvim.git
+git clone https://github.com/greggh/claude-code.nvim.git
 ```
 
-2. Link the repository to your Neovim plugins directory or use your plugin manager's development mode
+3. Link the repository to your Neovim plugins directory or use your plugin manager's development mode
 
-3. Make sure you have the Claude Code CLI tool installed and properly configured
+4. Make sure you have the Claude Code CLI tool installed and properly configured
 
-4. Set up the Git hooks for automatic code formatting:
+5. Set up the Git hooks for automatic code formatting:
 ```bash
 ./scripts/setup-hooks.sh
 ```
@@ -62,9 +70,12 @@ This will set up pre-commit hooks to automatically format Lua code using StyLua 
 
 ### Development Dependencies
 
+The [DEVELOPMENT.md](DEVELOPMENT.md) file contains detailed information about:
+
 - [StyLua](https://github.com/JohnnyMorganz/StyLua) - For automatic code formatting
 - [LuaCheck](https://github.com/mpeterv/luacheck) - For static analysis (linting)
 - [LDoc](https://github.com/lunarmodules/LDoc) - For documentation generation (optional)
+- Other tools and their installation instructions for different platforms
 
 ## Coding Standards
 
