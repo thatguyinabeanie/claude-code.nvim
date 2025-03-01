@@ -31,7 +31,19 @@ if [ ! -d "$PLENARY_DIR" ]; then
   git clone --depth 1 https://github.com/nvim-lua/plenary.nvim "$PLENARY_DIR"
 fi
 
-# Run tests with minimal Neovim configuration
-$NVIM --headless --noplugin -u tests/minimal_init.lua -c "PlenaryBustedDirectory tests/spec"
+# Run tests with minimal Neovim configuration and add a timeout
+# Timeout after 60 seconds to prevent hanging in CI
+echo "Running tests with a 60 second timeout..."
+timeout 60 $NVIM --headless --noplugin -u tests/minimal_init.lua -c "luafile tests/run_tests.lua"
 
-echo "Test run completed"
+# Check exit code
+EXIT_CODE=$?
+if [ $EXIT_CODE -eq 124 ]; then
+  echo "Error: Test execution timed out after 60 seconds"
+  exit 1
+elif [ $EXIT_CODE -ne 0 ]; then
+  echo "Error: Tests failed with exit code $EXIT_CODE"
+  exit $EXIT_CODE
+else
+  echo "Test run completed successfully"
+fi

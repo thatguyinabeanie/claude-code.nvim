@@ -38,6 +38,16 @@ vim.opt.runtimepath:append(plugin_dir)
 local plenary_path = vim.fn.expand('~/.local/share/nvim/site/pack/vendor/start/plenary.nvim')
 vim.opt.runtimepath:append(plenary_path)
 
+-- Make sure plenary plugins are loaded first
+local ok, _ = pcall(require, 'plenary')
+if not ok then
+  print('❌ Error: plenary.nvim not found. Tests will fail!')
+end
+
+-- Load plenary test libraries
+pcall(require, 'plenary.async')
+pcall(require, 'plenary.busted')
+
 -- Print current runtime path for debugging
 print('Runtime path: ' .. vim.o.runtimepath)
 
