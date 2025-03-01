@@ -10,23 +10,26 @@ local M = {}
 --- @return string|nil git_root The git root directory path or nil if not in a git repo
 function M.get_git_root()
   -- Check if we're in a git repository
-  local handle = io.popen 'git rev-parse --is-inside-work-tree 2>/dev/null'
+  local handle = io.popen('git rev-parse --is-inside-work-tree 2>/dev/null')
   if not handle then
     return nil
   end
 
-  local result = handle:read '*a'
+  local result = handle:read('*a')
   handle:close()
 
-  if result:match 'true' then
+  if result:match('true') then
     -- Get the git root path
-    local root_handle = io.popen 'git rev-parse --show-toplevel 2>/dev/null'
+    local root_handle = io.popen('git rev-parse --show-toplevel 2>/dev/null')
     if not root_handle then
       return nil
     end
 
-    local git_root = root_handle:read('*a'):gsub('%s+$', '')
+    local git_root = root_handle:read('*a')
     root_handle:close()
+
+    -- Remove trailing whitespace and newlines
+    git_root = git_root:gsub('[\n\r%s]*$', '')
 
     return git_root
   end

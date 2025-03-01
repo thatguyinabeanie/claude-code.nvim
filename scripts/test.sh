@@ -31,30 +31,7 @@ if [ ! -d "$PLENARY_DIR" ]; then
   git clone --depth 1 https://github.com/nvim-lua/plenary.nvim "$PLENARY_DIR"
 fi
 
-# Create a simple runner script
-cat > test_runner.lua << EOF
--- Test Runner script
-local base_dir = vim.fn.getcwd()
-
--- Print debug info
-print("Current working directory: " .. base_dir)
-print("Plugin root: " .. base_dir)
-print("Spec directory: " .. base_dir .. "/tests/spec")
-
--- Find test files
-for _, file in ipairs(vim.fn.glob(base_dir .. "/tests/spec/*_spec.lua", false, true)) do
-  print("Found test file: " .. file)
-  dofile(file)
-end
-
--- Exit with success
-vim.cmd("qa!")
-EOF
-
 # Run tests with minimal Neovim configuration
-$NVIM --headless --noplugin -u tests/minimal_init.lua -c "luafile test_runner.lua"
+$NVIM --headless --noplugin -u tests/minimal_init.lua -c "lua require('plenary.busted').run('tests/spec')"
 
-# Clean up
-rm test_runner.lua
-
-echo "Test run completed successfully"
+echo "Test run completed"
