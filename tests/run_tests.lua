@@ -20,6 +20,7 @@ _G.TEST_RESULTS = {
   successes = 0,
   errors = 0,
   last_error = nil,
+  test_count = 0, -- Track total number of tests run
 }
 
 -- Silence vim.notify during tests to prevent output pollution
@@ -46,6 +47,9 @@ end
 local old_it = busted.it
 busted.it = function(name, fn)
   return old_it(name, function()
+    -- Increment test counter
+    _G.TEST_RESULTS.test_count = _G.TEST_RESULTS.test_count + 1
+
     -- Create a tracking variable for this specific test
     local test_failed = false
 
@@ -58,11 +62,12 @@ busted.it = function(name, fn)
         _G.TEST_RESULTS.failures = _G.TEST_RESULTS.failures + 1
         print('  ✗ Assertion failed: ' .. result)
         error(result) -- Propagate the error to fail the test
-      else
-        _G.TEST_RESULTS.successes = _G.TEST_RESULTS.successes + 1
       end
       return result
     end
+
+    -- Increment success counter once per test, not per assertion
+    _G.TEST_RESULTS.successes = _G.TEST_RESULTS.successes + 1
 
     -- Run the test
     local success, result = pcall(fn)
@@ -125,18 +130,30 @@ local function run_tests()
 
   -- Report results
   print('\n==== Test Results ====')
+  print('Total Tests Run: ' .. _G.TEST_RESULTS.test_count)
   print('Successes: ' .. _G.TEST_RESULTS.successes)
   print('Failures: ' .. _G.TEST_RESULTS.failures)
-  print('Errors: ' .. _G.TEST_RESULTS.errors)
+
+  -- Count last_error in the error total if it exists
   if _G.TEST_RESULTS.last_error then
+    _G.TEST_RESULTS.errors = _G.TEST_RESULTS.errors + 1
+    print('Errors: ' .. _G.TEST_RESULTS.errors)
     print('Last Error: ' .. _G.TEST_RESULTS.last_error)
+  else
+    print('Errors: ' .. _G.TEST_RESULTS.errors)
   end
+
   print('=====================')
 
   -- Restore original notify function
   vim.notify = original_notify
 
-  if _G.TEST_RESULTS.failures > 0 or _G.TEST_RESULTS.errors > 0 then
+  -- Include the last error in our decision about whether tests passed
+  local has_failures = _G.TEST_RESULTS.failures > 0
+    or _G.TEST_RESULTS.errors > 0
+    or _G.TEST_RESULTS.last_error ~= nil
+
+  if has_failures then
     print('\nSome tests failed!')
     vim.cmd('cq') -- Exit with error code
   else
