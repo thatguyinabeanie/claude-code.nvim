@@ -10,14 +10,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Complete test framework implementation
 - Comprehensive CI/CD workflow with GitHub Actions
+- Development guide with cross-platform tool installation instructions
+- GitHub Sponsors and Ko-fi funding links
 
 ### Changed
 - Enhanced module organization for better maintainability
 - Improved error handling throughout the codebase
+- Updated contributing guidelines with development setup information
+- Restructured version module to use major.minor.patch components
+- Better README documentation with development workflow details
 
 ### Fixed
 - Various linting issues and code style improvements
 - Standardized GitHub workflow naming conventions
+- Version inconsistencies across various files
 
 ## [0.2.0] - 2025-02-28
 
