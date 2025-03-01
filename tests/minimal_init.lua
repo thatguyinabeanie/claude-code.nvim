@@ -56,8 +56,9 @@ local status_ok, claude_code = pcall(require, 'claude-code')
 if status_ok then
   print('✓ Successfully loaded Claude Code plugin')
 
-  -- Set up the plugin with minimal config for testing
-  claude_code.setup({
+  -- First create a validated config (in silent mode)
+  local config_module = require('claude-code.config')
+  local test_config = config_module.parse_config({
     window = {
       height_ratio = 0.3,
       position = 'botright',
@@ -84,7 +85,7 @@ if status_ok then
     git = {
       use_git_root = true,
     },
-  })
+  }, true) -- Use silent mode for tests
 
   -- Print available commands for user reference
   print('\nAvailable Commands:')

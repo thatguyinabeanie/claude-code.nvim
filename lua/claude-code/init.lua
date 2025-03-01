@@ -62,7 +62,8 @@ end
 --- @param user_config? table User configuration table (optional)
 function M.setup(user_config)
   -- Parse and validate configuration
-  M.config = config.parse_config(user_config)
+  -- Don't use silent mode for regular usage - users should see config errors
+  M.config = config.parse_config(user_config, false)
 
   -- Set up autoread option
   vim.o.autoread = true

@@ -170,13 +170,17 @@ end
 
 --- Parse user configuration and merge with defaults
 --- @param user_config? table
+--- @param silent? boolean Set to true to suppress error notifications (for tests)
 --- @return ClaudeCodeConfig
-function M.parse_config(user_config)
+function M.parse_config(user_config, silent)
   local config = vim.tbl_deep_extend('force', {}, M.default_config, user_config or {})
 
   local valid, err = validate_config(config)
   if not valid then
-    vim.notify('Claude Code: ' .. err, vim.log.levels.ERROR)
+    -- Only notify if not in silent mode
+    if not silent then
+      vim.notify('Claude Code: ' .. err, vim.log.levels.ERROR)
+    end
     -- Fall back to default config in case of error
     return vim.deepcopy(M.default_config)
   end
