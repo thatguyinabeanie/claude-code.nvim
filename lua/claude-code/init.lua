@@ -27,6 +27,9 @@ local version = require('claude-code.version')
 
 local M = {}
 
+-- Make imported modules available
+M.commands = commands
+
 -- Store the current configuration
 --- @type table
 M.config = {}
@@ -54,9 +57,12 @@ end
 
 --- Get the current version of the plugin
 --- @return string version Current version string
-function M.version()
-  return version.get_version()
+function M.get_version()
+  return version.string()
 end
+
+--- Version information
+M.version = version
 
 --- Setup function for the plugin
 --- @param user_config? table User configuration table (optional)

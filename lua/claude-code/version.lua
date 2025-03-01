@@ -3,23 +3,28 @@
 --- This module provides version information for claude-code.nvim.
 ---@brief ]]
 
-local M = {}
+--- @table M
+--- Version information for Claude Code
+--- @field major number Major version (breaking changes)
+--- @field minor number Minor version (new features)
+--- @field patch number Patch version (bug fixes)
+--- @field string function Returns formatted version string
 
---- @type string Plugin version following semantic versioning (x.y.z)
-M.version = '0.2.0'
+local M = {
+  major = 0,
+  minor = 3,
+  patch = 0,
+}
 
---- @type string Plugin name
-M.name = 'claude-code.nvim'
-
---- Returns the current version of the plugin
---- @return string version Current version string
-function M.get_version()
-  return M.version
+--- Returns the formatted version string
+--- @return string Version string in format "major.minor.patch"
+function M.string()
+  return string.format('%d.%d.%d', M.major, M.minor, M.patch)
 end
 
 --- Prints the current version of the plugin
 function M.print_version()
-  vim.notify('Claude Code version: ' .. M.version, vim.log.levels.INFO)
+  vim.notify('Claude Code version: ' .. M.string(), vim.log.levels.INFO)
 end
 
 return M
