@@ -143,7 +143,8 @@ jobs:
         run: |
           mkdir -p doc/luadoc
           if [ -f .ldoc.cfg ]; then
-            ldoc lua/ -d doc/luadoc -c .ldoc.cfg || echo "ldoc generation failed, but continuing"
+            # Run LDoc with warnings but don't fail on warnings
+            ldoc -v lua/ -d doc/luadoc -c .ldoc.cfg
           else
             echo "No .ldoc.cfg found, skipping documentation generation"
           fi

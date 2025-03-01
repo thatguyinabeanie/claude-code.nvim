@@ -6,36 +6,42 @@
 
 local M = {}
 
---- @class ClaudeCodeWindow
---- @field height_ratio number Percentage of screen height for the terminal window
---- @field position string Position of the window: "botright", "topleft", "vertical", etc.
---- @field enter_insert boolean Whether to enter insert mode when opening Claude Code
---- @field hide_numbers boolean Hide line numbers in the terminal window
---- @field hide_signcolumn boolean Hide the sign column in the terminal window
+--- ClaudeCodeWindow class for window configuration
+-- @table ClaudeCodeWindow
+-- @field height_ratio number Percentage of screen height for the terminal window
+-- @field position string Position of the window: "botright", "topleft", "vertical", etc.
+-- @field enter_insert boolean Whether to enter insert mode when opening Claude Code
+-- @field hide_numbers boolean Hide line numbers in the terminal window
+-- @field hide_signcolumn boolean Hide the sign column in the terminal window
 
---- @class ClaudeCodeRefresh
---- @field enable boolean Enable file change detection
---- @field updatetime number updatetime when Claude Code is active (milliseconds)
---- @field timer_interval number How often to check for file changes (milliseconds)
---- @field show_notifications boolean Show notification when files are reloaded
+--- ClaudeCodeRefresh class for file refresh configuration
+-- @table ClaudeCodeRefresh
+-- @field enable boolean Enable file change detection
+-- @field updatetime number updatetime when Claude Code is active (milliseconds)
+-- @field timer_interval number How often to check for file changes (milliseconds)
+-- @field show_notifications boolean Show notification when files are reloaded
 
---- @class ClaudeCodeGit
---- @field use_git_root boolean Set CWD to git root when opening Claude Code (if in git project)
+--- ClaudeCodeGit class for git integration configuration
+-- @table ClaudeCodeGit
+-- @field use_git_root boolean Set CWD to git root when opening Claude Code (if in git project)
 
---- @class ClaudeCodeKeymapsToggle
---- @field normal string|boolean Normal mode keymap for toggling Claude Code, false to disable
---- @field terminal string|boolean Terminal mode keymap for toggling Claude Code, false to disable
+--- ClaudeCodeKeymapsToggle class for toggle keymap configuration
+-- @table ClaudeCodeKeymapsToggle
+-- @field normal string|boolean Normal mode keymap for toggling Claude Code, false to disable
+-- @field terminal string|boolean Terminal mode keymap for toggling Claude Code, false to disable
 
---- @class ClaudeCodeKeymaps
---- @field toggle ClaudeCodeKeymapsToggle Keymaps for toggling Claude Code
---- @field window_navigation boolean Enable window navigation keymaps
---- @field scrolling boolean Enable scrolling keymaps
+--- ClaudeCodeKeymaps class for keymap configuration
+-- @table ClaudeCodeKeymaps
+-- @field toggle ClaudeCodeKeymapsToggle Keymaps for toggling Claude Code
+-- @field window_navigation boolean Enable window navigation keymaps
+-- @field scrolling boolean Enable scrolling keymaps
 
---- @class ClaudeCodeConfig
---- @field window ClaudeCodeWindow Terminal window settings
---- @field refresh ClaudeCodeRefresh File refresh settings
---- @field git ClaudeCodeGit Git integration settings
---- @field keymaps ClaudeCodeKeymaps Keymaps configuration
+--- ClaudeCodeConfig class for main configuration
+-- @table ClaudeCodeConfig
+-- @field window ClaudeCodeWindow Terminal window settings
+-- @field refresh ClaudeCodeRefresh File refresh settings
+-- @field git ClaudeCodeGit Git integration settings
+-- @field keymaps ClaudeCodeKeymaps Keymaps configuration
 
 --- Default configuration options
 --- @type ClaudeCodeConfig

@@ -7,9 +7,9 @@
 local M = {}
 
 --- Terminal buffer and window management
---- @class ClaudeCodeTerminal
---- @field bufnr number|nil Buffer number of the Claude Code terminal
---- @field saved_updatetime number|nil Original updatetime before Claude Code was opened
+-- @table ClaudeCodeTerminal
+-- @field bufnr number|nil Buffer number of the Claude Code terminal
+-- @field saved_updatetime number|nil Original updatetime before Claude Code was opened
 M.terminal = {
   bufnr = nil,
   saved_updatetime = nil,
