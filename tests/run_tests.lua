@@ -6,6 +6,14 @@ if not ok then
   return
 end
 
+-- Make sure we can load luassert
+local ok_assert, luassert = pcall(require, 'luassert')
+if not ok_assert then
+  print('ERROR: Could not load luassert')
+  vim.cmd('qa!')
+  return
+end
+
 -- Setup global test state
 _G.TEST_RESULTS = {
   failures = 0,
@@ -38,6 +46,8 @@ busted.it = function(name, fn)
         _G.TEST_RESULTS.failures = _G.TEST_RESULTS.failures + 1
         print('  ✗ Assertion failed: ' .. result)
         error(result) -- Propagate the error to fail the test
+      else
+        _G.TEST_RESULTS.successes = _G.TEST_RESULTS.successes + 1
       end
       return result
     end
@@ -56,8 +66,7 @@ busted.it = function(name, fn)
   end)
 end
 
--- Create our own assert handler to track failures
-local luassert = require('luassert')
+-- Create our own assert handler to track global assertions
 local old_assert = luassert.assert
 luassert.assert = function(...)
   local success, result = pcall(old_assert, ...)
@@ -66,7 +75,7 @@ luassert.assert = function(...)
     print('  ✗ Assertion failed: ' .. result)
     return success
   else
-    _G.TEST_RESULTS.successes = _G.TEST_RESULTS.successes + 1
+    -- No need to increment successes here as we do it in per-test assertions
     return result
   end
 end
