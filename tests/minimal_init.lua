@@ -60,6 +60,10 @@ if status_ok then
   claude_code.setup({
     window = {
       height_ratio = 0.3,
+      position = 'botright',
+      enter_insert = true,
+      hide_numbers = true,
+      hide_signcolumn = true,
     },
     -- Disable keymaps for testing
     keymaps = {
@@ -69,6 +73,16 @@ if status_ok then
       },
       window_navigation = false,
       scrolling = false,
+    },
+    -- Additional required config sections
+    refresh = {
+      enable = true,
+      updatetime = 1000,
+      timer_interval = 1000,
+      show_notifications = false,
+    },
+    git = {
+      use_git_root = true,
     },
   })
 

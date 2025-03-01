@@ -26,6 +26,9 @@ local function debug_value(value)
 end
 
 describe('git', function()
+  -- Keep track of the original environment
+  local original_env_test_mode = vim.env.CLAUDE_CODE_TEST_MODE
+
   describe('get_git_root', function()
     it('should handle io.popen errors gracefully', function()
       -- Save the original io.popen
@@ -107,4 +110,7 @@ describe('git', function()
       vim.env.CLAUDE_CODE_TEST_MODE = nil
     end)
   end)
+
+  -- Restore the original environment
+  vim.env.CLAUDE_CODE_TEST_MODE = original_env_test_mode
 end)
