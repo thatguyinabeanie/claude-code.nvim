@@ -32,6 +32,6 @@ if [ ! -d "$PLENARY_DIR" ]; then
 fi
 
 # Run tests with minimal Neovim configuration
-$NVIM --headless --noplugin -u tests/minimal_init.lua -c "lua require('plenary.busted').run('tests/spec')"
+$NVIM --headless --noplugin -u tests/minimal_init.lua -c "PlenaryBustedDirectory tests/spec"
 
 echo "Test run completed"

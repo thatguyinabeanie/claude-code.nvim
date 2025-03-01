@@ -3,14 +3,14 @@
 
 -- Detect the plugin directory (works whether run from plugin root or a different directory)
 local function get_plugin_path()
-  local debug_info = debug.getinfo(1, "S")
+  local debug_info = debug.getinfo(1, 'S')
   local source = debug_info.source
-  
-  if string.sub(source, 1, 1) == "@" then
+
+  if string.sub(source, 1, 1) == '@' then
     source = string.sub(source, 2)
     -- If we're running directly from the plugin
-    if string.find(source, "/tests/minimal_init%.lua$") then
-      local plugin_dir = string.gsub(source, "/tests/minimal_init%.lua$", "")
+    if string.find(source, '/tests/minimal_init%.lua$') then
+      local plugin_dir = string.gsub(source, '/tests/minimal_init%.lua$', '')
       return plugin_dir
     else
       -- For a copied version, assume it's run directly from the dir it's in
@@ -21,7 +21,7 @@ local function get_plugin_path()
 end
 
 local plugin_dir = get_plugin_path()
-print("Plugin directory: " .. plugin_dir)
+print('Plugin directory: ' .. plugin_dir)
 
 -- Basic settings
 vim.opt.swapfile = false
@@ -34,14 +34,18 @@ vim.opt.termguicolors = true
 -- Add the plugin directory to runtimepath
 vim.opt.runtimepath:append(plugin_dir)
 
+-- Add Plenary to the runtime path (for tests)
+local plenary_path = vim.fn.expand('~/.local/share/nvim/site/pack/vendor/start/plenary.nvim')
+vim.opt.runtimepath:append(plenary_path)
+
 -- Print current runtime path for debugging
-print("Runtime path: " .. vim.o.runtimepath)
+print('Runtime path: ' .. vim.o.runtimepath)
 
 -- Load the plugin
 local status_ok, claude_code = pcall(require, 'claude-code')
 if status_ok then
-  print("✓ Successfully loaded Claude Code plugin")
-  
+  print('✓ Successfully loaded Claude Code plugin')
+
   -- Set up the plugin with minimal config for testing
   claude_code.setup({
     window = {
@@ -57,25 +61,25 @@ if status_ok then
       scrolling = false,
     },
   })
-  
+
   -- Print available commands for user reference
-  print("\nAvailable Commands:")
-  print("  :ClaudeCode             - Start a new Claude Code session")
-  print("  :ClaudeCodeToggle       - Toggle the Claude Code terminal")
-  print("  :ClaudeCodeRestart      - Restart the Claude Code session")
-  print("  :ClaudeCodeSuspend      - Suspend the current Claude Code session")
-  print("  :ClaudeCodeResume       - Resume the suspended Claude Code session")
-  print("  :ClaudeCodeQuit         - Quit the current Claude Code session")
-  print("  :ClaudeCodeRefreshFiles - Refresh the current working directory information")
+  print('\nAvailable Commands:')
+  print('  :ClaudeCode             - Start a new Claude Code session')
+  print('  :ClaudeCodeToggle       - Toggle the Claude Code terminal')
+  print('  :ClaudeCodeRestart      - Restart the Claude Code session')
+  print('  :ClaudeCodeSuspend      - Suspend the current Claude Code session')
+  print('  :ClaudeCodeResume       - Resume the suspended Claude Code session')
+  print('  :ClaudeCodeQuit         - Quit the current Claude Code session')
+  print('  :ClaudeCodeRefreshFiles - Refresh the current working directory information')
 else
-  print("✗ Failed to load Claude Code plugin: " .. tostring(claude_code))
+  print('✗ Failed to load Claude Code plugin: ' .. tostring(claude_code))
 end
 
 -- Set up minimal UI elements
 vim.opt.number = true
 vim.opt.relativenumber = true
-vim.opt.signcolumn = "yes"
+vim.opt.signcolumn = 'yes'
 
-print("\nClaude Code minimal test environment loaded.")
-print("- Type :messages to see any error messages")
+print('\nClaude Code minimal test environment loaded.')
+print('- Type :messages to see any error messages')
 print("- Try ':ClaudeCode' to start a new session")
