@@ -18,7 +18,10 @@ function M.get_git_root()
   local result = handle:read('*a')
   handle:close()
 
-  if result:match('true') then
+  -- Strip trailing whitespace and newlines for reliable matching
+  result = result:gsub('[\n\r%s]*$', '')
+
+  if result == 'true' then
     -- Get the git root path
     local root_handle = io.popen('git rev-parse --show-toplevel 2>/dev/null')
     if not root_handle then
