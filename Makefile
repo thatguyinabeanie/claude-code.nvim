@@ -1,16 +1,13 @@
-.PHONY: test test-debug test-basic test-config lint format docs clean
+.PHONY: test test-debug test-legacy test-basic test-config lint format docs clean
 
 # Configuration
 LUA_PATH ?= lua/
 TEST_PATH ?= test/
 DOC_PATH ?= doc/
 
-# Test command
+# Test command (runs only Plenary tests by default)
 test:
-	@echo "Running tests..."
-	@nvim --headless --noplugin -u test/minimal.vim -c "lua print('Running basic tests')" -c "source test/basic_test.vim" -c "qa!"
-	@nvim --headless --noplugin -u test/minimal.vim -c "lua print('Running config tests')" -c "source test/config_test.vim" -c "qa!"
-	@echo "Running plenary tests..."
+	@echo "Running Plenary tests..."
 	@./scripts/test.sh
 
 # Debug test command - more verbose output
@@ -20,12 +17,14 @@ test-debug:
 	@echo "LUA_PATH: $(LUA_PATH)"
 	@which nvim
 	@nvim --version
-	@echo "Testing with basic checks..."
-	@nvim --headless --noplugin -u test/minimal.vim -c "lua print('Lua is working')" -c "source test/basic_test.vim" -c "qa!"
-	@echo "Testing with config module checks..."
-	@nvim --headless --noplugin -u test/minimal.vim -c "lua print('Lua is working')" -c "source test/config_test.vim" -c "qa!"
-	@echo "Running plenary tests with debug output..."
+	@echo "Running Plenary tests with debug output..."
 	@PLENARY_DEBUG=1 ./scripts/test.sh
+
+# Legacy test commands
+test-legacy:
+	@echo "Running legacy tests..."
+	@nvim --headless --noplugin -u test/minimal.vim -c "lua print('Running basic tests')" -c "source test/basic_test.vim" -c "qa!"
+	@nvim --headless --noplugin -u test/minimal.vim -c "lua print('Running config tests')" -c "source test/config_test.vim" -c "qa!"
 
 # Individual test commands
 test-basic:
@@ -35,10 +34,6 @@ test-basic:
 test-config:
 	@echo "Running config tests..."
 	@nvim --headless --noplugin -u test/minimal.vim -c "source test/config_test.vim" -c "qa!"
-
-test-plenary:
-	@echo "Running plenary tests..."
-	@./scripts/test.sh
 
 # Lint Lua files
 lint:
@@ -69,11 +64,11 @@ all: lint format test docs
 
 help:
 	@echo "Claude Code development commands:"
-	@echo "  make test         - Run all tests"
+	@echo "  make test         - Run all tests (using Plenary test framework)"
 	@echo "  make test-debug   - Run all tests with debug output"
-	@echo "  make test-basic   - Run only basic functionality tests"
-	@echo "  make test-config  - Run only configuration tests"
-	@echo "  make test-plenary - Run only plenary tests"
+	@echo "  make test-legacy  - Run legacy tests (VimL-based)"
+	@echo "  make test-basic   - Run only basic functionality tests (legacy)"
+	@echo "  make test-config  - Run only configuration tests (legacy)"
 	@echo "  make lint         - Lint Lua files"
 	@echo "  make format       - Format Lua files with stylua"
 	@echo "  make docs         - Generate documentation"
