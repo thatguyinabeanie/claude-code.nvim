@@ -31,6 +31,36 @@ exclude_files = {
   "tests/plenary/*",
 }
 
+-- Special configuration for test files
+files["tests/**/*.lua"] = {
+  -- Allow common globals used in testing
+  globals = {
+    -- Common testing globals
+    "describe", "it", "before_each", "after_each", "teardown", "pending", "spy", "stub", "mock",
+    -- Lua standard utilities used in tests
+    "print", "dofile",
+    -- Test helpers
+    "test", "expect",
+    -- Global test state (allow modification)
+    "_G", 
+  },
+  
+  -- Define fields for assert from luassert
+  read_globals = {
+    assert = {
+      fields = {
+        "is_true", "is_false", "is_nil", "is_not_nil", "equals", 
+        "same", "near", "matches", "has_error",
+        "truthy", "falsy", "has", "has_no", "is_string", "is_number",
+        "is_function", "is_table"
+      }
+    }
+  },
+  
+  -- For test files only, ignore unused arguments as they're often used for mock callbacks
+  unused_args = false,
+}
+
 -- Allow unused self arguments of methods
 self = false
 
@@ -38,12 +68,9 @@ self = false
 unused_args = false
 unused = false
 
--- Ignore warnings related to whitespace
+-- We don't ignore any warnings - all code style issues should be fixed
 ignore = {
-  "611", -- Line contains trailing whitespace
-  "612", -- Line contains trailing whitespace in a comment
-  "613", -- Line contains trailing whitespace in a string
-  "614", -- Line contains only whitespace
+  -- No ignored warnings
 }
 
 -- Maximum line length
