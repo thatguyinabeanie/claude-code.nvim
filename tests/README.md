@@ -46,7 +46,7 @@ The test suite currently contains 44 tests covering all major components of the 
 
 ## Minimal Test Configuration
 
-The `minimal-init.lua` file provides a minimal Neovim configuration for testing the Claude Code plugin in isolation. This is useful for:
+The `minimal-init.lua` file provides a minimal Neovim configuration for testing the Claude Code plugin in isolation. This standardized initialization file (recently renamed from `minimal_init.lua` to match conventions used across related Neovim projects) is useful for:
 
 1. Reproducing and debugging issues
 2. Testing new features in a clean environment

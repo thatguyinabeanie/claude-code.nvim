@@ -1,10 +1,46 @@
+<div align="center">
+
 # Claude Code Neovim Plugin
 
-A Neovim plugin for seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim.
+[![GitHub License](https://img.shields.io/github/license/greggh/claude-code.nvim?style=flat-square)](https://github.com/greggh/claude-code.nvim/blob/main/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/greggh/claude-code.nvim?style=flat-square)](https://github.com/greggh/claude-code.nvim/stargazers)
+[![GitHub Issues](https://img.shields.io/github/issues/greggh/claude-code.nvim?style=flat-square)](https://github.com/greggh/claude-code.nvim/issues)
+[![CI](https://img.shields.io/github/actions/workflow/status/greggh/claude-code.nvim/ci.yml?branch=main&style=flat-square&logo=github)](https://github.com/greggh/claude-code.nvim/actions/workflows/ci.yml)
+[![Neovim Version](https://img.shields.io/badge/Neovim-0.7%2B-blueviolet?style=flat-square&logo=neovim)](https://github.com/neovim/neovim)
+[![Tests](https://img.shields.io/badge/Tests-44%20passing-success?style=flat-square&logo=github-actions)](https://github.com/greggh/claude-code.nvim/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/badge/Version-0.3.0-blue?style=flat-square)](https://github.com/greggh/claude-code.nvim/releases/tag/v0.3.0)
 
-This plugin was entirely built with Claude Code in a Neovim terminal, and then inside itself using Claude Code for everything.
+*A seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim*
 
-![Claude Code in Neovim](https://github.com/greggh/claude-code.nvim/blob/main/assets/claude-code.png?raw=true)
+[Features](#features) • 
+[Requirements](#requirements) • 
+[Installation](#installation) • 
+[Configuration](#configuration) • 
+[Usage](#usage) • 
+[Contributing](#contributing) • 
+[Discussions](https://github.com/greggh/claude-code.nvim/discussions)
+
+<img src="https://github.com/greggh/claude-code.nvim/blob/main/assets/claude-code.png?raw=true" alt="Claude Code in Neovim" width="800" />
+
+</div>
+
+This plugin was built entirely with Claude Code in a Neovim terminal, and then inside itself using Claude Code for everything!
+
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+  - [Commands](#commands)
+  - [Key Mappings](#key-mappings)
+- [How it Works](#how-it-works)
+- [Contributing](#contributing)
+- [License](#license)
+- [Development](#development)
+- [Community](#community)
+- [Acknowledgements](#acknowledgements)
 
 ## Features
 
@@ -17,7 +53,7 @@ This plugin was entirely built with Claude Code in a Neovim terminal, and then i
 - 🧩 Modular and maintainable code structure
 - 📋 Type annotations with LuaCATS for better IDE support
 - ✅ Configuration validation to prevent errors
-- 🧪 Testing framework for reliability
+- 🧪 Testing framework for reliability (44 comprehensive tests)
 
 ## Requirements
 
@@ -149,6 +185,8 @@ Contributions are welcome! Please check out our [contribution guidelines](CONTRI
 
 MIT License - See [LICENSE](LICENSE) for more information.
 
+## Development
+
 For a complete guide on setting up a development environment, installing all required tools, and understanding the project structure, please refer to [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ### Development Setup
@@ -157,8 +195,9 @@ The project includes comprehensive setup for development:
 
 - Complete installation instructions for all platforms in [DEVELOPMENT.md](DEVELOPMENT.md)
 - Pre-commit hooks for code quality
-- Testing framework with Plenary.nvim
+- Testing framework with 44 comprehensive tests
 - Linting and formatting tools
+- Weekly dependency updates workflow for Claude CLI and actions
 
 ```bash
 # Run tests
@@ -167,20 +206,32 @@ make test
 # Check code quality
 make lint
 
+# Set up pre-commit hooks
+scripts/setup-hooks.sh
+
 # Format code
 make format
 ```
 
-## Development Cost
+## Community
 
-This entire plugin was developed using Claude Code. Here's what it cost to build the initial version:
+- [GitHub Discussions](https://github.com/greggh/claude-code.nvim/discussions) - Get help, share ideas, and connect with other users
+- [GitHub Issues](https://github.com/greggh/claude-code.nvim/issues) - Report bugs or suggest features
+- [GitHub Pull Requests](https://github.com/greggh/claude-code.nvim/pulls) - Contribute to the project
 
-```
-Total cost: $5.42
-Total duration (API): 17m 12.9s
-Total duration (wall): 2h 29m 29.2s
-```
+## Acknowledgements
+
+- [Claude Code](https://github.com/anthropics/claude-code) by Anthropic - This plugin was entirely built using Claude Code. Development cost: $5.42 with 17m 12.9s of API time
+- [Plenary.nvim](https://github.com/nvim-lua/plenary.nvim) - Core dependency for testing framework and Git operations
+- [Semantic Versioning](https://semver.org/) - Versioning standard used in this project
+- [Contributor Covenant](https://www.contributor-covenant.org/) - Code of Conduct standard
+- [Keep a Changelog](https://keepachangelog.com/) - Changelog format
+- [LuaCATS](https://luals.github.io/wiki/annotations/) - Type annotations for better IDE support
+- [StyLua](https://github.com/JohnnyMorganz/StyLua) - Lua code formatter
+- [Luacheck](https://github.com/lunarmodules/luacheck) - Lua static analyzer and linter
 
 ---
 
-💻 Created by [greggh](https://github.com/greggh)
+<div align="center">
+  <p>Made with ❤️ by <a href="https://github.com/greggh">greggh</a></p>
+</div>
