@@ -9,8 +9,8 @@ local function get_plugin_path()
   if string.sub(source, 1, 1) == '@' then
     source = string.sub(source, 2)
     -- If we're running directly from the plugin
-    if string.find(source, '/tests/minimal_init%.lua$') then
-      local plugin_dir = string.gsub(source, '/tests/minimal_init%.lua$', '')
+    if string.find(source, '/tests/minimal-init%.lua$') then
+      local plugin_dir = string.gsub(source, '/tests/minimal-init%.lua$', '')
       return plugin_dir
     else
       -- For a copied version, assume it's run directly from the dir it's in

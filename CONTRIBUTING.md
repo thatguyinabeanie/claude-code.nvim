@@ -126,7 +126,7 @@ See `test/README.md` and `tests/README.md` for more details on the different tes
 - Test in different environments (Linux, macOS, Windows if possible)
 - Test with different configurations
 - Test the integration with the Claude Code CLI
-- Use the minimal test configuration (`tests/minimal_init.lua`) to verify your changes in isolation
+- Use the minimal test configuration (`tests/minimal-init.lua`) to verify your changes in isolation
 
 ## Documentation
 

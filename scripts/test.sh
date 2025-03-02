@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e  # Exit immediately if a command exits with a non-zero status
 
-# If we're in the tests directory, go up one level
-if [ "$(basename "$(pwd)")" = "tests" ]; then
-  cd ..
-elif [ "$(basename "$(pwd)")" = "scripts" ]; then
-  # If we're in the scripts directory, go up one level
-  cd ..
-fi
+# Get the plugin directory from the script location
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Switch to the plugin directory
+echo "Changing to plugin directory: $PLUGIN_DIR"
+cd "$PLUGIN_DIR"
 
 # Print current directory for debugging
 echo "Running tests from: $(pwd)"
@@ -34,7 +34,7 @@ fi
 # Run tests with minimal Neovim configuration and add a timeout
 # Timeout after 60 seconds to prevent hanging in CI
 echo "Running tests with a 60 second timeout..."
-timeout 60 $NVIM --headless --noplugin -u tests/minimal_init.lua -c "luafile tests/run_tests.lua"
+timeout --foreground 60 $NVIM --headless --noplugin -u tests/minimal-init.lua -c "luafile tests/run_tests.lua"
 
 # Check exit code
 EXIT_CODE=$?

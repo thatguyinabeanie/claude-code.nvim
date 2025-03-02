@@ -1,4 +1,4 @@
-# Claude Code Manual Testing
+# Claude Code Testing
 
 This directory contains resources for testing the Claude Code plugin.
 
@@ -9,9 +9,44 @@ There are two main components:
 1. **Automated Tests**: Unit and integration tests using the Plenary test framework.
 2. **Manual Testing**: A minimal configuration for reproducing issues and testing features.
 
+## Test Coverage
+
+The automated test suite covers the following components of the Claude Code plugin:
+
+1. **Core Functionality**
+   - Plugin initialization and setup
+   - Command registration and execution
+   - Version reporting and management
+
+2. **Terminal Integration**
+   - Terminal window creation and toggling
+   - Terminal positioning and configuration
+   - Insert mode management
+
+3. **Git Integration**
+   - Git root detection and handling
+   - Error handling for non-git directories
+
+4. **Configuration**
+   - Config validation for all settings
+   - Default config values
+   - Config merging with user-provided options
+
+5. **Keymaps**
+   - Normal mode toggle keybindings
+   - Terminal mode toggle keybindings
+   - Window navigation keybindings
+
+6. **File Refresh**
+   - Auto-refresh functionality
+   - Timer management
+   - Updatetime handling
+
+The test suite currently contains 44 tests covering all major components of the plugin.
+
 ## Minimal Test Configuration
 
-The `minimal_init.lua` file provides a minimal Neovim configuration for testing the Claude Code plugin in isolation. This is useful for:
+The `minimal-init.lua` file provides a minimal Neovim configuration for testing the Claude Code plugin in isolation. This is useful for:
 
 1. Reproducing and debugging issues
 2. Testing new features in a clean environment
@@ -23,7 +58,7 @@ The `minimal_init.lua` file provides a minimal Neovim configuration for testing 
 
 ```bash
 # From the plugin root directory
-nvim --clean -u tests/minimal_init.lua
+nvim --clean -u tests/minimal-init.lua
 ```
 
 ### Option 2: Copy to a separate directory for testing
@@ -31,16 +66,30 @@ nvim --clean -u tests/minimal_init.lua
 ```bash
 # Create a test directory
 mkdir ~/claude-test
-cp tests/minimal_init.lua ~/claude-test/
+cp tests/minimal-init.lua ~/claude-test/
 cd ~/claude-test
 
 # Run Neovim with the minimal config
-nvim --clean -u minimal_init.lua
+nvim --clean -u minimal-init.lua
 ```
 
 ## Automated Tests
 
 The `spec/` directory contains automated tests for the plugin using the [plenary.busted](https://github.com/nvim-lua/plenary.nvim) framework.
+
+### Test Structure
+
+The test suite is organized by module and functionality:
+
+- `command_registration_spec.lua`: Tests for command registration
+- `config_spec.lua`: Tests for configuration parsing
+- `config_validation_spec.lua`: Tests for configuration validation
+- `core_integration_spec.lua`: Tests for core plugin integration
+- `file_refresh_spec.lua`: Tests for file refresh functionality
+- `git_spec.lua`: Tests for git integration
+- `keymaps_spec.lua`: Tests for keybinding functionality
+- `terminal_spec.lua`: Tests for terminal integration
+- `version_spec.lua`: Tests for version handling
 
 ### Running Tests
 
@@ -48,6 +97,17 @@ Run all automated tests using:
 
 ```bash
 ./scripts/test.sh
+```
+
+You'll see a summary of the test results like:
+
+```
+==== Test Results ====
+Total Tests Run: 44
+Successes: 44
+Failures: 0
+Errors: 0
+=====================
 ```
 
 ### Writing Tests
