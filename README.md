@@ -8,7 +8,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/greggh/claude-code.nvim/ci.yml?branch=main&style=flat-square&logo=github)](https://github.com/greggh/claude-code.nvim/actions/workflows/ci.yml)
 [![Neovim Version](https://img.shields.io/badge/Neovim-0.7%2B-blueviolet?style=flat-square&logo=neovim)](https://github.com/neovim/neovim)
 [![Tests](https://img.shields.io/badge/Tests-44%20passing-success?style=flat-square&logo=github-actions)](https://github.com/greggh/claude-code.nvim/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/Version-0.3.0-blue?style=flat-square)](https://github.com/greggh/claude-code.nvim/releases/tag/v0.3.0)
+[![Version](https://img.shields.io/badge/Version-0.4.1-blue?style=flat-square)](https://github.com/greggh/claude-code.nvim/releases/tag/v0.4.1)
 
 *A seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim*
 
@@ -63,7 +63,7 @@ This plugin was built entirely with Claude Code in a Neovim terminal, and then i
 
 ## Version
 
-Current version: 0.3.0 - See [CHANGELOG.md](CHANGELOG.md) for details
+Current version: 0.4.0 - See [CHANGELOG.md](CHANGELOG.md) for details
 
 ## Installation
 

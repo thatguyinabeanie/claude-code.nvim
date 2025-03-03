@@ -9,7 +9,7 @@ describe('version', function()
   describe('string', function()
     it('should return the correct version string', function()
       local result = version.string()
-      assert.are.equal('0.4.0', result)
+      assert.are.equal('0.4.1', result)
       assert.are.equal(
         string.format('%d.%d.%d', version.major, version.minor, version.patch),
         result
@@ -21,7 +21,7 @@ describe('version', function()
     it('should have correct version components', function()
       assert.are.equal(0, version.major)
       assert.are.equal(4, version.minor)
-      assert.are.equal(0, version.patch)
+      assert.are.equal(1, version.patch)
     end)
   end)
 
