@@ -7,6 +7,11 @@ on:
   workflow_dispatch:
     # Allow manual triggering
 
+# Add explicit permissions needed for creating issues
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   check-github-actions:
     runs-on: ubuntu-latest
@@ -37,7 +42,7 @@ jobs:
           fi
           
       - name: Upload Actions Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: actions-updates
           path: actions_updates.md
@@ -85,7 +90,7 @@ jobs:
           fi
           
       - name: Upload Neovim Version Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: neovim-version
           path: neovim_version.md
@@ -116,7 +121,7 @@ jobs:
           echo "Periodically check for changes to the Claude CLI that may affect this plugin's functionality." >> claude_updates.md
           
       - name: Upload Claude Updates Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: claude-updates
           path: claude_updates.md
@@ -129,17 +134,17 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Download Neovim version report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: neovim-version
           
       - name: Download Actions report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: actions-updates
           
       - name: Download Claude updates report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: claude-updates
       
@@ -162,7 +167,7 @@ jobs:
           cat claude_updates.md >> combined_report.md
 
       - name: Create Issue for Updates
-        uses: peter-evans/create-issue-from-file@v4
+        uses: peter-evans/create-issue-from-file@v5
         with:
           title: Weekly Dependency Update Check
           content-filepath: combined_report.md
