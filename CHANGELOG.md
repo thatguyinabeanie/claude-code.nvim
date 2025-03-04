@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.2] - 2025-03-03
 
+### Changed
+- Moved documentation validation to a dedicated workflow for better standardization
+
 ### Fixed
 - Fixed test runner not properly exiting after tests
 - Improved which-key handling in test environment
