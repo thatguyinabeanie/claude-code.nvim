@@ -3,11 +3,17 @@
 ## Useful Commands
 
 ### Git Commands
-- `git commit -am "message"` - Add all changes and commit
-- `git push` - Push changes to remote
-- `git status` - Check current status
-- `git diff` - Show changes
-- `git log -n 5` - Show last 5 commits
+- `git -C /home/gregg/Projects/neovim/plugins/claude-code commit -am "message"` - Add all changes and commit
+- `git -C /home/gregg/Projects/neovim/plugins/claude-code push` - Push changes to remote
+- `git -C /home/gregg/Projects/neovim/plugins/claude-code status` - Check current status
+- `git -C /home/gregg/Projects/neovim/plugins/claude-code diff` - Show changes
+- `git -C /home/gregg/Projects/neovim/plugins/claude-code log -n 5` - Show last 5 commits
+
+### Development Commands
+- `stylua lua/ -c` - Check Lua formatting
+- `stylua lua/` - Format Lua code
+- `luacheck lua/` - Run Lua linter
+- `nvim --headless -c "lua require('claude-code.test').run()"` - Run tests
 
 ## Codebase Information
 
@@ -44,7 +50,24 @@ require("claude-code").setup({
 ```
 
 ### Project Structure
-- `lua/claude-code/init.lua` - Main plugin file with all functionality
+- `lua/claude-code/init.lua` - Main plugin file
+- `lua/claude-code/config.lua` - Configuration module
+- `lua/claude-code/terminal.lua` - Terminal management
+- `lua/claude-code/buffer.lua` - Buffer utilities
+- `lua/claude-code/autocmds.lua` - Autocommands for file refresh
+- `lua/claude-code/version.lua` - Version information
+
+### Features
+- Seamless Neovim integration with Claude Code AI
+- Terminal-based interface for Claude interaction
+- File change detection and auto-refresh
+- Customizable window positioning and appearance
+- Integration with file context and projects
+- Convenient keymaps for toggling and navigation
+
+### Version Management
+- Current version: v0.4.2
+- Version file: `lua/claude-code/version.lua`
 
 ### Key Files
 - `README.md` - Plugin documentation
