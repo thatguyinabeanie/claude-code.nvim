@@ -9,6 +9,7 @@
 [![Neovim Version](https://img.shields.io/badge/Neovim-0.7%2B-blueviolet?style=flat-square&logo=neovim)](https://github.com/neovim/neovim)
 [![Tests](https://img.shields.io/badge/Tests-44%20passing-success?style=flat-square&logo=github-actions)](https://github.com/greggh/claude-code.nvim/actions/workflows/ci.yml)
 [![Version](https://img.shields.io/badge/Version-0.4.2-blue?style=flat-square)](https://github.com/greggh/claude-code.nvim/releases/tag/v0.4.2)
+[![Discussions](https://img.shields.io/github/discussions/greggh/claude-code.nvim?style=flat-square&logo=github)](https://github.com/greggh/claude-code.nvim/discussions)
 
 *A seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim*
 
@@ -25,22 +26,6 @@
 </div>
 
 This plugin was built entirely with Claude Code in a Neovim terminal, and then inside itself using Claude Code for everything!
-
-## Table of Contents
-
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-  - [Commands](#commands)
-  - [Key Mappings](#key-mappings)
-- [How it Works](#how-it-works)
-- [Contributing](#contributing)
-- [License](#license)
-- [Development](#development)
-- [Community](#community)
-- [Acknowledgements](#acknowledgements)
 
 ## Features
 
@@ -61,9 +46,7 @@ This plugin was built entirely with Claude Code in a Neovim terminal, and then i
 - [Claude Code CLI](https://github.com/anthropics/claude-code) tool installed and available in your PATH
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (dependency for git operations)
 
-## Version
-
-Current version: 0.4.2 - See [CHANGELOG.md](CHANGELOG.md) for details
+See [CHANGELOG.md](CHANGELOG.md) for version history and updates.
 
 ## Installation
 
@@ -142,6 +125,21 @@ require("claude-code").setup({
 ```
 
 ## Usage
+
+### Quick Start
+
+```vim
+" In your Vim/Neovim commands or init file:
+:ClaudeCode
+```
+
+```lua
+-- Or from Lua:
+vim.cmd[[ClaudeCode]]
+
+-- Or map to a key:
+vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude Code' })
+```
 
 ### Commands
 
