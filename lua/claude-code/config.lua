@@ -41,6 +41,7 @@ local M = {}
 -- @field window ClaudeCodeWindow Terminal window settings
 -- @field refresh ClaudeCodeRefresh File refresh settings
 -- @field git ClaudeCodeGit Git integration settings
+-- @field command string Command used to launch Claude Code
 -- @field keymaps ClaudeCodeKeymaps Keymaps configuration
 
 --- Default configuration options
@@ -65,6 +66,8 @@ M.default_config = {
   git = {
     use_git_root = true, -- Set CWD to git root when opening Claude Code (if in git project)
   },
+  -- Command settings
+  command = 'claude', -- Command used to launch Claude Code
   -- Keymaps
   keymaps = {
     toggle = {
@@ -138,6 +141,11 @@ local function validate_config(config)
 
   if type(config.git.use_git_root) ~= 'boolean' then
     return false, 'git.use_git_root must be a boolean'
+  end
+
+  -- Validate command settings
+  if type(config.command) ~= 'string' then
+    return false, 'command must be a string'
   end
 
   -- Validate keymaps settings

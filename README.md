@@ -112,6 +112,8 @@ require("claude-code").setup({
   git = {
     use_git_root = true,     -- Set CWD to git root when opening Claude Code (if in git project)
   },
+  -- Command settings
+  command = "claude",        -- Command used to launch Claude Code
   -- Keymaps
   keymaps = {
     toggle = {
