@@ -62,11 +62,11 @@ function M.toggle(claude_code, config, git)
     vim.cmd('resize ' .. math.floor(vim.o.lines * config.window.height_ratio))
 
     -- Determine if we should use the git root directory
-    local cmd = 'terminal claude'
+    local cmd = 'terminal ' .. config.command
     if config.git and config.git.use_git_root then
       local git_root = git.get_git_root()
       if git_root then
-        cmd = 'terminal claude --cwd ' .. git_root
+        cmd = 'terminal ' .. config.command .. ' --cwd ' .. git_root
       end
     end
 
