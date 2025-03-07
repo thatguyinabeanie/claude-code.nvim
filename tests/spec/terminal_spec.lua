@@ -67,6 +67,7 @@ describe('terminal module', function()
     
     -- Setup test objects
     config = {
+      command = 'claude',
       window = {
         position = 'botright',
         height_ratio = 0.5,
