@@ -233,5 +233,5 @@ make format
 ---
 
 <div align="center">
-  <p>Made with ❤️ by <a href="https://github.com/greggh">greggh</a></p>
+  <p>Made with ❤️ by <a href="https://github.com/greggh">Gregg Housh</a></p>
 </div>
