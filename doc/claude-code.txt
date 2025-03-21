@@ -78,7 +78,7 @@ PREREQUISITES:
 - When Claude Code modifies files that are open in Neovim, they'll be
   automatically reloaded
 - When in a git repository, Claude Code will automatically use the git root
-  directory as its working directory (configurable)
+  directory as its working directory using pushd/popd commands (configurable)
 
 ==============================================================================
 4. CONFIGURATION                                    *claude-code-configuration*
