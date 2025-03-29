@@ -15,6 +15,36 @@ M.terminal = {
   saved_updatetime = nil,
 }
 
+--- Create a split window according to the specified position configuration
+--- @param position string Window position configuration
+--- @param config table Plugin configuration containing window settings
+--- @param existing_bufnr number|nil Buffer number of existing buffer to show in the split (optional)
+--- @private
+local function create_split(position, config, existing_bufnr)
+  local is_vertical = position:match('vsplit') or position:match('vertical')
+
+  -- Create the window with the user's specified command
+  -- If the command already contains 'split' or 'vsplit', use it as is
+  if position:match('split') then
+    vim.cmd(position)
+  else
+    -- Otherwise append 'split'
+    vim.cmd(position .. ' split')
+  end
+
+  -- If we have an existing buffer to display, switch to it
+  if existing_bufnr then
+    vim.cmd('buffer ' .. existing_bufnr)
+  end
+
+  -- Resize the window appropriately based on split type
+  if is_vertical then
+    vim.cmd('vertical resize ' .. math.floor(vim.o.columns * config.window.split_ratio))
+  else
+    vim.cmd('resize ' .. math.floor(vim.o.lines * config.window.split_ratio))
+  end
+end
+
 --- Set up function to force insert mode when entering the Claude Code window
 --- @param claude_code table The main plugin module
 function M.force_insert_mode(claude_code)
@@ -48,9 +78,7 @@ function M.toggle(claude_code, config, git)
       end
     else
       -- Claude Code buffer exists but is not visible, open it in a split
-      vim.cmd(config.window.position .. ' split')
-      vim.cmd('resize ' .. math.floor(vim.o.lines * config.window.height_ratio))
-      vim.cmd('buffer ' .. bufnr)
+      create_split(config.window.position, config, bufnr)
       -- Force insert mode more aggressively
       vim.schedule(function()
         vim.cmd 'stopinsert | startinsert'
@@ -58,8 +86,7 @@ function M.toggle(claude_code, config, git)
     end
   else
     -- Claude Code is not running, start it in a new split
-    vim.cmd(config.window.position .. ' split')
-    vim.cmd('resize ' .. math.floor(vim.o.lines * config.window.height_ratio))
+    create_split(config.window.position, config)
 
     -- Determine if we should use the git root directory
     local cmd = 'terminal ' .. config.command
