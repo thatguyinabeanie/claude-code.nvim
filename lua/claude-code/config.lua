@@ -8,7 +8,7 @@ local M = {}
 
 --- ClaudeCodeWindow class for window configuration
 -- @table ClaudeCodeWindow
--- @field height_ratio number Percentage of screen height for the terminal window
+-- @field split_ratio number Percentage of screen for the terminal window (height for horizontal, width for vertical splits)
 -- @field position string Position of the window: "botright", "topleft", "vertical", etc.
 -- @field enter_insert boolean Whether to enter insert mode when opening Claude Code
 -- @field hide_numbers boolean Hide line numbers in the terminal window
@@ -49,7 +49,8 @@ local M = {}
 M.default_config = {
   -- Terminal window settings
   window = {
-    height_ratio = 0.3, -- Percentage of screen height for the terminal window
+    split_ratio = 0.3, -- Percentage of screen for the terminal window (height or width)
+    height_ratio = 0.3, -- DEPRECATED: Use split_ratio instead
     position = 'botright', -- Position of the window: "botright", "topleft", "vertical", etc.
     enter_insert = true, -- Whether to enter insert mode when opening Claude Code
     hide_numbers = true, -- Hide line numbers in the terminal window
@@ -90,11 +91,11 @@ local function validate_config(config)
   end
 
   if
-    type(config.window.height_ratio) ~= 'number'
-    or config.window.height_ratio <= 0
-    or config.window.height_ratio > 1
+    type(config.window.split_ratio) ~= 'number'
+    or config.window.split_ratio <= 0
+    or config.window.split_ratio > 1
   then
-    return false, 'window.height_ratio must be a number between 0 and 1'
+    return false, 'window.split_ratio must be a number between 0 and 1'
   end
 
   if type(config.window.position) ~= 'string' then
@@ -187,6 +188,14 @@ end
 --- @param silent? boolean Set to true to suppress error notifications (for tests)
 --- @return ClaudeCodeConfig
 function M.parse_config(user_config, silent)
+  -- Handle backward compatibility first
+  if user_config and user_config.window then
+    if user_config.window.height_ratio and not user_config.window.split_ratio then
+      -- Copy height_ratio to split_ratio for backward compatibility
+      user_config.window.split_ratio = user_config.window.height_ratio
+    end
+  end
+
   local config = vim.tbl_deep_extend('force', {}, M.default_config, user_config or {})
 
   local valid, err = validate_config(config)

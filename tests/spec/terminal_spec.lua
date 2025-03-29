@@ -70,7 +70,7 @@ describe('terminal module', function()
       command = 'claude',
       window = {
         position = 'botright',
-        height_ratio = 0.5,
+        split_ratio = 0.5,
         enter_insert = true,
         hide_numbers = true,
         hide_signcolumn = true,
