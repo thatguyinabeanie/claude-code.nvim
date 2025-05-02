@@ -55,6 +55,32 @@ function M.toggle()
   end
 end
 
+--- Toggle the Claude Code terminal window with a specific command variant
+--- @param variant_name string The name of the command variant to use
+function M.toggle_with_variant(variant_name)
+  if not variant_name or not M.config.command_variants[variant_name] then
+    -- If variant doesn't exist, fall back to regular toggle
+    return M.toggle()
+  end
+
+  -- Store the original command
+  local original_command = M.config.command
+
+  -- Set the command with the variant args
+  M.config.command = original_command .. ' ' .. M.config.command_variants[variant_name]
+
+  -- Call the toggle function with the modified command
+  terminal.toggle(M, M.config, git)
+
+  -- Set up terminal navigation keymaps after toggling
+  if M.claude_code.bufnr and vim.api.nvim_buf_is_valid(M.claude_code.bufnr) then
+    keymaps.setup_terminal_navigation(M, M.config)
+  end
+
+  -- Restore the original command
+  M.config.command = original_command
+end
+
 --- Get the current version of the plugin
 --- @return string version Current version string
 function M.get_version()

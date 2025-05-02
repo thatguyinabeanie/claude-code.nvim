@@ -34,6 +34,24 @@ function M.register_keymaps(claude_code, config)
     )
   end
 
+  -- Register variant keymaps if configured
+  if config.keymaps.toggle.variants then
+    for variant_name, keymap in pairs(config.keymaps.toggle.variants) do
+      if keymap then
+        -- Convert variant name to PascalCase for command name (e.g., "continue" -> "Continue")
+        local capitalized_name = variant_name:gsub('^%l', string.upper)
+        local cmd_name = 'ClaudeCode' .. capitalized_name
+
+        vim.api.nvim_set_keymap(
+          'n',
+          keymap,
+          string.format([[<cmd>%s<CR>]], cmd_name),
+          vim.tbl_extend('force', map_opts, { desc = 'Claude Code: ' .. capitalized_name })
+        )
+      end
+    end
+  end
+
   -- Register with which-key if it's available
   vim.defer_fn(function()
     local status_ok, which_key = pcall(require, 'which-key')
@@ -49,6 +67,19 @@ function M.register_keymaps(claude_code, config)
           mode = 't',
           { config.keymaps.toggle.terminal, desc = 'Claude Code: Toggle', icon = '🤖' },
         }
+      end
+
+      -- Register variant keymaps with which-key
+      if config.keymaps.toggle.variants then
+        for variant_name, keymap in pairs(config.keymaps.toggle.variants) do
+          if keymap then
+            local capitalized_name = variant_name:gsub('^%l', string.upper)
+            which_key.add {
+              mode = 'n',
+              { keymap, desc = 'Claude Code: ' .. capitalized_name, icon = '🤖' },
+            }
+          end
+        end
       end
     end
   end, 100)
