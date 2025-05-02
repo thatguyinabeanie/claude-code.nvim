@@ -109,11 +109,24 @@ default configuration:
     },
     -- Command settings
     command = "claude",        -- Command used to launch Claude Code (do not include --cwd)
+    -- Command variants
+    command_variants = {
+      -- Conversation management
+      continue = "--continue", -- Resume the most recent conversation
+      resume = "--resume",     -- Display an interactive conversation picker
+      
+      -- Output options
+      verbose = "--verbose",   -- Enable verbose logging with full turn-by-turn output
+    },
     -- Keymaps
     keymaps = {
       toggle = {
         normal = "<leader>ac",  -- Normal mode keymap for toggling Claude Code
         terminal = "<C-o>",     -- Terminal mode keymap for toggling Claude Code
+        variants = {
+          continue = "<leader>cC", -- Normal mode keymap for Claude Code with continue flag
+          verbose = "<leader>cV",  -- Normal mode keymap for Claude Code with verbose flag
+        },
       }
     }
   })
@@ -125,6 +138,19 @@ default configuration:
 :ClaudeCode                                                       *:ClaudeCode*
     Toggle the Claude Code terminal window.
 
+Conversation Management Commands:
+:ClaudeCodeContinue                                           *:ClaudeCodeContinue*
+    Toggle Claude Code with the --continue flag to resume the most recent conversation.
+
+:ClaudeCodeResume                                             *:ClaudeCodeResume*
+    Toggle Claude Code with the --resume flag to display an interactive conversation picker.
+
+Output Options Commands:
+:ClaudeCodeVerbose                                           *:ClaudeCodeVerbose*
+    Toggle Claude Code with the --verbose flag for full turn-by-turn output.
+
+Note: Commands are automatically generated for each entry in your command_variants configuration.
+
 ==============================================================================
 6. MAPPINGS                                                *claude-code-mappings*
 
@@ -132,6 +158,11 @@ Default key mappings:
 
   <leader>ac   Toggle Claude Code terminal window (normal mode)
   <C-.>        Toggle Claude Code terminal window (both normal and terminal modes)
+  
+Variant mode mappings (if configured):
+
+  <leader>cC   Toggle Claude Code with --continue flag
+  <leader>cV   Toggle Claude Code with --verbose flag
 
 Additionally, when in the Claude Code terminal:
 

@@ -36,12 +36,22 @@ local M = {}
 -- @field window_navigation boolean Enable window navigation keymaps
 -- @field scrolling boolean Enable scrolling keymaps
 
+--- ClaudeCodeCommandVariants class for command variant configuration
+-- @table ClaudeCodeCommandVariants
+-- Conversation management:
+-- @field continue string|boolean Resume the most recent conversation
+-- @field resume string|boolean Display an interactive conversation picker
+-- Output options:
+-- @field verbose string|boolean Enable verbose logging with full turn-by-turn output
+-- Additional options can be added as needed
+
 --- ClaudeCodeConfig class for main configuration
 -- @table ClaudeCodeConfig
 -- @field window ClaudeCodeWindow Terminal window settings
 -- @field refresh ClaudeCodeRefresh File refresh settings
 -- @field git ClaudeCodeGit Git integration settings
 -- @field command string Command used to launch Claude Code
+-- @field command_variants ClaudeCodeCommandVariants Command variants configuration
 -- @field keymaps ClaudeCodeKeymaps Keymaps configuration
 
 --- Default configuration options
@@ -69,11 +79,24 @@ M.default_config = {
   },
   -- Command settings
   command = 'claude', -- Command used to launch Claude Code
+  -- Command variants
+  command_variants = {
+    -- Conversation management
+    continue = '--continue', -- Resume the most recent conversation
+    resume = '--resume', -- Display an interactive conversation picker
+
+    -- Output options
+    verbose = '--verbose', -- Enable verbose logging with full turn-by-turn output
+  },
   -- Keymaps
   keymaps = {
     toggle = {
       normal = '<C-,>', -- Normal mode keymap for toggling Claude Code
       terminal = '<C-,>', -- Terminal mode keymap for toggling Claude Code
+      variants = {
+        continue = '<leader>cC', -- Normal mode keymap for Claude Code with continue flag
+        verbose = '<leader>cV', -- Normal mode keymap for Claude Code with verbose flag
+      },
     },
     window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)
     scrolling = true, -- Enable scrolling keymaps (<C-f/b>) for page up/down
@@ -149,6 +172,18 @@ local function validate_config(config)
     return false, 'command must be a string'
   end
 
+  -- Validate command variants settings
+  if type(config.command_variants) ~= 'table' then
+    return false, 'command_variants config must be a table'
+  end
+
+  -- Check each command variant
+  for variant_name, variant_args in pairs(config.command_variants) do
+    if not (variant_args == false or type(variant_args) == 'string') then
+      return false, 'command_variants.' .. variant_name .. ' must be a string or false'
+    end
+  end
+
   -- Validate keymaps settings
   if type(config.keymaps) ~= 'table' then
     return false, 'keymaps config must be a table'
@@ -170,6 +205,25 @@ local function validate_config(config)
     )
   then
     return false, 'keymaps.toggle.terminal must be a string or false'
+  end
+
+  -- Validate variant keymaps if they exist
+  if config.keymaps.toggle.variants then
+    if type(config.keymaps.toggle.variants) ~= 'table' then
+      return false, 'keymaps.toggle.variants must be a table'
+    end
+
+    -- Check each variant keymap
+    for variant_name, keymap in pairs(config.keymaps.toggle.variants) do
+      if not (keymap == false or type(keymap) == 'string') then
+        return false, 'keymaps.toggle.variants.' .. variant_name .. ' must be a string or false'
+      end
+      -- Ensure variant exists in command_variants
+      if keymap ~= false and not config.command_variants[variant_name] then
+        return false,
+          'keymaps.toggle.variants.' .. variant_name .. ' has no corresponding command variant'
+      end
+    end
   end
 
   if type(config.keymaps.window_navigation) ~= 'boolean' then

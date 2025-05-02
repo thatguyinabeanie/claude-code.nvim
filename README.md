@@ -30,6 +30,7 @@ This plugin was built entirely with Claude Code in a Neovim terminal, and then i
 ## Features
 
 - 🚀 Toggle Claude Code in a terminal window with a single key press
+- 🧠 Support for command-line arguments like `--continue` and custom variants
 - 🔄 Automatically detect and reload files modified by Claude Code
 - ⚡ Real-time buffer updates when files are changed externally
 - 📱 Customizable window position and size
@@ -114,11 +115,24 @@ require("claude-code").setup({
   },
   -- Command settings
   command = "claude",        -- Command used to launch Claude Code
+  -- Command variants
+  command_variants = {
+    -- Conversation management
+    continue = "--continue", -- Resume the most recent conversation
+    resume = "--resume",     -- Display an interactive conversation picker
+    
+    -- Output options
+    verbose = "--verbose",   -- Enable verbose logging with full turn-by-turn output
+  },
   -- Keymaps
   keymaps = {
     toggle = {
       normal = "<C-,>",       -- Normal mode keymap for toggling Claude Code, false to disable
       terminal = "<C-,>",     -- Terminal mode keymap for toggling Claude Code, false to disable
+      variants = {
+        continue = "<leader>cC", -- Normal mode keymap for Claude Code with continue flag
+        verbose = "<leader>cV",  -- Normal mode keymap for Claude Code with verbose flag
+      },
     },
     window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)
     scrolling = true,         -- Enable scrolling keymaps (<C-f/b>) for page up/down
@@ -145,7 +159,20 @@ vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude
 
 ### Commands
 
+Basic command:
+
 - `:ClaudeCode` - Toggle the Claude Code terminal window
+
+Conversation management commands:
+
+- `:ClaudeCodeContinue` - Resume the most recent conversation
+- `:ClaudeCodeResume` - Display an interactive conversation picker
+
+Output options command:
+
+- `:ClaudeCodeVerbose` - Enable verbose logging with full turn-by-turn output
+
+Note: Commands are automatically generated for each entry in your `command_variants` configuration.
 
 ### Key Mappings
 
@@ -153,6 +180,11 @@ Default key mappings:
 
 - `<leader>ac` - Toggle Claude Code terminal window (normal mode)
 - `<C-,>` - Toggle Claude Code terminal window (both normal and terminal modes)
+
+Variant mode mappings (if configured):
+
+- `<leader>cC` - Toggle Claude Code with --continue flag
+- `<leader>cV` - Toggle Claude Code with --verbose flag
 
 Additionally, when in the Claude Code terminal:
 
