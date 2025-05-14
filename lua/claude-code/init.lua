@@ -41,7 +41,7 @@ M.claude_code = terminal.terminal
 --- Force insert mode when entering the Claude Code window
 --- This is a public function used in keymaps
 function M.force_insert_mode()
-  terminal.force_insert_mode(M)
+  terminal.force_insert_mode(M, M.config)
 end
 
 --- Toggle the Claude Code terminal window

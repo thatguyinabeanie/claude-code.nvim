@@ -72,6 +72,7 @@ describe('terminal module', function()
         position = 'botright',
         split_ratio = 0.5,
         enter_insert = true,
+        start_in_normal_mode = false,
         hide_numbers = true,
         hide_signcolumn = true,
       },
@@ -196,6 +197,58 @@ describe('terminal module', function()
     end)
   end)
 
+  describe('start_in_normal_mode option', function()
+    it('should not enter insert mode when start_in_normal_mode is true', function()
+      -- Claude Code is not running (bufnr is nil)
+      claude_code.claude_code.bufnr = nil
+
+      -- Set start_in_normal_mode to true
+      config.window.start_in_normal_mode = true
+
+      -- Call toggle
+      terminal.toggle(claude_code, config, git)
+
+      -- Check if startinsert was NOT called
+      local startinsert_found = false
+      for _, cmd in ipairs(vim_cmd_calls) do
+        if cmd == 'startinsert' then
+          startinsert_found = true
+          break
+        end
+      end
+
+      assert.is_false(
+        startinsert_found,
+        'startinsert should not be called when start_in_normal_mode is true'
+      )
+    end)
+
+    it('should enter insert mode when start_in_normal_mode is false', function()
+      -- Claude Code is not running (bufnr is nil)
+      claude_code.claude_code.bufnr = nil
+
+      -- Set start_in_normal_mode to false
+      config.window.start_in_normal_mode = false
+
+      -- Call toggle
+      terminal.toggle(claude_code, config, git)
+
+      -- Check if startinsert was called
+      local startinsert_found = false
+      for _, cmd in ipairs(vim_cmd_calls) do
+        if cmd == 'startinsert' then
+          startinsert_found = true
+          break
+        end
+      end
+
+      assert.is_true(
+        startinsert_found,
+        'startinsert should be called when start_in_normal_mode is false'
+      )
+    end)
+  end)
+
   describe('force_insert_mode', function()
     it('should check insert mode conditions in terminal buffer', function()
       -- For this test, we'll just verify that the function can be called without error
@@ -206,7 +259,12 @@ describe('terminal module', function()
             bufnr = 1,
           },
         }
-        terminal.force_insert_mode(mock_claude_code)
+        local mock_config = {
+          window = {
+            start_in_normal_mode = false,
+          },
+        }
+        terminal.force_insert_mode(mock_claude_code, mock_config)
       end)
 
       assert.is_true(success, 'Force insert mode function should run without error')
@@ -221,7 +279,12 @@ describe('terminal module', function()
             bufnr = 2,
           },
         }
-        terminal.force_insert_mode(mock_claude_code)
+        local mock_config = {
+          window = {
+            start_in_normal_mode = false,
+          },
+        }
+        terminal.force_insert_mode(mock_claude_code, mock_config)
       end)
 
       assert.is_true(success, 'Force insert mode function should run without error')

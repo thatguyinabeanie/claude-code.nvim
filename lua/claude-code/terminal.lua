@@ -47,10 +47,16 @@ end
 
 --- Set up function to force insert mode when entering the Claude Code window
 --- @param claude_code table The main plugin module
-function M.force_insert_mode(claude_code)
+--- @param config table The plugin configuration
+function M.force_insert_mode(claude_code, config)
   local bufnr = claude_code.claude_code.bufnr
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) and vim.fn.bufnr '%' == bufnr then
     -- Only enter insert mode if we're in the terminal buffer and not already in insert mode
+    -- and not configured to stay in normal mode
+    if config.window.start_in_normal_mode then
+      return
+    end
+
     local mode = vim.api.nvim_get_mode().mode
     if vim.bo.buftype == 'terminal' and mode ~= 't' and mode ~= 'i' then
       vim.cmd 'silent! stopinsert'
@@ -79,10 +85,12 @@ function M.toggle(claude_code, config, git)
     else
       -- Claude Code buffer exists but is not visible, open it in a split
       create_split(config.window.position, config, bufnr)
-      -- Force insert mode more aggressively
-      vim.schedule(function()
-        vim.cmd 'stopinsert | startinsert'
-      end)
+      -- Force insert mode more aggressively unless configured to start in normal mode
+      if not config.window.start_in_normal_mode then
+        vim.schedule(function()
+          vim.cmd 'stopinsert | startinsert'
+        end)
+      end
     end
   else
     -- Claude Code is not running, start it in a new split
@@ -113,8 +121,8 @@ function M.toggle(claude_code, config, git)
     -- Store buffer number for future reference
     claude_code.claude_code.bufnr = vim.fn.bufnr '%'
 
-    -- Automatically enter insert mode in terminal
-    if config.window.enter_insert then
+    -- Automatically enter insert mode in terminal unless configured to start in normal mode
+    if config.window.enter_insert and not config.window.start_in_normal_mode then
       vim.cmd 'startinsert'
     end
   end
