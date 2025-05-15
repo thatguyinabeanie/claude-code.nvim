@@ -11,6 +11,7 @@ local M = {}
 -- @field split_ratio number Percentage of screen for the terminal window (height for horizontal, width for vertical splits)
 -- @field position string Position of the window: "botright", "topleft", "vertical", etc.
 -- @field enter_insert boolean Whether to enter insert mode when opening Claude Code
+-- @field start_in_normal_mode boolean Whether to start in normal mode instead of insert mode when opening Claude Code
 -- @field hide_numbers boolean Hide line numbers in the terminal window
 -- @field hide_signcolumn boolean Hide the sign column in the terminal window
 
@@ -63,6 +64,7 @@ M.default_config = {
     height_ratio = 0.3, -- DEPRECATED: Use split_ratio instead
     position = 'botright', -- Position of the window: "botright", "topleft", "vertical", etc.
     enter_insert = true, -- Whether to enter insert mode when opening Claude Code
+    start_in_normal_mode = false, -- Whether to start in normal mode instead of insert mode
     hide_numbers = true, -- Hide line numbers in the terminal window
     hide_signcolumn = true, -- Hide the sign column in the terminal window
   },
@@ -127,6 +129,10 @@ local function validate_config(config)
 
   if type(config.window.enter_insert) ~= 'boolean' then
     return false, 'window.enter_insert must be a boolean'
+  end
+
+  if type(config.window.start_in_normal_mode) ~= 'boolean' then
+    return false, 'window.start_in_normal_mode must be a boolean'
   end
 
   if type(config.window.hide_numbers) ~= 'boolean' then
