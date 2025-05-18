@@ -215,6 +215,21 @@ function M.toggle(claude_code, config, git)
     if bufnr and not vim.api.nvim_buf_is_valid(bufnr) then
       claude_code.claude_code.instances[instance_id] = nil
     end
+<<<<<<< HEAD
+    -- This Claude Code instance is not running, start it in a new split
+    create_split(config.window.position, config)
+
+    -- Determine if we should use the git root directory
+    local cmd = 'terminal ' .. config.command
+    if config.git and config.git.use_git_root then
+      local git_root = git.get_git_root()
+      if git_root then
+        -- Use pushd/popd to change directory instead of --cwd
+        local separator = config.shell.separator
+        local pushd_cmd = config.shell.pushd_cmd
+        local popd_cmd = config.shell.popd_cmd
+        cmd = 'terminal ' .. pushd_cmd .. ' ' .. git_root .. ' ' .. separator .. ' ' .. config.command .. ' ' .. separator .. ' ' .. popd_cmd
+=======
     -- Claude Code is not running, start it in a new split or float
     if config.window.position == 'float' then
       -- For floating window, create buffer first with terminal
@@ -232,11 +247,7 @@ function M.toggle(claude_code, config, git)
       if config.git and config.git.use_git_root then
         local git_root = git.get_git_root()
         if git_root then
-          -- Use configurable shell commands to change directory
-          local separator = config.shell.separator
-          local pushd_cmd = config.shell.pushd_cmd
-          local popd_cmd = config.shell.popd_cmd
-          cmd = pushd_cmd .. ' ' .. git_root .. ' ' .. separator .. ' ' .. config.command .. ' ' .. separator .. ' ' .. popd_cmd
+          cmd = 'pushd ' .. git_root .. ' && ' .. config.command .. ' && popd'
         end
       end
       
@@ -268,6 +279,7 @@ function M.toggle(claude_code, config, git)
       -- Enter insert mode if configured
       if config.window.enter_insert and not config.window.start_in_normal_mode then
         vim.cmd 'startinsert'
+>>>>>>> e754aca (feat: add floating window support)
       end
     else
       -- Regular split window
@@ -278,11 +290,8 @@ function M.toggle(claude_code, config, git)
       if config.git and config.git.use_git_root then
         local git_root = git.get_git_root()
         if git_root then
-          -- Use configurable shell commands to change directory
-          local separator = config.shell.separator
-          local pushd_cmd = config.shell.pushd_cmd
-          local popd_cmd = config.shell.popd_cmd
-          cmd = 'terminal ' .. pushd_cmd .. ' ' .. git_root .. ' ' .. separator .. ' ' .. config.command .. ' ' .. separator .. ' ' .. popd_cmd
+          -- Use pushd/popd to change directory instead of --cwd
+          cmd = 'terminal pushd ' .. git_root .. ' && ' .. config.command .. ' && popd'
         end
       end
 

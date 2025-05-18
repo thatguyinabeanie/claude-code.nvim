@@ -232,11 +232,7 @@ function M.toggle(claude_code, config, git)
       if config.git and config.git.use_git_root then
         local git_root = git.get_git_root()
         if git_root then
-          -- Use configurable shell commands to change directory
-          local separator = config.shell.separator
-          local pushd_cmd = config.shell.pushd_cmd
-          local popd_cmd = config.shell.popd_cmd
-          cmd = pushd_cmd .. ' ' .. git_root .. ' ' .. separator .. ' ' .. config.command .. ' ' .. separator .. ' ' .. popd_cmd
+          cmd = 'pushd ' .. git_root .. ' && ' .. config.command .. ' && popd'
         end
       end
       
@@ -278,11 +274,8 @@ function M.toggle(claude_code, config, git)
       if config.git and config.git.use_git_root then
         local git_root = git.get_git_root()
         if git_root then
-          -- Use configurable shell commands to change directory
-          local separator = config.shell.separator
-          local pushd_cmd = config.shell.pushd_cmd
-          local popd_cmd = config.shell.popd_cmd
-          cmd = 'terminal ' .. pushd_cmd .. ' ' .. git_root .. ' ' .. separator .. ' ' .. config.command .. ' ' .. separator .. ' ' .. popd_cmd
+          -- Use pushd/popd to change directory instead of --cwd
+          cmd = 'terminal pushd ' .. git_root .. ' && ' .. config.command .. ' && popd'
         end
       end
 
