@@ -96,6 +96,27 @@ local function create_float(config, existing_bufnr)
   return vim.api.nvim_open_win(bufnr, true, win_config)
 end
 
+--- Build command with git root directory if configured
+--- @param config table Plugin configuration
+--- @param git table Git module
+--- @param base_cmd string Base command to run
+--- @return string Command with git root directory change if applicable
+--- @private
+local function build_command_with_git_root(config, git, base_cmd)
+  if config.git and config.git.use_git_root then
+    local git_root = git.get_git_root()
+    if git_root then
+      local quoted_root = vim.fn.shellescape(git_root)
+      -- Use configurable shell commands
+      local separator = config.shell.separator
+      local pushd_cmd = config.shell.pushd_cmd
+      local popd_cmd = config.shell.popd_cmd
+      return pushd_cmd .. ' ' .. quoted_root .. ' ' .. separator .. ' ' .. base_cmd .. ' ' .. separator .. ' ' .. popd_cmd
+    end
+  end
+  return base_cmd
+end
+
 --- Create a split window according to the specified position configuration
 --- @param position string Window position configuration
 --- @param config table Plugin configuration containing window settings
@@ -228,17 +249,7 @@ function M.toggle(claude_code, config, git)
       vim.api.nvim_win_set_buf(win_id, new_bufnr)
       
       -- Determine command
-      local cmd = config.command
-      if config.git and config.git.use_git_root then
-        local git_root = git.get_git_root()
-        if git_root then
-          -- Use configurable shell commands to change directory
-          local separator = config.shell.separator
-          local pushd_cmd = config.shell.pushd_cmd
-          local popd_cmd = config.shell.popd_cmd
-          cmd = pushd_cmd .. ' ' .. git_root .. ' ' .. separator .. ' ' .. config.command .. ' ' .. separator .. ' ' .. popd_cmd
-        end
-      end
+      local cmd = build_command_with_git_root(config, git, config.command)
       
       -- Run terminal in the buffer
       vim.fn.termopen(cmd)
@@ -274,17 +285,8 @@ function M.toggle(claude_code, config, git)
       create_split(config.window.position, config)
 
       -- Determine if we should use the git root directory
-      local cmd = 'terminal ' .. config.command
-      if config.git and config.git.use_git_root then
-        local git_root = git.get_git_root()
-        if git_root then
-          -- Use configurable shell commands to change directory
-          local separator = config.shell.separator
-          local pushd_cmd = config.shell.pushd_cmd
-          local popd_cmd = config.shell.popd_cmd
-          cmd = 'terminal ' .. pushd_cmd .. ' ' .. git_root .. ' ' .. separator .. ' ' .. config.command .. ' ' .. separator .. ' ' .. popd_cmd
-        end
-      end
+      local base_cmd = build_command_with_git_root(config, git, config.command)
+      local cmd = 'terminal ' .. base_cmd
 
       vim.cmd(cmd)
       vim.cmd 'setlocal bufhidden=hide'
