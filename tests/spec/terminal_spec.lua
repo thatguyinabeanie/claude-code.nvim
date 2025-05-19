@@ -511,6 +511,10 @@ describe('terminal module', function()
       assert.is_not_nil(nvim_open_win_config, 'floating window config should be provided')
       assert.are.equal('editor', nvim_open_win_config.relative)
       assert.are.equal('rounded', nvim_open_win_config.border)
+      assert.are.equal(80, nvim_open_win_config.width)
+      assert.are.equal(20, nvim_open_win_config.height)
+      assert.are.equal(0, nvim_open_win_config.row)
+      assert.are.equal(0, nvim_open_win_config.col)
     end)
 
     it('should calculate float dimensions from percentages', function()
@@ -531,8 +535,8 @@ describe('terminal module', function()
 
       -- Check that dimensions were calculated correctly
       assert.is_true(nvim_open_win_called, 'nvim_open_win should be called')
-      assert.are.equal(96, nvim_open_win_config.width) -- 80% of 120
-      assert.are.equal(20, nvim_open_win_config.height) -- 50% of 40
+      assert.are.equal(math.floor(120 * 0.8), nvim_open_win_config.width) -- 80% of 120
+      assert.are.equal(math.floor(40 * 0.5), nvim_open_win_config.height) -- 50% of 40
     end)
 
     it('should center floating window when position is "center"', function()
@@ -579,6 +583,30 @@ describe('terminal module', function()
       -- Should open floating window with existing buffer
       assert.is_true(nvim_open_win_called, 'nvim_open_win should be called')
       assert.is_false(nvim_create_buf_called, 'should not create new buffer')
+    end)
+
+    it('should handle out-of-bounds dimensions gracefully', function()
+      -- Claude Code is not running
+      claude_code.claude_code.bufnr = nil
+      
+      -- Configure floating window with large dimensions
+      config.window.position = 'float'
+      config.window.float = {
+        width = '150%',
+        height = '110%',
+        row = '90%',
+        col = '95%',
+        relative = 'editor',
+        border = 'rounded'
+      }
+
+      -- Call toggle
+      terminal.toggle(claude_code, config, git)
+
+      -- Check that window is created (even if dims are out of bounds)
+      assert.is_true(nvim_open_win_called, 'nvim_open_win should be called')
+      assert.are.equal(math.floor(120 * 1.5), nvim_open_win_config.width)
+      assert.are.equal(math.floor(40 * 1.1), nvim_open_win_config.height)
     end)
   end)
 end)
