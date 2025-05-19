@@ -485,10 +485,9 @@ describe('terminal module', function()
       end
 
       -- Mock vim.o.columns and vim.o.lines for percentage calculations
-      _G.vim.o = {
-        columns = 120,
-        lines = 40
-      }
+      _G.vim.o = _G.vim.o or {}
+      _G.vim.o.columns = 120
+      _G.vim.o.lines = 40
     end)
 
     it('should create floating window when position is "float"', function()
