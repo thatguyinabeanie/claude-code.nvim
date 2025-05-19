@@ -137,12 +137,13 @@ local function create_split(position, config, existing_bufnr)
   local is_vertical = position:match('vsplit') or position:match('vertical')
 
   -- Create the window with the user's specified command
-  -- If the command already contains 'split' or 'vsplit', use it as is
+  -- If the command already contains 'split', use it as is
   if position:match('split') then
     vim.cmd(position)
   else
-    -- Otherwise append 'split'
-    vim.cmd(position .. ' split')
+    -- Otherwise append the appropriate split command
+    local split_cmd = is_vertical and 'vsplit' or 'split'
+    vim.cmd(position .. ' ' .. split_cmd)
   end
 
   -- If we have an existing buffer to display, switch to it
