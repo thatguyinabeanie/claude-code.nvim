@@ -96,6 +96,13 @@ local function create_float(config, existing_bufnr)
   local bufnr = existing_bufnr
   if not bufnr then
     bufnr = vim.api.nvim_create_buf(false, true) -- unlisted, scratch
+  else
+    -- Validate existing buffer is still a terminal
+    local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
+    if buftype ~= 'terminal' then
+      -- Buffer exists but is no longer a terminal, create a new one
+      bufnr = vim.api.nvim_create_buf(false, true) -- unlisted, scratch
+    end
   end
   
   -- Create and return the floating window
@@ -216,6 +223,22 @@ function M.toggle(claude_code, config, git)
 
   -- Check if this Claude Code instance is already running
   local bufnr = claude_code.claude_code.instances[instance_id]
+  if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
+    -- Validate the buffer is still a valid terminal
+    local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
+    local terminal_job_id = nil
+    pcall(function()
+      terminal_job_id = vim.api.nvim_buf_get_var(bufnr, 'terminal_job_id')
+    end)
+    local is_valid_terminal = buftype == 'terminal' and terminal_job_id and vim.fn.jobwait({terminal_job_id}, 0)[1] == -1
+    
+    if not is_valid_terminal then
+      -- Buffer is no longer a valid terminal, reset
+      claude_code.claude_code.instances[instance_id] = nil
+      bufnr = nil
+    end
+  end
+  
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
     -- Check if there's a window displaying this Claude Code buffer
     local win_ids = vim.fn.win_findbuf(bufnr)
