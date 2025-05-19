@@ -36,7 +36,9 @@ end
 --- @return number Calculated dimension
 --- @private
 local function calculate_float_dimension(value, max_value)
-  if type(value) == 'string' and value:match('^%d+%%$') then
+  if value == nil then
+    return math.floor(max_value * 0.8) -- Default to 80% if not specified
+  elseif type(value) == 'string' and value:match('^%d+%%$') then
     local percentage = tonumber(value:match('^(%d+)%%$'))
     return math.floor(max_value * percentage / 100)
   end
@@ -50,13 +52,17 @@ end
 --- @return number Calculated position
 --- @private
 local function calculate_float_position(value, window_size, max_value)
+  local pos
   if value == 'center' then
-    return math.floor((max_value - window_size) / 2)
+    pos = math.floor((max_value - window_size) / 2)
   elseif type(value) == 'string' and value:match('^%d+%%$') then
     local percentage = tonumber(value:match('^(%d+)%%$'))
-    return math.floor(max_value * percentage / 100)
+    pos = math.floor(max_value * percentage / 100)
+  else
+    pos = value or 0
   end
-  return value or 0
+  -- Clamp position to ensure window is visible
+  return math.max(0, math.min(pos, max_value - window_size))
 end
 
 --- Create a floating window for Claude Code
