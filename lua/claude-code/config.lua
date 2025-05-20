@@ -25,6 +25,7 @@ local M = {}
 --- ClaudeCodeGit class for git integration configuration
 -- @table ClaudeCodeGit
 -- @field use_git_root boolean Set CWD to git root when opening Claude Code (if in git project)
+-- @field multi_instance boolean Use multiple Claude instances (one per git root)
 
 --- ClaudeCodeKeymapsToggle class for toggle keymap configuration
 -- @table ClaudeCodeKeymapsToggle
@@ -78,6 +79,7 @@ M.default_config = {
   -- Git integration settings
   git = {
     use_git_root = true, -- Set CWD to git root when opening Claude Code (if in git project)
+    multi_instance = true, -- Use multiple Claude instances (one per git root)
   },
   -- Command settings
   command = 'claude', -- Command used to launch Claude Code
@@ -171,6 +173,10 @@ local function validate_config(config)
 
   if type(config.git.use_git_root) ~= 'boolean' then
     return false, 'git.use_git_root must be a boolean'
+  end
+  
+  if type(config.git.multi_instance) ~= 'boolean' then
+    return false, 'git.multi_instance must be a boolean'
   end
 
   -- Validate command settings

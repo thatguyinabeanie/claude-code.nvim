@@ -26,6 +26,25 @@ Claude Code Plugin provides seamless integration between the Claude Code AI assi
 - Implementing better context synchronization
 - Adding buffer-specific context management
 
+## Multi-Instance Support
+The plugin supports running multiple Claude Code instances, one per git repository root:
+
+- Each git repository maintains its own Claude instance
+- Works across multiple Neovim tabs with different projects
+- Allows working on multiple projects in parallel
+- Configurable via `git.multi_instance` option (defaults to `true`)
+- Instances remain in their own directory context when switching between tabs
+- Buffer names include the git root path for easy identification
+
+Example configuration to disable multi-instance mode:
+```lua
+require('claude-code').setup({
+  git = {
+    multi_instance = false  -- Use a single global Claude instance
+  }
+})
+```
+
 ## Documentation Links
 - Tasks: `/home/gregg/Projects/docs-projects/neovim-ecosystem-docs/tasks/claude-code-tasks.md`
 - Project Status: `/home/gregg/Projects/docs-projects/neovim-ecosystem-docs/project-status.md`
