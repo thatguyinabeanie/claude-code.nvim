@@ -8,12 +8,27 @@ local M = {}
 
 --- Terminal buffer and window management
 -- @table ClaudeCodeTerminal
--- @field bufnr number|nil Buffer number of the Claude Code terminal
+-- @field instances table Key-value store of git root to buffer number
 -- @field saved_updatetime number|nil Original updatetime before Claude Code was opened
+-- @field current_instance string|nil Current git root path for active instance
 M.terminal = {
-  bufnr = nil,
+  instances = {},
   saved_updatetime = nil,
+  current_instance = nil,
 }
+
+--- Get the current git root or a fallback identifier
+--- @param git table The git module
+--- @return string identifier Git root path or fallback identifier
+local function get_instance_identifier(git)
+  local git_root = git.get_git_root()
+  if git_root then
+    return git_root
+  else
+    -- Fallback to current working directory if not in a git repo
+    return vim.fn.getcwd()
+  end
+end
 
 --- Create a split window according to the specified position configuration
 --- @param position string Window position configuration
@@ -49,8 +64,21 @@ end
 --- @param claude_code table The main plugin module
 --- @param config table The plugin configuration
 function M.force_insert_mode(claude_code, config)
-  local bufnr = claude_code.claude_code.bufnr
-  if bufnr and vim.api.nvim_buf_is_valid(bufnr) and vim.fn.bufnr '%' == bufnr then
+  local current_bufnr = vim.fn.bufnr('%')
+
+  -- Check if current buffer is any of our Claude instances
+  local is_claude_instance = false
+  for _, bufnr in pairs(claude_code.claude_code.instances) do
+    if bufnr
+      and bufnr == current_bufnr
+      and vim.api.nvim_buf_is_valid(bufnr)
+    then
+      is_claude_instance = true
+      break
+    end
+  end
+
+  if is_claude_instance then
     -- Only enter insert mode if we're in the terminal buffer and not already in insert mode
     -- and not configured to stay in normal mode
     if config.window.start_in_normal_mode then
@@ -72,10 +100,25 @@ end
 --- @param config table The plugin configuration
 --- @param git table The git module
 function M.toggle(claude_code, config, git)
-  -- Check if Claude Code is already running
-  local bufnr = claude_code.claude_code.bufnr
+  -- Determine instance ID based on config
+  local instance_id
+  if config.git.multi_instance then
+    if config.git.use_git_root then
+      instance_id = get_instance_identifier(git)
+    else
+      instance_id = vim.fn.getcwd()
+    end
+  else
+    -- Use a fixed ID for single instance mode
+    instance_id = "global"
+  end
+
+  claude_code.claude_code.current_instance = instance_id
+
+  -- Check if this Claude Code instance is already running
+  local bufnr = claude_code.claude_code.instances[instance_id]
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-    -- Check if there's a window displaying Claude Code buffer
+    -- Check if there's a window displaying this Claude Code buffer
     local win_ids = vim.fn.win_findbuf(bufnr)
     if #win_ids > 0 then
       -- Claude Code is visible, close the window
@@ -93,7 +136,11 @@ function M.toggle(claude_code, config, git)
       end
     end
   else
-    -- Claude Code is not running, start it in a new split
+    -- Prune invalid buffer entries
+    if bufnr and not vim.api.nvim_buf_is_valid(bufnr) then
+      claude_code.claude_code.instances[instance_id] = nil
+    end
+    -- This Claude Code instance is not running, start it in a new split
     create_split(config.window.position, config)
 
     -- Determine if we should use the git root directory
@@ -108,7 +155,15 @@ function M.toggle(claude_code, config, git)
 
     vim.cmd(cmd)
     vim.cmd 'setlocal bufhidden=hide'
-    vim.cmd 'file claude-code'
+
+    -- Create a unique buffer name (or a standard one in single instance mode)
+    local buffer_name
+    if config.git.multi_instance then
+      buffer_name = 'claude-code-' .. instance_id:gsub('[^%w%-_]', '-')
+    else
+      buffer_name = 'claude-code'
+    end
+    vim.cmd('file ' .. buffer_name)
 
     if config.window.hide_numbers then
       vim.cmd 'setlocal nonumber norelativenumber'
@@ -118,8 +173,8 @@ function M.toggle(claude_code, config, git)
       vim.cmd 'setlocal signcolumn=no'
     end
 
-    -- Store buffer number for future reference
-    claude_code.claude_code.bufnr = vim.fn.bufnr '%'
+    -- Store buffer number for this instance
+    claude_code.claude_code.instances[instance_id] = vim.fn.bufnr('%')
 
     -- Automatically enter insert mode in terminal unless configured to start in normal mode
     if config.window.enter_insert and not config.window.start_in_normal_mode then

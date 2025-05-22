@@ -44,13 +44,25 @@ function M.force_insert_mode()
   terminal.force_insert_mode(M, M.config)
 end
 
+--- Get the current active buffer number
+--- @return number|nil bufnr Current Claude instance buffer number or nil
+local function get_current_buffer_number()
+  -- Get current instance from the instances table
+  local current_instance = M.claude_code.current_instance
+  if current_instance and type(M.claude_code.instances) == 'table' then
+    return M.claude_code.instances[current_instance]
+  end
+  return nil
+end
+
 --- Toggle the Claude Code terminal window
 --- This is a public function used by commands
 function M.toggle()
   terminal.toggle(M, M.config, git)
 
   -- Set up terminal navigation keymaps after toggling
-  if M.claude_code.bufnr and vim.api.nvim_buf_is_valid(M.claude_code.bufnr) then
+  local bufnr = get_current_buffer_number()
+  if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
     keymaps.setup_terminal_navigation(M, M.config)
   end
 end
@@ -73,7 +85,8 @@ function M.toggle_with_variant(variant_name)
   terminal.toggle(M, M.config, git)
 
   -- Set up terminal navigation keymaps after toggling
-  if M.claude_code.bufnr and vim.api.nvim_buf_is_valid(M.claude_code.bufnr) then
+  local bufnr = get_current_buffer_number()
+  if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
     keymaps.setup_terminal_navigation(M, M.config)
   end
 
