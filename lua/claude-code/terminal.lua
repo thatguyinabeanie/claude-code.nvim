@@ -103,8 +103,11 @@ function M.toggle(claude_code, config, git)
   -- Determine instance ID based on config
   local instance_id
   if config.git.multi_instance then
-    -- Use git root or current directory as instance identifier
-    instance_id = get_instance_identifier(git)
+    if config.git.use_git_root then
+      instance_id = get_instance_identifier(git)
+    else
+      instance_id = vim.fn.getcwd()
+    end
   else
     -- Use a fixed ID for single instance mode
     instance_id = "global"
