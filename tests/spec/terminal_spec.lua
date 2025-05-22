@@ -132,7 +132,7 @@ describe('terminal module', function()
 
       -- Current instance should be set
       assert.is_not_nil(claude_code.claude_code.current_instance, 'Current instance should be set')
-      
+
       -- Instance should be created in instances table
       local current_instance = claude_code.claude_code.current_instance
       assert.is_not_nil(claude_code.claude_code.instances[current_instance], 'Instance buffer should be set')
@@ -217,7 +217,7 @@ describe('terminal module', function()
       -- Use an instance ID with special characters
       config.git.use_git_root = false
       config.git.multi_instance = true
-      
+
       -- Mock getcwd to return path with special characters
       _G.vim.fn.getcwd = function()
         return '/test/path with spaces/and-symbols!'
@@ -232,7 +232,7 @@ describe('terminal module', function()
         if cmd:match('file claude%-code%-.*') then
           file_cmd_found = true
           -- Ensure no special characters remain
-          assert.is_false(cmd:match('[^%w%-_]'), 'Buffer name should not contain special characters')
+          assert.is_nil(cmd:match('[^%w%-_]'), 'Buffer name should not contain special characters')
           break
         end
       end
@@ -244,7 +244,7 @@ describe('terminal module', function()
       -- Setup invalid buffer in instances
       local instance_id = '/test/git/root'
       claude_code.claude_code.instances[instance_id] = 999 -- Invalid buffer number
-      
+
       -- Mock nvim_buf_is_valid to return false for this buffer
       _G.vim.api.nvim_buf_is_valid = function(bufnr)
         return bufnr ~= 999

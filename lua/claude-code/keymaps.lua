@@ -94,7 +94,7 @@ function M.setup_terminal_navigation(claude_code, config)
   local buf = current_instance and claude_code.claude_code.instances[current_instance]
   if buf and vim.api.nvim_buf_is_valid(buf) then
     -- Create autocommand to enter insert mode when the terminal window gets focus
-    local augroup = vim.api.nvim_create_augroup('ClaudeCodeTerminalFocus', { clear = true })
+    local augroup = vim.api.nvim_create_augroup('ClaudeCodeTerminalFocus_' .. buf, { clear = true })
 
     -- Set up multiple events for more reliable focus detection
     vim.api.nvim_create_autocmd(
