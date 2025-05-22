@@ -101,7 +101,7 @@ Run all automated tests using:
 
 You'll see a summary of the test results like:
 
-```
+```plaintext
 ==== Test Results ====
 Total Tests Run: 44
 Successes: 44
@@ -132,19 +132,22 @@ end)
 ## Troubleshooting
 
 The minimal configuration:
+
 - Attempts to auto-detect the plugin directory
 - Sets up basic Neovim settings (no swap files, etc.)
 - Prints available commands for reference
 - Shows line numbers and sign column
 
 To see error messages:
-```
+
+```vim
 :messages
 ```
 
 ## Reporting Issues
 
 When reporting issues, please include the following information:
+
 1. Steps to reproduce the issue using this minimal config
 2. Any error messages from `:messages`
 3. The exact Neovim and Claude Code plugin versions

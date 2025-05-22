@@ -34,6 +34,7 @@ make test-config  # Run only the configuration tests
 ## CI Integration
 
 The tests are integrated with GitHub Actions CI, which runs tests against multiple Neovim versions:
+
 - Neovim 0.8.0
 - Neovim 0.9.0
 - Neovim stable
@@ -61,6 +62,7 @@ The test suite provides coverage for:
 ### Future Plans
 
 We plan to expand the tests to include:
+
 1. Integration tests for terminal communication
 2. Command functionality tests
 3. Keymapping tests
@@ -75,6 +77,7 @@ When adding new functionality, please add corresponding tests following the same
 3. Update the CI workflow if needed
 
 All tests should:
+
 - Be self-contained and independent
 - Provide clear pass/fail output
 - Exit with an error code on failure

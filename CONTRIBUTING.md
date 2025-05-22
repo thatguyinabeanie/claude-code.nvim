@@ -53,18 +53,20 @@ To set up a development environment:
 
 1. Read the [DEVELOPMENT.md](DEVELOPMENT.md) guide to ensure you have all necessary tools installed
 2. Clone your fork of the repository
-```bash
-git clone https://github.com/greggh/claude-code.nvim.git
-```
+
+   ```bash
+   git clone https://github.com/greggh/claude-code.nvim.git
+   ```
 
 3. Link the repository to your Neovim plugins directory or use your plugin manager's development mode
 
 4. Make sure you have the Claude Code CLI tool installed and properly configured
 
 5. Set up the Git hooks for automatic code formatting:
-```bash
-./scripts/setup-hooks.sh
-```
+
+   ```bash
+   ./scripts/setup-hooks.sh
+   ```
 
 This will set up pre-commit hooks to automatically format Lua code using StyLua before each commit.
 
@@ -90,6 +92,7 @@ The [DEVELOPMENT.md](DEVELOPMENT.md) file contains detailed information about:
 We use [StyLua](https://github.com/JohnnyMorganz/StyLua) to enforce consistent formatting of the codebase. The formatting is done automatically via pre-commit hooks if you've set them up using the script provided.
 
 Key style guidelines:
+
 - Configuration is in `stylua.toml` at the project root
 - Maximum line length is 120 characters
 - Use 2 spaces for indentation

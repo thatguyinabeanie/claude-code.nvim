@@ -44,6 +44,7 @@ When a security vulnerability is reported:
 ## Security Updates
 
 Security updates will be released as:
+
 - Patch versions for supported releases
 - Announcements in our release notes
 - Updates to the CHANGELOG.md file

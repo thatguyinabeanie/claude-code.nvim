@@ -1,5 +1,3 @@
-<div align="center">
-
 # Claude Code Neovim Plugin
 
 [![GitHub License](https://img.shields.io/github/license/greggh/claude-code.nvim?style=flat-square)](https://github.com/greggh/claude-code.nvim/blob/main/LICENSE)
@@ -13,17 +11,15 @@
 
 *A seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim*
 
-[Features](#features) • 
-[Requirements](#requirements) • 
-[Installation](#installation) • 
-[Configuration](#configuration) • 
-[Usage](#usage) • 
-[Contributing](#contributing) • 
+[Features](#features) •
+[Requirements](#requirements) •
+[Installation](#installation) •
+[Configuration](#configuration) •
+[Usage](#usage) •
+[Contributing](#contributing) •
 [Discussions](https://github.com/greggh/claude-code.nvim/discussions)
 
-<img src="https://github.com/greggh/claude-code.nvim/blob/main/assets/claude-code.png?raw=true" alt="Claude Code in Neovim" width="800" />
-
-</div>
+![Claude Code in Neovim](https://github.com/greggh/claude-code.nvim/blob/main/assets/claude-code.png?raw=true)
 
 This plugin was built entirely with Claude Code in a Neovim terminal, and then inside itself using Claude Code for everything!
 
@@ -120,7 +116,7 @@ require("claude-code").setup({
     -- Conversation management
     continue = "--continue", -- Resume the most recent conversation
     resume = "--resume",     -- Display an interactive conversation picker
-    
+
     -- Output options
     verbose = "--verbose",   -- Enable verbose logging with full turn-by-turn output
   },
@@ -209,7 +205,7 @@ This plugin:
 4. Provides convenient keymaps and commands for toggling the terminal
 5. Automatically detects git repositories and sets working directory to the git root
 
-## Contributing 
+## Contributing
 
 Contributions are welcome! Please check out our [contribution guidelines](CONTRIBUTING.md) for details on how to get started.
 
@@ -264,6 +260,4 @@ make format
 
 ---
 
-<div align="center">
-  <p>Made with ❤️ by <a href="https://github.com/greggh">Gregg Housh</a></p>
-</div>
+Made with ❤️ by [Gregg Housh](https://github.com/greggh)

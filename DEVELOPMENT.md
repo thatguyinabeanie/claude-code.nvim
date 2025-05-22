@@ -134,11 +134,13 @@ luarocks install luacheck
 ### Setting Up the Environment
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/greggh/claude-code.nvim.git
    ```
 
 2. Install Git hooks:
+
    ```bash
    cd claude-code.nvim
    ./scripts/setup-hooks.sh
@@ -154,11 +156,13 @@ luarocks install luacheck
 ### Pre-commit Hooks
 
 The pre-commit hook automatically runs:
+
 1. Code formatting with stylua
 2. Linting with luacheck
 3. Basic tests
 
 If you need to bypass these checks, use:
+
 ```bash
 git commit --no-verify
 ```
@@ -209,6 +213,7 @@ Understanding why we use each tool helps in appreciating their role in the devel
 ### Neovim
 
 Neovim is the primary development platform and runtime environment. We use version 0.10.0+ because it provides:
+
 - Better API support for plugin development
 - Improved performance for larger codebases
 - Enhanced LSP integration
@@ -217,6 +222,7 @@ Neovim is the primary development platform and runtime environment. We use versi
 ### StyLua
 
 StyLua is a Lua formatter specifically designed for Neovim configurations. It:
+
 - Ensures consistent code style across all contributors
 - Formats according to Lua best practices
 - Handles Neovim-specific formatting conventions
@@ -227,6 +233,7 @@ Our configuration uses 2-space indentation and 100-character line length limits.
 ### LuaCheck
 
 LuaCheck is a static analyzer that helps catch issues before they cause problems:
+
 - Identifies syntax errors and semantic issues
 - Flags unused variables and unused function parameters
 - Detects global variable access without declaration
@@ -238,6 +245,7 @@ We configure LuaCheck with `.luacheckrc` files that define project-specific glob
 ### Ripgrep & FD
 
 These tools improve development efficiency:
+
 - **Ripgrep**: Extremely fast code searching to find patterns and references
 - **FD**: Fast alternative to `find` for locating files in complex directory structures
 
@@ -250,7 +258,9 @@ These tools improve development efficiency:
 
 All our Neovim projects follow a similar structure:
 
+```plaintext
 ```
+
 .
 ├── .github/            # GitHub-specific files and workflows
 ├── .githooks/          # Git hooks for pre-commit validation
@@ -259,10 +269,16 @@ All our Neovim projects follow a similar structure:
 ├── test/               # Basic test modules
 ├── tests/              # Extended test suites
 ├── .luacheckrc         # LuaCheck configuration
+
+```plaintext
+```
+
 ├── .stylua.toml        # StyLua configuration
 ├── Makefile            # Common commands
 ├── CHANGELOG.md        # Project version history
 └── README.md           # Project overview
+
+```plaintext
 ```
 
 ## Troubleshooting
@@ -272,12 +288,13 @@ All our Neovim projects follow a similar structure:
 - **stylua not found**: Make sure it's installed and in your PATH
 - **luacheck errors**: Run `make lint` to see specific issues
 - **Test failures**: Use `make test-verbose` for detailed output
-- **Module not found errors**: Check that you're using the correct module name and path 
+- **Module not found errors**: Check that you're using the correct module name and path
 - **Plugin functionality not loading**: Verify your Neovim version is 0.10.0 or higher
 
 ### Getting Help
 
 If you encounter issues:
+
 1. Check the error messages carefully
 2. Verify all dependencies are correctly installed
 3. Check that your Neovim version is 0.10.0 or higher

@@ -8,17 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - New `split_ratio` config option to replace `height_ratio` for better handling of both horizontal and vertical splits
 
 ### Fixed
+
 - Fixed vertical split behavior when the window position is set to a vertical split command
 
 ## [0.4.2] - 2025-03-03
 
 ### Changed
+
 - Moved documentation validation to a dedicated workflow for better standardization
 
 ### Fixed
+
 - Fixed test runner not properly exiting after tests
 - Improved which-key handling in test environment
 - Fixed window focus issues in terminal split
@@ -26,12 +30,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.1] - 2025-03-03
 
 ### Changed
+
 - Improved GitHub workflows with consolidated documentation checks
 - Enhanced release workflow with more reliable changelog generation
 - Updated dependency handling in CI workflows
 - Refined workflow trigger conditions for better performance
 
 ### Fixed
+
 - Fixed deprecated changelog generator in release workflow
 - Fixed documentation validation in CI pipeline
 - Resolved Markdown linting and validation issues
@@ -40,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - 2025-03-02
 
 ### Added
+
 - GitHub Discussions integration
 - Release automation workflow
 - Acknowledgements section in README
@@ -50,11 +57,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Keymap tests for custom key mappings
 
 ### Changed
+
 - Improved README organization and structure
 - Standardized GitHub workflow naming conventions
 - Enhanced test infrastructure with accurate test counting
 
 ### Fixed
+
 - Renamed test initialization file for consistency (minimal_init.lua → minimal-init.lua)
 - Test script execution in pre-commit hooks
 - References to test initialization files in documentation
