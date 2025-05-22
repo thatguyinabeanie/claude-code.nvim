@@ -159,7 +159,7 @@ function M.toggle(claude_code, config, git)
     -- Create a unique buffer name (or a standard one in single instance mode)
     local buffer_name
     if config.git.multi_instance then
-      buffer_name = 'claude-code-' .. instance_id:gsub('[/\\\\]', '-')
+      buffer_name = 'claude-code-' .. instance_id:gsub('[^%w%-_]', '-')
     else
       buffer_name = 'claude-code'
     end

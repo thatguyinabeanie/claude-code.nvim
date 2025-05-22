@@ -57,7 +57,8 @@ function M.setup(claude_code, config)
       config.refresh.timer_interval,
       vim.schedule_wrap(function()
         -- Only check time if there's an active Claude Code terminal
-        local bufnr = claude_code.claude_code.bufnr
+        local current_instance = claude_code.claude_code.current_instance
+        local bufnr = current_instance and claude_code.claude_code.instances[current_instance]
         if bufnr and vim.api.nvim_buf_is_valid(bufnr) and #vim.fn.win_findbuf(bufnr) > 0 then
           vim.cmd 'silent! checktime'
         end
