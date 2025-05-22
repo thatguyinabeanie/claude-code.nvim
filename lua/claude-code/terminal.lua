@@ -65,16 +65,19 @@ end
 --- @param config table The plugin configuration
 function M.force_insert_mode(claude_code, config)
   local current_bufnr = vim.fn.bufnr('%')
-  
+
   -- Check if current buffer is any of our Claude instances
   local is_claude_instance = false
   for _, bufnr in pairs(claude_code.claude_code.instances) do
-    if bufnr == current_bufnr and vim.api.nvim_buf_is_valid(bufnr) then
+    if bufnr
+      and bufnr == current_bufnr
+      and vim.api.nvim_buf_is_valid(bufnr)
+    then
       is_claude_instance = true
       break
     end
   end
-  
+
   if is_claude_instance then
     -- Only enter insert mode if we're in the terminal buffer and not already in insert mode
     -- and not configured to stay in normal mode
@@ -106,9 +109,9 @@ function M.toggle(claude_code, config, git)
     -- Use a fixed ID for single instance mode
     instance_id = "global"
   end
-  
+
   claude_code.claude_code.current_instance = instance_id
-  
+
   -- Check if this Claude Code instance is already running
   local bufnr = claude_code.claude_code.instances[instance_id]
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
@@ -130,6 +133,10 @@ function M.toggle(claude_code, config, git)
       end
     end
   else
+    -- Prune invalid buffer entries
+    if bufnr and not vim.api.nvim_buf_is_valid(bufnr) then
+      claude_code.claude_code.instances[instance_id] = nil
+    end
     -- This Claude Code instance is not running, start it in a new split
     create_split(config.window.position, config)
 
@@ -145,7 +152,7 @@ function M.toggle(claude_code, config, git)
 
     vim.cmd(cmd)
     vim.cmd 'setlocal bufhidden=hide'
-    
+
     -- Create a unique buffer name (or a standard one in single instance mode)
     local buffer_name
     if config.git.multi_instance then

@@ -174,7 +174,7 @@ local function validate_config(config)
   if type(config.git.use_git_root) ~= 'boolean' then
     return false, 'git.use_git_root must be a boolean'
   end
-  
+
   if type(config.git.multi_instance) ~= 'boolean' then
     return false, 'git.multi_instance must be a boolean'
   end

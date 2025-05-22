@@ -49,7 +49,7 @@ end
 local function get_current_buffer_number()
   -- Get current instance from the instances table
   local current_instance = M.claude_code.current_instance
-  if current_instance then
+  if current_instance and type(M.claude_code.instances) == 'table' then
     return M.claude_code.instances[current_instance]
   end
   return nil
