@@ -1,4 +1,4 @@
-.PHONY: test test-debug test-legacy test-basic test-config lint format docs clean
+.PHONY: test test-debug test-legacy test-basic test-config test-mcp lint format docs clean
 
 # Configuration
 LUA_PATH ?= lua/
@@ -35,6 +35,11 @@ test-config:
 	@echo "Running config tests..."
 	@nvim --headless --noplugin -u test/minimal.vim -c "source test/config_test.vim" -c "qa!"
 
+# MCP integration tests
+test-mcp:
+	@echo "Running MCP integration tests..."
+	@./scripts/test_mcp.sh
+
 # Lint Lua files
 lint:
 	@echo "Linting Lua files..."
@@ -66,6 +71,7 @@ help:
 	@echo "Claude Code development commands:"
 	@echo "  make test         - Run all tests (using Plenary test framework)"
 	@echo "  make test-debug   - Run all tests with debug output"
+	@echo "  make test-mcp     - Run MCP integration tests"
 	@echo "  make test-legacy  - Run legacy tests (VimL-based)"
 	@echo "  make test-basic   - Run only basic functionality tests (legacy)"
 	@echo "  make test-config  - Run only configuration tests (legacy)"
