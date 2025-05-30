@@ -14,7 +14,8 @@
       "Bash(nvim:*)",
       "Bash(claude --version)",
       "Bash(timeout:*)",
-      "Bash(./scripts/test_mcp.sh:*)"
+      "Bash(./scripts/test_mcp.sh:*)",
+      "Bash(make test:*)"
     ],
     "deny": []
   },

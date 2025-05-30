@@ -2,7 +2,7 @@
 
 # Configuration
 LUA_PATH ?= lua/
-TEST_PATH ?= test/
+TEST_PATH ?= tests/
 DOC_PATH ?= doc/
 
 # Test command (runs only Plenary tests by default)
@@ -23,17 +23,17 @@ test-debug:
 # Legacy test commands
 test-legacy:
 	@echo "Running legacy tests..."
-	@nvim --headless --noplugin -u test/minimal.vim -c "lua print('Running basic tests')" -c "source test/basic_test.vim" -c "qa!"
-	@nvim --headless --noplugin -u test/minimal.vim -c "lua print('Running config tests')" -c "source test/config_test.vim" -c "qa!"
+	@nvim --headless --noplugin -u tests/legacy/minimal.vim -c "lua print('Running basic tests')" -c "source tests/legacy/basic_test.vim" -c "qa!"
+	@nvim --headless --noplugin -u tests/legacy/minimal.vim -c "lua print('Running config tests')" -c "source tests/legacy/config_test.vim" -c "qa!"
 
 # Individual test commands
 test-basic:
 	@echo "Running basic tests..."
-	@nvim --headless --noplugin -u test/minimal.vim -c "source test/basic_test.vim" -c "qa!"
+	@nvim --headless --noplugin -u tests/legacy/minimal.vim -c "source tests/legacy/basic_test.vim" -c "qa!"
 
 test-config:
 	@echo "Running config tests..."
-	@nvim --headless --noplugin -u test/minimal.vim -c "source test/config_test.vim" -c "qa!"
+	@nvim --headless --noplugin -u tests/legacy/minimal.vim -c "source tests/legacy/config_test.vim" -c "qa!"
 
 # MCP integration tests
 test-mcp:

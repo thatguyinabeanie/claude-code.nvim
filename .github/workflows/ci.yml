@@ -87,8 +87,14 @@ jobs:
       
       - name: Verify test directory structure
         run: |
+          echo "Main tests directory:"
           ls -la ./tests/
+          echo "Unit test specs:"
           ls -la ./tests/spec/
+          echo "Legacy tests:"
+          ls -la ./tests/legacy/
+          echo "Interactive tests:"
+          ls -la ./tests/interactive/
           
       - name: Display Neovim version
         run: nvim --version

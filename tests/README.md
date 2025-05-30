@@ -151,3 +151,29 @@ When reporting issues, please include the following information:
 1. Steps to reproduce the issue using this minimal config
 2. Any error messages from `:messages`
 3. The exact Neovim and Claude Code plugin versions
+
+## Legacy Tests
+
+The `legacy/` subdirectory contains VimL-based tests for backward compatibility:
+
+- **minimal.vim**: A minimal Neovim configuration for automated testing
+- **basic_test.vim**: A simple test script that verifies the plugin loads correctly
+- **config_test.vim**: Tests for the configuration validation and merging functionality
+
+These legacy tests can be run via:
+
+```bash
+make test-legacy  # Run all legacy tests
+make test-basic   # Run only basic functionality tests (legacy)
+make test-config  # Run only configuration tests (legacy)
+```
+
+## Interactive Tests
+
+The `interactive/` subdirectory contains utilities for manual testing and comprehensive integration tests:
+
+- **mcp_comprehensive_test.lua**: Full MCP integration test suite
+- **mcp_live_test.lua**: Interactive MCP testing utilities
+- **test_utils.lua**: Shared testing utilities
+
+These provide commands like `:MCPComprehensiveTest` for interactive testing.

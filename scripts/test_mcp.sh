@@ -130,7 +130,7 @@ echo "Test 6: Live Test Script"
 echo "------------------------"
 
 $NVIM --headless --noplugin -u tests/minimal-init.lua \
-  -c "lua local test = require('test.mcp_live_test'); assert(type(test.setup_test_file) == 'function', 'Live test should have setup function')" \
+  -c "lua local test = require('tests.interactive.mcp_live_test'); assert(type(test.setup_test_file) == 'function', 'Live test should have setup function')" \
   -c "qa!"
 
 echo ""
