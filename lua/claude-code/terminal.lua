@@ -183,4 +183,96 @@ function M.toggle(claude_code, config, git)
   end
 end
 
+--- Toggle the Claude Code terminal window with a specific command variant
+--- @param claude_code table The main plugin module
+--- @param config table The plugin configuration
+--- @param git table The git module
+--- @param variant_name string The name of the command variant to use
+function M.toggle_with_variant(claude_code, config, git, variant_name)
+  -- Determine instance ID based on config
+  local instance_id
+  if config.git.multi_instance then
+    if config.git.use_git_root then
+      instance_id = get_instance_identifier(git)
+    else
+      instance_id = vim.fn.getcwd()
+    end
+  else
+    -- Use a fixed ID for single instance mode
+    instance_id = "global"
+  end
+
+  claude_code.claude_code.current_instance = instance_id
+
+  -- Check if this Claude Code instance is already running
+  local bufnr = claude_code.claude_code.instances[instance_id]
+  if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
+    -- Check if there's a window displaying this Claude Code buffer
+    local win_ids = vim.fn.win_findbuf(bufnr)
+    if #win_ids > 0 then
+      -- Claude Code is visible, close the window
+      for _, win_id in ipairs(win_ids) do
+        vim.api.nvim_win_close(win_id, true)
+      end
+    else
+      -- Claude Code buffer exists but is not visible, open it in a split
+      create_split(config.window.position, config, bufnr)
+      -- Force insert mode more aggressively unless configured to start in normal mode
+      if not config.window.start_in_normal_mode then
+        vim.schedule(function()
+          vim.cmd 'stopinsert | startinsert'
+        end)
+      end
+    end
+  else
+    -- Prune invalid buffer entries
+    if bufnr and not vim.api.nvim_buf_is_valid(bufnr) then
+      claude_code.claude_code.instances[instance_id] = nil
+    end
+    -- This Claude Code instance is not running, start it in a new split with variant
+    create_split(config.window.position, config)
+
+    -- Get the variant flag
+    local variant_flag = config.command_variants[variant_name]
+    
+    -- Determine if we should use the git root directory
+    local cmd = 'terminal ' .. config.command .. ' ' .. variant_flag
+    if config.git and config.git.use_git_root then
+      local git_root = git.get_git_root()
+      if git_root then
+        -- Use pushd/popd to change directory instead of --cwd
+        cmd = 'terminal pushd ' .. git_root .. ' && ' .. config.command .. ' ' .. variant_flag .. ' && popd'
+      end
+    end
+
+    vim.cmd(cmd)
+    vim.cmd 'setlocal bufhidden=hide'
+
+    -- Create a unique buffer name (or a standard one in single instance mode)
+    local buffer_name
+    if config.git.multi_instance then
+      buffer_name = 'claude-code-' .. variant_name .. '-' .. instance_id:gsub('[^%w%-_]', '-')
+    else
+      buffer_name = 'claude-code-' .. variant_name
+    end
+    vim.cmd('file ' .. buffer_name)
+
+    if config.window.hide_numbers then
+      vim.cmd 'setlocal nonumber norelativenumber'
+    end
+
+    if config.window.hide_signcolumn then
+      vim.cmd 'setlocal signcolumn=no'
+    end
+
+    -- Store buffer number for this instance
+    claude_code.claude_code.instances[instance_id] = vim.fn.bufnr('%')
+
+    -- Automatically enter insert mode in terminal unless configured to start in normal mode
+    if config.window.enter_insert and not config.window.start_in_normal_mode then
+      vim.cmd 'startinsert'
+    end
+  end
+end
+
 return M

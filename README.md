@@ -9,11 +9,12 @@
 [![Version](https://img.shields.io/badge/Version-0.4.2-blue?style=flat-square)](https://github.com/greggh/claude-code.nvim/releases/tag/v0.4.2)
 [![Discussions](https://img.shields.io/github/discussions/greggh/claude-code.nvim?style=flat-square&logo=github)](https://github.com/greggh/claude-code.nvim/discussions)
 
-*A seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim*
+_A seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim with pure Lua MCP server_
 
 [Features](#features) •
 [Requirements](#requirements) •
 [Installation](#installation) •
+[MCP Server](#mcp-server) •
 [Configuration](#configuration) •
 [Usage](#usage) •
 [Contributing](#contributing) •
@@ -21,9 +22,11 @@
 
 ![Claude Code in Neovim](https://github.com/greggh/claude-code.nvim/blob/main/assets/claude-code.png?raw=true)
 
-This plugin was built entirely with Claude Code in a Neovim terminal, and then inside itself using Claude Code for everything!
+This plugin provides both a traditional terminal interface and a native **MCP (Model Context Protocol) server** that allows Claude Code to directly read and edit your Neovim buffers, execute commands, and access project context.
 
 ## Features
+
+### Terminal Interface
 
 - 🚀 Toggle Claude Code in a terminal window with a single key press
 - 🧠 Support for command-line arguments like `--continue` and custom variants
@@ -32,6 +35,19 @@ This plugin was built entirely with Claude Code in a Neovim terminal, and then i
 - 📱 Customizable window position and size
 - 🤖 Integration with which-key (if available)
 - 📂 Automatically uses git project root as working directory (when available)
+
+### MCP Server (NEW!)
+
+- 🔌 **Pure Lua MCP server** - No Node.js dependencies required
+- 📝 **Direct buffer editing** - Claude Code can read and modify your Neovim buffers directly
+- ⚡ **Real-time context** - Access to cursor position, buffer content, and editor state
+- 🛠️ **Vim command execution** - Run any Vim command through Claude Code
+- 📊 **Project awareness** - Access to git status, LSP diagnostics, and project structure
+- 🎯 **Resource providers** - Expose buffer list, current file, and project information
+- 🔒 **Secure by design** - All operations go through Neovim's API
+
+### Development
+
 - 🧩 Modular and maintainable code structure
 - 📋 Type annotations with LuaCATS for better IDE support
 - ✅ Configuration validation to prevent errors
@@ -84,12 +100,107 @@ Plug 'greggh/claude-code.nvim'
 " lua require('claude-code').setup()
 ```
 
+## MCP Server
+
+The plugin includes a pure Lua implementation of an MCP (Model Context Protocol) server that allows Claude Code to directly interact with your Neovim instance.
+
+### Quick Start
+
+1. **Add to Claude Code MCP configuration:**
+
+   ```bash
+   # Add the MCP server to Claude Code
+   claude mcp add neovim-server /path/to/claude-code.nvim/bin/claude-code-mcp-server
+   ```
+
+2. **Start Neovim and the plugin will automatically set up the MCP server:**
+
+   ```lua
+   require('claude-code').setup({
+     mcp = {
+       enabled = true,
+       auto_start = false  -- Set to true to auto-start with Neovim
+     }
+   })
+   ```
+
+3. **Use Claude Code with full Neovim integration:**
+   ```bash
+   claude "refactor this function to use async/await"
+   # Claude can now see your current buffer, edit it directly, and run Vim commands
+   ```
+
+### Available Tools
+
+The MCP server provides these tools to Claude Code:
+
+- **`vim_buffer`** - View buffer content with optional filename filtering
+- **`vim_command`** - Execute any Vim command (`:w`, `:bd`, custom commands, etc.)
+- **`vim_status`** - Get current editor status (cursor position, mode, buffer info)
+- **`vim_edit`** - Edit buffer content with insert/replace/replaceAll modes
+- **`vim_window`** - Manage windows (split, close, navigate)
+- **`vim_mark`** - Set marks in buffers
+- **`vim_register`** - Set register content
+- **`vim_visual`** - Make visual selections
+
+### Available Resources
+
+The MCP server exposes these resources:
+
+- **`neovim://current-buffer`** - Content of the currently active buffer
+- **`neovim://buffers`** - List of all open buffers with metadata
+- **`neovim://project`** - Project file structure
+- **`neovim://git-status`** - Current git repository status
+- **`neovim://lsp-diagnostics`** - LSP diagnostics for current buffer
+- **`neovim://options`** - Current Neovim configuration and options
+
+### Commands
+
+- `:ClaudeCodeMCPStart` - Start the MCP server
+- `:ClaudeCodeMCPStop` - Stop the MCP server
+- `:ClaudeCodeMCPStatus` - Show server status and information
+
+### Standalone Usage
+
+You can also run the MCP server standalone:
+
+```bash
+# Start standalone MCP server
+./bin/claude-code-mcp-server
+
+# Test the server
+echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | ./bin/claude-code-mcp-server
+```
+
 ## Configuration
 
 The plugin can be configured by passing a table to the `setup` function. Here's the default configuration:
 
 ```lua
 require("claude-code").setup({
+  -- MCP server settings
+  mcp = {
+    enabled = true,          -- Enable MCP server functionality
+    auto_start = false,      -- Automatically start MCP server with Neovim
+    tools = {
+      buffer = true,         -- Enable buffer viewing tool
+      command = true,        -- Enable Vim command execution tool
+      status = true,         -- Enable status information tool
+      edit = true,           -- Enable buffer editing tool
+      window = true,         -- Enable window management tool
+      mark = true,           -- Enable mark setting tool
+      register = true,       -- Enable register operations tool
+      visual = true          -- Enable visual selection tool
+    },
+    resources = {
+      current_buffer = true,    -- Expose current buffer content
+      buffer_list = true,       -- Expose list of all buffers
+      project_structure = true, -- Expose project file structure
+      git_status = true,        -- Expose git repository status
+      lsp_diagnostics = true,   -- Expose LSP diagnostics
+      vim_options = true        -- Expose Neovim configuration
+    }
+  },
   -- Terminal window settings
   window = {
     split_ratio = 0.3,      -- Percentage of screen for the terminal window (height for horizontal, width for vertical splits)
@@ -135,6 +246,61 @@ require("claude-code").setup({
   }
 })
 ```
+
+## Claude Code Integration
+
+The plugin provides seamless integration with the Claude Code CLI through MCP (Model Context Protocol):
+
+### Quick Setup
+
+1. **Generate MCP Configuration:**
+
+   ```vim
+   :ClaudeCodeSetup
+   ```
+
+   This creates `claude-code-mcp-config.json` in your current directory with usage instructions.
+
+2. **Use with Claude Code CLI:**
+   ```bash
+   claude --mcp-config claude-code-mcp-config.json --allowedTools "mcp__neovim__*" "Your prompt here"
+   ```
+
+### Available Commands
+
+- `:ClaudeCodeSetup [type]` - Generate MCP config with instructions (claude-code|workspace)
+- `:ClaudeCodeMCPConfig [type] [path]` - Generate MCP config file (claude-code|workspace|custom)
+- `:ClaudeCodeMCPStart` - Start the MCP server
+- `:ClaudeCodeMCPStop` - Stop the MCP server
+- `:ClaudeCodeMCPStatus` - Show server status
+
+### Configuration Types
+
+- **`claude-code`** - Creates `.claude.json` for Claude Code CLI
+- **`workspace`** - Creates `.vscode/mcp.json` for VS Code MCP extension
+- **`custom`** - Creates `mcp-config.json` for other MCP clients
+
+### MCP Tools & Resources
+
+**Tools** (Actions Claude Code can perform):
+
+- `mcp__neovim__vim_buffer` - Read/write buffer contents
+- `mcp__neovim__vim_command` - Execute Vim commands
+- `mcp__neovim__vim_edit` - Edit text in buffers
+- `mcp__neovim__vim_status` - Get editor status
+- `mcp__neovim__vim_window` - Manage windows
+- `mcp__neovim__vim_mark` - Manage marks
+- `mcp__neovim__vim_register` - Access registers
+- `mcp__neovim__vim_visual` - Visual selections
+
+**Resources** (Information Claude Code can access):
+
+- `mcp__neovim__current_buffer` - Current buffer content
+- `mcp__neovim__buffer_list` - List of open buffers
+- `mcp__neovim__project_structure` - Project file tree
+- `mcp__neovim__git_status` - Git repository status
+- `mcp__neovim__lsp_diagnostics` - LSP diagnostics
+- `mcp__neovim__vim_options` - Vim configuration options
 
 ## Usage
 
@@ -261,3 +427,16 @@ make format
 ---
 
 Made with ❤️ by [Gregg Housh](https://github.com/greggh)
+
+---
+
+## claude smoke test
+
+okay. i need you to come u with a idea for a
+"live test" i am going to open neovim ON the
+local claude-code.nvim repository that neovim is
+loading for the plugin. that means the claude
+code chat (you) are going to be using this
+functionality we've been developing. i need you
+to come up with a solution that when prompted can
+validate if things are working correct

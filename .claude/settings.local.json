@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(claude mcp)",
+      "Bash(claude mcp:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(./test_mcp.sh)",
+      "Bash(claude --mcp-debug \"test\")",
+      "Bash(./bin/claude-code-mcp-server:*)",
+      "Bash(claude --mcp-debug \"test connection\")",
+      "Bash(lua tests:*)",
+      "Bash(nvim:*)",
+      "Bash(claude --version)",
+      "Bash(timeout:*)"
+    ],
+    "deny": []
+  },
+  "enableAllProjectMcpServers": true
+}

@@ -1,0 +1,75 @@
+#!/usr/bin/env -S nvim -l
+
+-- Claude Code MCP Server executable
+-- This script starts Neovim in headless mode and runs the MCP server
+
+-- Minimal Neovim setup for headless operation
+vim.opt.loadplugins = false
+vim.opt.swapfile = false
+vim.opt.backup = false
+vim.opt.writebackup = false
+
+-- Add this plugin to the runtime path
+local script_dir = debug.getinfo(1, "S").source:sub(2):match("(.*/)")
+local plugin_dir = script_dir .. "/.."
+vim.opt.runtimepath:prepend(plugin_dir)
+
+-- Load the MCP server
+local mcp = require('claude-code.mcp')
+
+-- Handle command line arguments
+local args = vim.v.argv
+local socket_path = nil
+local help = false
+
+-- Parse arguments
+for i = 1, #args do
+    if args[i] == "--socket" and args[i + 1] then
+        socket_path = args[i + 1]
+    elseif args[i] == "--help" or args[i] == "-h" then
+        help = true
+    end
+end
+
+if help then
+    print([[
+Claude Code MCP Server
+
+Usage: claude-code-mcp-server [options]
+
+Options:
+    --socket PATH    Connect to Neovim instance at socket path
+    --help, -h       Show this help message
+
+Examples:
+    # Start standalone server (stdio mode)
+    claude-code-mcp-server
+
+    # Connect to existing Neovim instance
+    claude-code-mcp-server --socket /tmp/nvim.sock
+
+The server communicates via JSON-RPC over stdin/stdout.
+]])
+    vim.cmd('quit')
+    return
+end
+
+-- Connect to existing Neovim instance if socket provided
+if socket_path then
+    -- TODO: Implement socket connection to existing Neovim instance
+    vim.notify("Socket connection not yet implemented", vim.log.levels.WARN)
+    vim.cmd('quit')
+    return
+end
+
+-- Initialize and start the MCP server
+mcp.setup()
+
+local success = mcp.start_standalone()
+if not success then
+    vim.notify("Failed to start MCP server", vim.log.levels.ERROR)
+    vim.cmd('quit! 1')
+end
+
+-- The MCP server will handle stdin and keep running
+-- until the connection is closed

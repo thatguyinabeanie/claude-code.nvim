@@ -105,6 +105,29 @@ M.default_config = {
     window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)
     scrolling = true, -- Enable scrolling keymaps (<C-f/b>) for page up/down
   },
+  -- MCP server settings
+  mcp = {
+    enabled = true, -- Enable MCP server functionality
+    auto_start = false, -- Don't auto-start the MCP server by default
+    tools = {
+      buffer = true,
+      command = true,
+      status = true,
+      edit = true,
+      window = true,
+      mark = true,
+      register = true,
+      visual = true
+    },
+    resources = {
+      current_buffer = true,
+      buffer_list = true,
+      project_structure = true,
+      git_status = true,
+      lsp_diagnostics = true,
+      vim_options = true
+    }
+  },
 }
 
 --- Validate the configuration
