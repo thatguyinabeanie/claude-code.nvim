@@ -1,13 +1,11 @@
 local uv = vim.loop or vim.uv
+local utils = require('claude-code.utils')
 
 local M = {}
 
--- Safe notification function for headless mode
-local function safe_notify(msg, level)
-    level = level or vim.log.levels.INFO
-    -- Always use stderr in server context to avoid UI issues
-    io.stderr:write("[MCP] " .. msg .. "\n")
-    io.stderr:flush()
+-- Use shared notification utility (force stderr in server context)
+local function notify(msg, level)
+    utils.notify(msg, level, {prefix = "MCP Server", force_stderr = true})
 end
 
 -- MCP Server state
@@ -234,7 +232,7 @@ function M.start()
     local stdout = uv.new_pipe(false)
     
     if not stdin or not stdout then
-        safe_notify("Failed to create pipes for MCP server", vim.log.levels.ERROR)
+        notify("Failed to create pipes for MCP server", vim.log.levels.ERROR)
         return false
     end
     
@@ -247,7 +245,7 @@ function M.start()
     -- Read from stdin
     stdin:read_start(function(err, data)
         if err then
-            safe_notify("MCP server stdin error: " .. err, vim.log.levels.ERROR)
+            notify("MCP server stdin error: " .. err, vim.log.levels.ERROR)
             stdin:close()
             stdout:close()
             vim.cmd('quit')
@@ -281,7 +279,7 @@ function M.start()
                     local json_response = vim.json.encode(response)
                     stdout:write(json_response .. "\n")
                 else
-                    safe_notify("MCP parse error: " .. (parse_err or "unknown"), vim.log.levels.WARN)
+                    notify("MCP parse error: " .. (parse_err or "unknown"), vim.log.levels.WARN)
                 end
             end
         end

@@ -2,23 +2,11 @@
 -- This file provides a quick live test that Claude can use to demonstrate its ability
 -- to interact with Neovim through the MCP server.
 
+local test_utils = require('test.test_utils')
 local M = {}
 
--- Colors for output
-local colors = {
-  red = "\27[31m",
-  green = "\27[32m",
-  yellow = "\27[33m",
-  blue = "\27[34m",
-  magenta = "\27[35m",
-  cyan = "\27[36m",
-  reset = "\27[0m",
-}
-
--- Print colored text
-local function cprint(color, text)
-  print(colors[color] .. text .. colors.reset)
-end
+-- Use shared color utilities
+local cprint = test_utils.cprint
 
 -- Create a test file for Claude to modify
 function M.setup_test_file()
@@ -83,22 +71,14 @@ function M.run_live_test()
     return false
   end
   
-  -- Start MCP server if not already running
-  local mcp_status = vim.api.nvim_exec2("ClaudeCodeMCPStatus", { output = true }).output
-  if not string.find(mcp_status, "running") then
-    cprint("yellow", "⚠️ MCP server not running, starting it now...")
-    vim.cmd("ClaudeCodeMCPStart")
-    -- Wait briefly to ensure it's started
-    vim.cmd("sleep 500m")
-  end
-  
-  -- Check if server started
-  mcp_status = vim.api.nvim_exec2("ClaudeCodeMCPStatus", { output = true }).output
-  if string.find(mcp_status, "running") then
-    cprint("green", "✅ MCP server is running")
+  -- Generate MCP config if needed
+  cprint("yellow", "📝 Checking MCP configuration...")
+  local config_path = vim.fn.getcwd() .. "/.claude.json"
+  if vim.fn.filereadable(config_path) == 0 then
+    vim.cmd("ClaudeCodeSetup claude-code")
+    cprint("green", "✅ Generated MCP configuration")
   else
-    cprint("red", "❌ Failed to start MCP server")
-    return false
+    cprint("green", "✅ MCP configuration exists")
   end
   
   -- Open the test file
@@ -109,23 +89,71 @@ function M.run_live_test()
   -- Instructions for Claude
   cprint("cyan", "\n=== INSTRUCTIONS FOR CLAUDE ===")
   cprint("yellow", "1. I've created a test file for you to modify")
-  cprint("yellow", "2. Use the vim_buffer tool to read the file content")
-  cprint("yellow", "3. Use the vim_edit tool to modify the file by:")
-  cprint("yellow", "   - Replacing the TODO line with some actual content")
-  cprint("yellow", "   - Adding a new section showing the capabilities you're testing")
-  cprint("yellow", "4. Use the vim_command tool to save the file")
-  cprint("yellow", "5. Describe what you did and what tools you used")
+  cprint("yellow", "2. Use the MCP tools to demonstrate functionality:")
+  cprint("yellow", "   a) mcp__neovim__vim_buffer - Read current buffer")
+  cprint("yellow", "   b) mcp__neovim__vim_edit - Replace the TODO line")
+  cprint("yellow", "   c) mcp__neovim__project_structure - Show files in test/")
+  cprint("yellow", "   d) mcp__neovim__git_status - Check git status")
+  cprint("yellow", "   e) mcp__neovim__vim_command - Save the file (:w)")
+  cprint("yellow", "3. Add a validation section showing successful test")
+  
+  -- Create validation checklist in buffer
+  vim.api.nvim_buf_set_lines(0, -1, -1, false, {
+    "",
+    "=== MCP VALIDATION CHECKLIST ===",
+    "[ ] Buffer read successful",
+    "[ ] Edit operation successful", 
+    "[ ] Project structure accessed",
+    "[ ] Git status checked",
+    "[ ] File saved via vim command",
+    "",
+    "Claude Code Test Results:",
+    "(Claude should fill this section)",
+  })
   
   -- Output additional context
   cprint("blue", "\n=== CONTEXT ===")
   cprint("blue", "Test file: " .. file_path)
-  cprint("blue", "MCP server status: " .. mcp_status:gsub("\n", " "))
+  cprint("blue", "Working directory: " .. vim.fn.getcwd())
+  cprint("blue", "MCP config: " .. config_path)
   
   cprint("magenta", "======================================")
   cprint("magenta", "🎬 TEST READY - CLAUDE CAN PROCEED 🎬")
   cprint("magenta", "======================================")
   
   return true
+end
+
+-- Comprehensive validation test
+function M.validate_mcp_integration()
+  cprint("cyan", "\n=== MCP INTEGRATION VALIDATION ===")
+  
+  local validation_results = {}
+  
+  -- Test 1: Check if we can access the current buffer
+  validation_results.buffer_access = "❓ Awaiting Claude Code validation"
+  
+  -- Test 2: Check if we can execute commands
+  validation_results.command_execution = "❓ Awaiting Claude Code validation"
+  
+  -- Test 3: Check if we can read project structure
+  validation_results.project_structure = "❓ Awaiting Claude Code validation"
+  
+  -- Test 4: Check if we can access git information
+  validation_results.git_access = "❓ Awaiting Claude Code validation"
+  
+  -- Test 5: Check if we can perform edits
+  validation_results.edit_capability = "❓ Awaiting Claude Code validation"
+  
+  -- Display results
+  cprint("yellow", "\nValidation Status:")
+  for test, result in pairs(validation_results) do
+    print("  " .. test .. ": " .. result)
+  end
+  
+  cprint("cyan", "\nClaude Code should update these results via MCP tools!")
+  
+  return validation_results
 end
 
 -- Register commands - these are already being registered in plugin/self_test_command.lua

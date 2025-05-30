@@ -272,6 +272,24 @@ local function validate_config(config)
   return true, nil
 end
 
+--- Detect Claude Code CLI installation
+--- @return string The path to Claude Code executable
+local function detect_claude_cli()
+  -- First check for local installation in ~/.claude/local/claude
+  local local_claude = vim.fn.expand("~/.claude/local/claude")
+  if vim.fn.executable(local_claude) == 1 then
+    return local_claude
+  end
+  
+  -- Fall back to 'claude' in PATH
+  if vim.fn.executable("claude") == 1 then
+    return "claude"
+  end
+  
+  -- If neither found, return default and warn later
+  return "claude"
+end
+
 --- Parse user configuration and merge with defaults
 --- @param user_config? table
 --- @param silent? boolean Set to true to suppress error notifications (for tests)
@@ -286,6 +304,22 @@ function M.parse_config(user_config, silent)
   end
 
   local config = vim.tbl_deep_extend('force', {}, M.default_config, user_config or {})
+  
+  -- Auto-detect Claude CLI if not explicitly set
+  if not user_config or not user_config.command then
+    config.command = detect_claude_cli()
+    
+    -- Notify user about the detected CLI
+    if not silent then
+      if config.command == vim.fn.expand("~/.claude/local/claude") then
+        vim.notify("Claude Code: Using local installation at ~/.claude/local/claude", vim.log.levels.INFO)
+      elseif vim.fn.executable(config.command) == 1 then
+        vim.notify("Claude Code: Using 'claude' from PATH", vim.log.levels.INFO)
+      else
+        vim.notify("Claude Code: CLI not found! Please install Claude Code or set config.command", vim.log.levels.WARN)
+      end
+    end
+  end
 
   local valid, err = validate_config(config)
   if not valid then

@@ -39,6 +39,12 @@ This document outlines the planned development path for the Claude Code Neovim p
 
 ## Long-term Goals (12+ months)
 
+- **Inline Code Suggestions**: Real-time AI assistance
+  - Cursor-style completions using fast Haiku model
+  - Context-aware code suggestions
+  - Real-time error detection and fixes
+  - Smart autocomplete integration
+
 - **Advanced Output Handling**: Better ways to use Claude's responses
   - Implement code block extraction
   - Add output filtering options

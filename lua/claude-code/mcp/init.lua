@@ -1,22 +1,13 @@
 local server = require('claude-code.mcp.server')
 local tools = require('claude-code.mcp.tools')
 local resources = require('claude-code.mcp.resources')
+local utils = require('claude-code.utils')
 
 local M = {}
 
--- Safe notification function for headless mode
-local function safe_notify(msg, level)
-    level = level or vim.log.levels.INFO
-    -- Check if we're in headless mode safely
-    local ok, uis = pcall(vim.api.nvim_list_uis)
-    if not ok or #uis == 0 then
-        io.stderr:write("[MCP] " .. msg .. "\n")
-        io.stderr:flush()
-    else
-        vim.schedule(function()
-            vim.notify(msg, level)
-        end)
-    end
+-- Use shared notification utility
+local function notify(msg, level)
+    utils.notify(msg, level, {prefix = "MCP"})
 end
 
 -- Default MCP configuration
@@ -58,24 +49,24 @@ function M.setup()
     register_tools()
     register_resources()
     
-    safe_notify("Claude Code MCP server initialized", vim.log.levels.INFO)
+    notify("Claude Code MCP server initialized", vim.log.levels.INFO)
 end
 
 -- Start MCP server
 function M.start()
     if not server.start() then
-        safe_notify("Failed to start Claude Code MCP server", vim.log.levels.ERROR)
+        notify("Failed to start Claude Code MCP server", vim.log.levels.ERROR)
         return false
     end
     
-    safe_notify("Claude Code MCP server started", vim.log.levels.INFO)
+    notify("Claude Code MCP server started", vim.log.levels.INFO)
     return true
 end
 
 -- Stop MCP server
 function M.stop()
     server.stop()
-    safe_notify("Claude Code MCP server stopped", vim.log.levels.INFO)
+    notify("Claude Code MCP server stopped", vim.log.levels.INFO)
 end
 
 -- Get server status
@@ -143,14 +134,14 @@ function M.generate_config(output_path, config_type)
     -- Write to file
     local file = io.open(output_path, "w")
     if not file then
-        safe_notify("Failed to create MCP config at: " .. output_path, vim.log.levels.ERROR)
+        notify("Failed to create MCP config at: " .. output_path, vim.log.levels.ERROR)
         return false
     end
     
     file:write(json_str)
     file:close()
     
-    safe_notify("MCP config generated at: " .. output_path, vim.log.levels.INFO)
+    notify("MCP config generated at: " .. output_path, vim.log.levels.INFO)
     return true, output_path
 end
 
@@ -169,7 +160,7 @@ function M.setup_claude_integration(config_type)
             usage_instruction = "Use with your MCP-compatible client: " .. path
         end
         
-        safe_notify([[
+        notify([[
 MCP configuration created at: ]] .. path .. [[
 
 Usage:

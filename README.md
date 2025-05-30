@@ -56,7 +56,9 @@ This plugin provides both a traditional terminal interface and a native **MCP (M
 ## Requirements
 
 - Neovim 0.7.0 or later
-- [Claude Code CLI](https://github.com/anthropics/claude-code) tool installed and available in your PATH
+- [Claude Code CLI](https://github.com/anthropics/claude-code) installed
+  - The plugin automatically detects Claude Code at `~/.claude/local/claude` (preferred)
+  - Falls back to `claude` in PATH if local installation not found
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (dependency for git operations)
 
 See [CHANGELOG.md](CHANGELOG.md) for version history and updates.
