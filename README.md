@@ -9,7 +9,7 @@
 [![Version](https://img.shields.io/badge/Version-0.4.2-blue?style=flat-square)](https://github.com/greggh/claude-code.nvim/releases/tag/v0.4.2)
 [![Discussions](https://img.shields.io/github/discussions/greggh/claude-code.nvim?style=flat-square&logo=github)](https://github.com/greggh/claude-code.nvim/discussions)
 
-_A seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim with pure Lua MCP server_
+_A seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim with context-aware commands and pure Lua MCP server_
 
 [Features](#features) •
 [Requirements](#requirements) •
@@ -22,7 +22,11 @@ _A seamless integration between [Claude Code](https://github.com/anthropics/clau
 
 ![Claude Code in Neovim](https://github.com/greggh/claude-code.nvim/blob/main/assets/claude-code.png?raw=true)
 
-This plugin provides both a traditional terminal interface and a native **MCP (Model Context Protocol) server** that allows Claude Code to directly read and edit your Neovim buffers, execute commands, and access project context.
+This plugin provides:
+
+- **Context-aware commands** that automatically pass file content, selections, and workspace context to Claude Code
+- **Traditional terminal interface** for interactive conversations
+- **Native MCP (Model Context Protocol) server** that allows Claude Code to directly read and edit your Neovim buffers, execute commands, and access project context
 
 ## Features
 
@@ -36,6 +40,15 @@ This plugin provides both a traditional terminal interface and a native **MCP (M
 - 🤖 Integration with which-key (if available)
 - 📂 Automatically uses git project root as working directory (when available)
 
+### Context-Aware Integration ✨
+
+- 📄 **File Context** - Automatically pass current file with cursor position
+- ✂️ **Selection Context** - Send visual selections directly to Claude
+- 🔍 **Smart Context** - Auto-detect whether to send file or selection
+- 🌐 **Workspace Context** - Enhanced context with related files through imports/requires
+- 📚 **Recent Files** - Access to recently edited files in project
+- 🔗 **Related Files** - Automatic discovery of imported/required files
+
 ### MCP Server (NEW!)
 
 - 🔌 **Pure Lua MCP server** - No Node.js dependencies required
@@ -43,7 +56,8 @@ This plugin provides both a traditional terminal interface and a native **MCP (M
 - ⚡ **Real-time context** - Access to cursor position, buffer content, and editor state
 - 🛠️ **Vim command execution** - Run any Vim command through Claude Code
 - 📊 **Project awareness** - Access to git status, LSP diagnostics, and project structure
-- 🎯 **Resource providers** - Expose buffer list, current file, and project information
+- 🎯 **Enhanced resource providers** - Buffer list, current file, related files, recent files, workspace context
+- 🔍 **Smart analysis tools** - Analyze related files, search workspace symbols, find project files
 - 🔒 **Secure by design** - All operations go through Neovim's API
 
 ### Development
@@ -57,8 +71,10 @@ This plugin provides both a traditional terminal interface and a native **MCP (M
 
 - Neovim 0.7.0 or later
 - [Claude Code CLI](https://github.com/anthropics/claude-code) installed
-  - The plugin automatically detects Claude Code at `~/.claude/local/claude` (preferred)
-  - Falls back to `claude` in PATH if local installation not found
+  - The plugin automatically detects Claude Code in the following order:
+    1. Custom path specified in `config.cli_path` (if provided)
+    2. Local installation at `~/.claude/local/claude` (preferred)
+    3. Falls back to `claude` in PATH
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (dependency for git operations)
 
 See [CHANGELOG.md](CHANGELOG.md) for version history and updates.
@@ -127,6 +143,7 @@ The plugin includes a pure Lua implementation of an MCP (Model Context Protocol)
    ```
 
 3. **Use Claude Code with full Neovim integration:**
+
    ```bash
    claude "refactor this function to use async/await"
    # Claude can now see your current buffer, edit it directly, and run Vim commands
@@ -144,6 +161,9 @@ The MCP server provides these tools to Claude Code:
 - **`vim_mark`** - Set marks in buffers
 - **`vim_register`** - Set register content
 - **`vim_visual`** - Make visual selections
+- **`analyze_related`** - Analyze files related through imports/requires (NEW!)
+- **`find_symbols`** - Search workspace symbols using LSP (NEW!)
+- **`search_files`** - Find files by pattern with optional content preview (NEW!)
 
 ### Available Resources
 
@@ -155,6 +175,10 @@ The MCP server exposes these resources:
 - **`neovim://git-status`** - Current git repository status
 - **`neovim://lsp-diagnostics`** - LSP diagnostics for current buffer
 - **`neovim://options`** - Current Neovim configuration and options
+- **`neovim://related-files`** - Files related through imports/requires (NEW!)
+- **`neovim://recent-files`** - Recently accessed project files (NEW!)
+- **`neovim://workspace-context`** - Enhanced context with all related information (NEW!)
+- **`neovim://search-results`** - Current search results and quickfix list (NEW!)
 
 ### Commands
 
@@ -192,7 +216,10 @@ require("claude-code").setup({
       window = true,         -- Enable window management tool
       mark = true,           -- Enable mark setting tool
       register = true,       -- Enable register operations tool
-      visual = true          -- Enable visual selection tool
+      visual = true,         -- Enable visual selection tool
+      analyze_related = true,-- Enable related files analysis tool
+      find_symbols = true,   -- Enable workspace symbol search tool
+      search_files = true    -- Enable project file search tool
     },
     resources = {
       current_buffer = true,    -- Expose current buffer content
@@ -200,7 +227,11 @@ require("claude-code").setup({
       project_structure = true, -- Expose project file structure
       git_status = true,        -- Expose git repository status
       lsp_diagnostics = true,   -- Expose LSP diagnostics
-      vim_options = true        -- Expose Neovim configuration
+      vim_options = true,       -- Expose Neovim configuration
+      related_files = true,     -- Expose files related through imports
+      recent_files = true,      -- Expose recently accessed files
+      workspace_context = true, -- Expose enhanced workspace context
+      search_results = true     -- Expose search results and quickfix
     }
   },
   -- Terminal window settings
@@ -224,6 +255,7 @@ require("claude-code").setup({
   },
   -- Command settings
   command = "claude",        -- Command used to launch Claude Code
+  cli_path = nil,            -- Optional custom path to Claude CLI executable (e.g., "/custom/path/to/claude")
   -- Command variants
   command_variants = {
     -- Conversation management
@@ -264,6 +296,7 @@ The plugin provides seamless integration with the Claude Code CLI through MCP (M
    This creates `claude-code-mcp-config.json` in your current directory with usage instructions.
 
 2. **Use with Claude Code CLI:**
+
    ```bash
    claude --mcp-config claude-code-mcp-config.json --allowedTools "mcp__neovim__*" "Your prompt here"
    ```
@@ -294,6 +327,9 @@ The plugin provides seamless integration with the Claude Code CLI through MCP (M
 - `mcp__neovim__vim_mark` - Manage marks
 - `mcp__neovim__vim_register` - Access registers
 - `mcp__neovim__vim_visual` - Visual selections
+- `mcp__neovim__analyze_related` - Analyze related files through imports
+- `mcp__neovim__find_symbols` - Search workspace symbols
+- `mcp__neovim__search_files` - Find project files by pattern
 
 **Resources** (Information Claude Code can access):
 
@@ -303,6 +339,10 @@ The plugin provides seamless integration with the Claude Code CLI through MCP (M
 - `mcp__neovim__git_status` - Git repository status
 - `mcp__neovim__lsp_diagnostics` - LSP diagnostics
 - `mcp__neovim__vim_options` - Vim configuration options
+- `mcp__neovim__related_files` - Files related through imports/requires
+- `mcp__neovim__recent_files` - Recently accessed project files
+- `mcp__neovim__workspace_context` - Enhanced workspace context
+- `mcp__neovim__search_results` - Current search results and quickfix
 
 ## Usage
 
@@ -321,20 +361,58 @@ vim.cmd[[ClaudeCode]]
 vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude Code' })
 ```
 
+### Context-Aware Usage Examples
+
+```vim
+" Pass current file with cursor position
+:ClaudeCodeWithFile
+
+" Send visual selection to Claude (select text first)
+:'<,'>ClaudeCodeWithSelection
+
+" Smart detection - uses selection if available, otherwise current file
+:ClaudeCodeWithContext
+
+" Enhanced workspace context with related files
+:ClaudeCodeWithWorkspace
+```
+
+The context-aware commands automatically include relevant information:
+
+- **File context**: Passes file path with line number (`file.lua#42`)
+- **Selection context**: Creates a temporary markdown file with selected text
+- **Workspace context**: Includes related files through imports, recent files, and current file content
+
 ### Commands
 
-Basic command:
+#### Basic Commands
 
 - `:ClaudeCode` - Toggle the Claude Code terminal window
+- `:ClaudeCodeVersion` - Display the plugin version
 
-Conversation management commands:
+#### Context-Aware Commands ✨
+
+- `:ClaudeCodeWithFile` - Toggle with current file and cursor position
+- `:ClaudeCodeWithSelection` - Toggle with visual selection
+- `:ClaudeCodeWithContext` - Smart context detection (file or selection)
+- `:ClaudeCodeWithWorkspace` - Enhanced workspace context with related files
+
+#### Conversation Management Commands
 
 - `:ClaudeCodeContinue` - Resume the most recent conversation
 - `:ClaudeCodeResume` - Display an interactive conversation picker
 
-Output options command:
+#### Output Options Command
 
 - `:ClaudeCodeVerbose` - Enable verbose logging with full turn-by-turn output
+
+#### MCP Integration Commands
+
+- `:ClaudeCodeMCPStart` - Start MCP server
+- `:ClaudeCodeMCPStop` - Stop MCP server  
+- `:ClaudeCodeMCPStatus` - Show MCP server status
+- `:ClaudeCodeMCPConfig` - Generate MCP configuration
+- `:ClaudeCodeSetup` - Setup MCP integration
 
 Note: Commands are automatically generated for each entry in your `command_variants` configuration.
 
@@ -365,13 +443,30 @@ When Claude Code modifies files that are open in Neovim, they'll be automaticall
 
 ## How it Works
 
-This plugin:
+This plugin provides two complementary ways to interact with Claude Code:
+
+### Terminal Interface
 
 1. Creates a terminal buffer running the Claude Code CLI
 2. Sets up autocommands to detect file changes on disk
 3. Automatically reloads files when they're modified by Claude Code
 4. Provides convenient keymaps and commands for toggling the terminal
 5. Automatically detects git repositories and sets working directory to the git root
+
+### Context-Aware Integration
+
+1. Analyzes your codebase to discover related files through imports/requires
+2. Tracks recently accessed files within your project
+3. Provides multiple context modes (file, selection, workspace)
+4. Automatically passes relevant context to Claude Code CLI
+5. Supports multiple programming languages (Lua, JavaScript, TypeScript, Python, Go)
+
+### MCP Server
+
+1. Runs a pure Lua MCP server exposing Neovim functionality
+2. Provides tools for Claude Code to directly edit buffers and run commands
+3. Exposes enhanced resources including related files and workspace context
+4. Enables programmatic access to your development environment
 
 ## Contributing
 
@@ -431,14 +526,3 @@ make format
 Made with ❤️ by [Gregg Housh](https://github.com/greggh)
 
 ---
-
-## claude smoke test
-
-okay. i need you to come u with a idea for a
-"live test" i am going to open neovim ON the
-local claude-code.nvim repository that neovim is
-loading for the plugin. that means the claude
-code chat (you) are going to be using this
-functionality we've been developing. i need you
-to come up with a solution that when prompted can
-validate if things are working correct
