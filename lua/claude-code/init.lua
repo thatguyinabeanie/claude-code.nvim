@@ -96,6 +96,18 @@ function M.toggle_with_variant(variant_name)
   end
 end
 
+--- Toggle the Claude Code terminal window with context awareness
+--- @param context_type string|nil The context type ("file", "selection", "auto")
+function M.toggle_with_context(context_type)
+  terminal.toggle_with_context(M, M.config, git, context_type)
+
+  -- Set up terminal navigation keymaps after toggling
+  local bufnr = get_current_buffer_number()
+  if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
+    keymaps.setup_terminal_navigation(M, M.config)
+  end
+end
+
 --- Setup function for the plugin
 --- @param user_config table|nil Optional user configuration
 function M.setup(user_config)

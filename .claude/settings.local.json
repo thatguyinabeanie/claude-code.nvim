@@ -15,7 +15,11 @@
       "Bash(claude --version)",
       "Bash(timeout:*)",
       "Bash(./scripts/test_mcp.sh:*)",
-      "Bash(make test:*)"
+      "Bash(make test:*)",
+      "Bash(lua:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh api:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   },

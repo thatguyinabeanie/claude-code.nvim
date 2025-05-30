@@ -9,10 +9,11 @@ This document outlines the planned development path for the Claude Code Neovim p
   - Implement automatic terminal resizing
   - Create improved keybindings for common interactions
 
-- **Context Helpers**: Utilities for providing better context to Claude
-  - Add file/snippet insertion shortcuts
-  - Implement buffer content selection tools
-  - Create project file tree insertion helpers
+- **Context Helpers**: Utilities for providing better context to Claude ✅
+  - Add file/snippet insertion shortcuts ✅
+  - Implement buffer content selection tools ✅
+  - Create project file tree insertion helpers ✅
+  - Context-aware commands (`:ClaudeCodeWithFile`, `:ClaudeCodeWithSelection`, `:ClaudeCodeWithContext`, `:ClaudeCodeWithProjectTree`) ✅
 
 - **Plugin Configuration**: More flexible configuration options
   - Add per-filetype settings

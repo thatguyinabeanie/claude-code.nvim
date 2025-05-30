@@ -48,6 +48,7 @@ This plugin provides:
 - 🌐 **Workspace Context** - Enhanced context with related files through imports/requires
 - 📚 **Recent Files** - Access to recently edited files in project
 - 🔗 **Related Files** - Automatic discovery of imported/required files
+- 🌳 **Project Tree** - Generate comprehensive file tree structures with intelligent filtering
 
 ### MCP Server (NEW!)
 
@@ -375,6 +376,9 @@ vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude
 
 " Enhanced workspace context with related files
 :ClaudeCodeWithWorkspace
+
+" Project file tree structure for codebase overview
+:ClaudeCodeWithProjectTree
 ```
 
 The context-aware commands automatically include relevant information:
@@ -382,6 +386,7 @@ The context-aware commands automatically include relevant information:
 - **File context**: Passes file path with line number (`file.lua#42`)
 - **Selection context**: Creates a temporary markdown file with selected text
 - **Workspace context**: Includes related files through imports, recent files, and current file content
+- **Project tree context**: Provides a comprehensive file tree structure with configurable depth and filtering
 
 ### Commands
 
@@ -396,6 +401,7 @@ The context-aware commands automatically include relevant information:
 - `:ClaudeCodeWithSelection` - Toggle with visual selection
 - `:ClaudeCodeWithContext` - Smart context detection (file or selection)
 - `:ClaudeCodeWithWorkspace` - Enhanced workspace context with related files
+- `:ClaudeCodeWithProjectTree` - Toggle with project file tree structure
 
 #### Conversation Management Commands
 

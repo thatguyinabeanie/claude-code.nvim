@@ -223,4 +223,113 @@ M.vim_options = {
     end
 }
 
+-- Resource: Related files through imports/requires
+M.related_files = {
+    uri = "neovim://related-files",
+    name = "Related Files",
+    description = "Files related to current buffer through imports/requires",
+    mimeType = "application/json",
+    handler = function()
+        local ok, context_module = pcall(require, 'claude-code.context')
+        if not ok then
+            return vim.json.encode({ error = "Context module not available" })
+        end
+        
+        local current_file = vim.api.nvim_buf_get_name(0)
+        if current_file == "" then
+            return vim.json.encode({ files = {}, message = "No current file" })
+        end
+        
+        local related_files = context_module.get_related_files(current_file, 3)
+        local result = {
+            current_file = vim.fn.fnamemodify(current_file, ":~:."),
+            related_files = {}
+        }
+        
+        for _, file_info in ipairs(related_files) do
+            table.insert(result.related_files, {
+                path = vim.fn.fnamemodify(file_info.path, ":~:."),
+                depth = file_info.depth,
+                language = file_info.language,
+                import_count = #file_info.imports
+            })
+        end
+        
+        return vim.json.encode(result)
+    end
+}
+
+-- Resource: Recent files
+M.recent_files = {
+    uri = "neovim://recent-files",
+    name = "Recent Files",
+    description = "Recently accessed files in current project", 
+    mimeType = "application/json",
+    handler = function()
+        local ok, context_module = pcall(require, 'claude-code.context')
+        if not ok then
+            return vim.json.encode({ error = "Context module not available" })
+        end
+        
+        local recent_files = context_module.get_recent_files(15)
+        local result = {
+            project_root = vim.fn.getcwd(),
+            recent_files = recent_files
+        }
+        
+        return vim.json.encode(result)
+    end
+}
+
+-- Resource: Enhanced workspace context
+M.workspace_context = {
+    uri = "neovim://workspace-context",
+    name = "Workspace Context",
+    description = "Enhanced workspace context including related files, recent files, and symbols",
+    mimeType = "application/json", 
+    handler = function()
+        local ok, context_module = pcall(require, 'claude-code.context')
+        if not ok then
+            return vim.json.encode({ error = "Context module not available" })
+        end
+        
+        local enhanced_context = context_module.get_enhanced_context(true, true, true)
+        return vim.json.encode(enhanced_context)
+    end
+}
+
+-- Resource: Search results and quickfix
+M.search_results = {
+    uri = "neovim://search-results",
+    name = "Search Results", 
+    description = "Current search results and quickfix list",
+    mimeType = "application/json",
+    handler = function()
+        local result = {
+            search_pattern = vim.fn.getreg('/'),
+            quickfix_list = vim.fn.getqflist(),
+            location_list = vim.fn.getloclist(0),
+            last_search_count = vim.fn.searchcount()
+        }
+        
+        -- Add readable quickfix entries
+        local readable_qf = {}
+        for _, item in ipairs(result.quickfix_list) do
+            if item.bufnr > 0 and vim.api.nvim_buf_is_valid(item.bufnr) then
+                local bufname = vim.api.nvim_buf_get_name(item.bufnr)
+                table.insert(readable_qf, {
+                    filename = vim.fn.fnamemodify(bufname, ":~:."),
+                    lnum = item.lnum,
+                    col = item.col,
+                    text = item.text,
+                    type = item.type
+                })
+            end
+        end
+        result.readable_quickfix = readable_qf
+        
+        return vim.json.encode(result)
+    end
+}
+
 return M

@@ -342,4 +342,191 @@ M.vim_visual = {
     end
 }
 
+-- Tool: Analyze related files
+M.analyze_related = {
+    name = "analyze_related",
+    description = "Analyze files related to current buffer through imports/requires",
+    inputSchema = {
+        type = "object",
+        properties = {
+            max_depth = {
+                type = "number",
+                description = "Maximum dependency depth to analyze (default: 2)",
+                default = 2
+            }
+        }
+    },
+    handler = function(args)
+        local ok, context_module = pcall(require, 'claude-code.context')
+        if not ok then
+            return { content = { type = "text", text = "Context module not available" } }
+        end
+        
+        local current_file = vim.api.nvim_buf_get_name(0)
+        if current_file == "" then
+            return { content = { type = "text", text = "No current file open" } }
+        end
+        
+        local max_depth = args.max_depth or 2
+        local related_files = context_module.get_related_files(current_file, max_depth)
+        
+        local result_lines = {
+            string.format("# Related Files Analysis for: %s", vim.fn.fnamemodify(current_file, ":~:.")),
+            "",
+            string.format("Found %d related files:", #related_files),
+            ""
+        }
+        
+        for _, file_info in ipairs(related_files) do
+            table.insert(result_lines, string.format("## %s", file_info.path))
+            table.insert(result_lines, string.format("- **Depth:** %d", file_info.depth))
+            table.insert(result_lines, string.format("- **Language:** %s", file_info.language))
+            table.insert(result_lines, string.format("- **Imports:** %d", #file_info.imports))
+            if #file_info.imports > 0 then
+                table.insert(result_lines, "- **Import List:**")
+                for _, import in ipairs(file_info.imports) do
+                    table.insert(result_lines, string.format("  - `%s`", import))
+                end
+            end
+            table.insert(result_lines, "")
+        end
+        
+        return { content = { type = "text", text = table.concat(result_lines, "\n") } }
+    end
+}
+
+-- Tool: Find workspace symbols  
+M.find_symbols = {
+    name = "find_symbols",
+    description = "Find symbols in the current workspace using LSP",
+    inputSchema = {
+        type = "object",
+        properties = {
+            query = {
+                type = "string",
+                description = "Symbol name to search for (empty for all symbols)"
+            },
+            limit = {
+                type = "number", 
+                description = "Maximum number of symbols to return (default: 20)",
+                default = 20
+            }
+        }
+    },
+    handler = function(args)
+        local ok, context_module = pcall(require, 'claude-code.context')
+        if not ok then
+            return { content = { type = "text", text = "Context module not available" } }
+        end
+        
+        local symbols = context_module.get_workspace_symbols()
+        local query = args.query or ""
+        local limit = args.limit or 20
+        
+        -- Filter symbols by query if provided
+        local filtered_symbols = {}
+        for _, symbol in ipairs(symbols) do
+            if query == "" or symbol.name:lower():match(query:lower()) then
+                table.insert(filtered_symbols, symbol)
+                if #filtered_symbols >= limit then
+                    break
+                end
+            end
+        end
+        
+        local result_lines = {
+            string.format("# Workspace Symbols%s", query ~= "" and (" matching: " .. query) or ""),
+            "",
+            string.format("Found %d symbols:", #filtered_symbols),
+            ""
+        }
+        
+        for _, symbol in ipairs(filtered_symbols) do
+            local location = symbol.location
+            local file = location.uri:gsub("file://", "")
+            local relative_file = vim.fn.fnamemodify(file, ":~:.")
+            
+            table.insert(result_lines, string.format("## %s", symbol.name))
+            table.insert(result_lines, string.format("- **Type:** %s", symbol.kind))
+            table.insert(result_lines, string.format("- **File:** %s", relative_file))
+            table.insert(result_lines, string.format("- **Line:** %d", location.range.start.line + 1))
+            if symbol.container_name then
+                table.insert(result_lines, string.format("- **Container:** %s", symbol.container_name))
+            end
+            table.insert(result_lines, "")
+        end
+        
+        return { content = { type = "text", text = table.concat(result_lines, "\n") } }
+    end
+}
+
+-- Tool: Search project files
+M.search_files = {
+    name = "search_files",
+    description = "Search for files in the current project",
+    inputSchema = {
+        type = "object",
+        properties = {
+            pattern = {
+                type = "string",
+                description = "File name pattern to search for",
+                required = true
+            },
+            include_content = {
+                type = "boolean",
+                description = "Whether to include file content in results (default: false)",
+                default = false
+            }
+        }
+    },
+    handler = function(args)
+        local pattern = args.pattern
+        local include_content = args.include_content or false
+        
+        if not pattern then
+            return { content = { type = "text", text = "Pattern is required" } }
+        end
+        
+        -- Use find command to search for files
+        local cmd = string.format("find . -name '*%s*' -type f | head -20", pattern)
+        local handle = io.popen(cmd)
+        if not handle then
+            return { content = { type = "text", text = "Failed to execute search" } }
+        end
+        
+        local output = handle:read("*a")
+        handle:close()
+        
+        local files = vim.split(output, "\n", { plain = true })
+        local result_lines = {
+            string.format("# Files matching pattern: %s", pattern),
+            "",
+            string.format("Found %d files:", #files - 1), -- -1 for empty last line
+            ""
+        }
+        
+        for _, file in ipairs(files) do
+            if file ~= "" then
+                local relative_file = file:gsub("^%./", "")
+                table.insert(result_lines, string.format("## %s", relative_file))
+                
+                if include_content and vim.fn.filereadable(file) == 1 then
+                    local lines = vim.fn.readfile(file, '', 20) -- First 20 lines
+                    table.insert(result_lines, "```")
+                    for _, line in ipairs(lines) do
+                        table.insert(result_lines, line)
+                    end
+                    if #lines == 20 then
+                        table.insert(result_lines, "... (truncated)")
+                    end
+                    table.insert(result_lines, "```")
+                end
+                table.insert(result_lines, "")
+            end
+        end
+        
+        return { content = { type = "text", text = table.concat(result_lines, "\n") } }
+    end
+}
+
 return M

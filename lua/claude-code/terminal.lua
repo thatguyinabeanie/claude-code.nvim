@@ -275,4 +275,144 @@ function M.toggle_with_variant(claude_code, config, git, variant_name)
   end
 end
 
+--- Toggle the Claude Code terminal with current file/selection context
+--- @param claude_code table The main plugin module  
+--- @param config table The plugin configuration
+--- @param git table The git module
+--- @param context_type string|nil The type of context ("file", "selection", "auto", "workspace")
+function M.toggle_with_context(claude_code, config, git, context_type)
+  context_type = context_type or "auto"
+  
+  -- Save original command
+  local original_cmd = config.command
+  local temp_files = {}
+  
+  -- Build context-aware command
+  if context_type == "project_tree" then
+    -- Create temporary file with project tree
+    local ok, tree_helper = pcall(require, 'claude-code.tree_helper')
+    if ok then
+      local temp_file = tree_helper.create_tree_file({
+        max_depth = 3,
+        max_files = 50,
+        show_size = false
+      })
+      table.insert(temp_files, temp_file)
+      config.command = string.format('%s --file "%s"', original_cmd, temp_file)
+    else
+      vim.notify("Tree helper not available", vim.log.levels.WARN)
+    end
+  elseif context_type == "selection" or (context_type == "auto" and vim.fn.mode():match('[vV]')) then
+    -- Handle visual selection
+    local start_pos = vim.fn.getpos("'<")
+    local end_pos = vim.fn.getpos("'>")
+    
+    if start_pos[2] > 0 and end_pos[2] > 0 then
+      local lines = vim.api.nvim_buf_get_lines(0, start_pos[2]-1, end_pos[2], false)
+      
+      -- Add file context header
+      local current_file = vim.api.nvim_buf_get_name(0)
+      if current_file ~= "" then
+        table.insert(lines, 1, string.format("# Selection from: %s (lines %d-%d)", current_file, start_pos[2], end_pos[2]))
+        table.insert(lines, 2, "")
+      end
+      
+      -- Save to temp file
+      local tmpfile = vim.fn.tempname() .. ".md"
+      vim.fn.writefile(lines, tmpfile)
+      table.insert(temp_files, tmpfile)
+      
+      config.command = string.format('%s --file "%s"', original_cmd, tmpfile)
+    end
+  elseif context_type == "workspace" then
+    -- Enhanced workspace context with related files
+    local ok, context_module = pcall(require, 'claude-code.context')
+    if ok then
+      local current_file = vim.api.nvim_buf_get_name(0)
+      if current_file ~= "" then
+        local enhanced_context = context_module.get_enhanced_context(true, true, false)
+        
+        -- Create context summary file
+        local context_lines = {
+          "# Workspace Context",
+          "",
+          string.format("**Current File:** %s", enhanced_context.current_file.relative_path),
+          string.format("**Cursor Position:** Line %d", enhanced_context.current_file.cursor_position[1]),
+          string.format("**File Type:** %s", enhanced_context.current_file.filetype),
+          ""
+        }
+        
+        -- Add related files
+        if enhanced_context.related_files and #enhanced_context.related_files > 0 then
+          table.insert(context_lines, "## Related Files (through imports/requires)")
+          table.insert(context_lines, "")
+          for _, file_info in ipairs(enhanced_context.related_files) do
+            table.insert(context_lines, string.format("- **%s** (depth: %d, language: %s, imports: %d)", 
+              file_info.path, file_info.depth, file_info.language, file_info.import_count))
+          end
+          table.insert(context_lines, "")
+        end
+        
+        -- Add recent files
+        if enhanced_context.recent_files and #enhanced_context.recent_files > 0 then
+          table.insert(context_lines, "## Recent Files")
+          table.insert(context_lines, "")
+          for i, file_info in ipairs(enhanced_context.recent_files) do
+            if i <= 5 then -- Limit to top 5 recent files
+              table.insert(context_lines, string.format("- %s", file_info.relative_path))
+            end
+          end
+          table.insert(context_lines, "")
+        end
+        
+        -- Add current file content
+        table.insert(context_lines, "## Current File Content")
+        table.insert(context_lines, "")
+        table.insert(context_lines, string.format("```%s", enhanced_context.current_file.filetype))
+        local current_buffer_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+        for _, line in ipairs(current_buffer_lines) do
+          table.insert(context_lines, line)
+        end
+        table.insert(context_lines, "```")
+        
+        -- Save context to temp file
+        local tmpfile = vim.fn.tempname() .. ".md"
+        vim.fn.writefile(context_lines, tmpfile)
+        table.insert(temp_files, tmpfile)
+        
+        config.command = string.format('%s --file "%s"', original_cmd, tmpfile)
+      end
+    else
+      -- Fallback to file context if context module not available
+      local file = vim.api.nvim_buf_get_name(0)
+      if file ~= "" then
+        local cursor = vim.api.nvim_win_get_cursor(0)
+        config.command = string.format('%s --file "%s#%d"', original_cmd, file, cursor[1])
+      end
+    end
+  elseif context_type == "file" or context_type == "auto" then
+    -- Pass current file with cursor position
+    local file = vim.api.nvim_buf_get_name(0)
+    if file ~= "" then
+      local cursor = vim.api.nvim_win_get_cursor(0)
+      config.command = string.format('%s --file "%s#%d"', original_cmd, file, cursor[1])
+    end
+  end
+  
+  -- Toggle with enhanced command
+  M.toggle(claude_code, config, git)
+  
+  -- Restore original command
+  config.command = original_cmd
+  
+  -- Clean up temp files after a delay
+  if #temp_files > 0 then
+    vim.defer_fn(function()
+      for _, tmpfile in ipairs(temp_files) do
+        vim.fn.delete(tmpfile)
+      end
+    end, 10000) -- 10 seconds
+  end
+end
+
 return M
