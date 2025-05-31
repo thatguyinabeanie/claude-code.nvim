@@ -28,28 +28,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Lua
-        uses: leafo/gh-actions-lua@v11
-        with:
-          luaVersion: "5.4"
-
-      - name: Install LuaRocks
-        uses: leafo/gh-actions-luarocks@v4
-
-      - name: Create cache directories
-        run: mkdir -p ~/.luarocks
-
-      - name: Cache LuaRocks dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.luarocks
-          key: ${{ runner.os }}-luarocks-5.4-${{ hashFiles('**/*.rockspec') }}
-          restore-keys: |
-            ${{ runner.os }}-luarocks-5.4-
-            ${{ runner.os }}-luarocks-
-
+      - name: Setup Lua and LuaRocks from APT
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.4 liblua5.4-dev luarocks
+          
       - name: Install luacheck
-        run: luarocks install luacheck
+        run: |
+          sudo luarocks install luacheck
 
       - name: Check formatting with stylua
         uses: JohnnyMorganz/stylua-action@v3
@@ -74,34 +60,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lua-version: ["5.1", "5.3", "luajit-2.0", "luajit-2.1", "luajit-openresty"]
+        include:
+          - lua-version: "5.1"
+            lua-package: "lua5.1"
+            lua-dev-package: "liblua5.1-0-dev"
+          - lua-version: "5.3"
+            lua-package: "lua5.3"
+            lua-dev-package: "liblua5.3-dev"
+          - lua-version: "luajit"
+            lua-package: "luajit"
+            lua-dev-package: "libluajit-5.1-dev"
 
     name: Lint with Lua ${{ matrix.lua-version }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Lua
-        uses: leafo/gh-actions-lua@v11
-        with:
-          luaVersion: ${{ matrix.lua-version }}
-
-      - name: Install LuaRocks
-        uses: leafo/gh-actions-luarocks@v4
-
-      - name: Create cache directories
-        run: mkdir -p ~/.luarocks
-
-      - name: Cache LuaRocks dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.luarocks
-          key: ${{ runner.os }}-luarocks-${{ matrix.lua-version }}-${{ hashFiles('**/*.rockspec') }}
-          restore-keys: |
-            ${{ runner.os }}-luarocks-${{ matrix.lua-version }}-
-            ${{ runner.os }}-luarocks-
+      - name: Setup Lua from APT
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ matrix.lua-package }} ${{ matrix.lua-dev-package }} luarocks
 
       - name: Install luacheck
-        run: luarocks install luacheck
+        run: |
+          sudo luarocks install luacheck
 
       - name: Run Luacheck
         run: luacheck lua/
