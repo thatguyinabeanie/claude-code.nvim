@@ -20,6 +20,8 @@ This document outlines the planned development path for the Claude Code Neovim p
   - Implement project-specific configurations
   - Create toggle options for different features
   - Make startup notification configurable in init.lua
+  - Add Claude Code integration to LazyVim/Snacks dashboard
+  - Add configuration to open Claude Code as full-sized buffer when no other buffers are open
 
 - **Code Quality & Testing Improvements** (Remaining from PR #30 Review)
   - Replace hardcoded tool/resource counts in tests with configurable values
