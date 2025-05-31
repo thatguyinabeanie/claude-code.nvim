@@ -31,18 +31,38 @@ end
 function M.test_mcp_server_start()
   cprint("cyan", "🚀 Testing MCP server start")
   
-  local success = pcall(function()
+  local success, error_msg = pcall(function()
     -- Try to start MCP server
     vim.cmd("ClaudeCodeMCPStart")
-    -- Wait briefly to ensure it's started
-    vim.cmd("sleep 500m")
+    
+    -- Wait with timeout for server to start
+    local timeout = 5000 -- 5 seconds
+    local elapsed = 0
+    local interval = 100
+    
+    while elapsed < timeout do
+      vim.cmd("sleep " .. interval .. "m")
+      elapsed = elapsed + interval
+      
+      -- Check if server is actually running
+      local status_ok, status_result = pcall(function()
+        return vim.api.nvim_exec2("ClaudeCodeMCPStatus", { output = true })
+      end)
+      
+      if status_ok and status_result.output and 
+         string.find(status_result.output, "running") then
+        return true
+      end
+    end
+    
+    error("Server failed to start within timeout")
   end)
   
   if success then
     cprint("green", "✅ Successfully started MCP server")
     M.results.mcp_server_start = true
   else
-    cprint("red", "❌ Failed to start MCP server")
+    cprint("red", "❌ Failed to start MCP server: " .. tostring(error_msg))
   end
 end
 
@@ -118,20 +138,26 @@ end
 function M.test_mcp_config_generation()
   cprint("cyan", "📝 Testing MCP config generation")
   
-  -- Test generating a config file to a temporary location
-  local temp_file = os.tmpname()
-  
-  local success = pcall(function()
-    vim.cmd("ClaudeCodeMCPConfig custom " .. temp_file)
-  end)
-  
-  -- Check if file was created and contains the expected content
-  local file_exists = vim.fn.filereadable(temp_file) == 1
-  
-  if success and file_exists then
-    local content = vim.fn.readfile(temp_file)
-    local has_expected_content = false
+  local temp_file = nil
+  local success, error_msg = pcall(function()
+    -- Create a proper temporary file in a safe location
+    temp_file = vim.fn.tempname() .. ".json"
     
+    -- Generate config
+    vim.cmd("ClaudeCodeMCPConfig custom " .. vim.fn.shellescape(temp_file))
+    
+    -- Verify file creation
+    if vim.fn.filereadable(temp_file) ~= 1 then
+      error("Config file was not created")
+    end
+    
+    -- Check content
+    local content = vim.fn.readfile(temp_file)
+    if #content == 0 then
+      error("Config file is empty")
+    end
+    
+    local has_expected_content = false
     for _, line in ipairs(content) do
       if string.find(line, "neovim%-server") then
         has_expected_content = true
@@ -139,16 +165,22 @@ function M.test_mcp_config_generation()
       end
     end
     
-    if has_expected_content then
-      cprint("green", "✅ Successfully generated MCP config")
-    else
-      cprint("yellow", "⚠️  Generated MCP config but content may be incorrect")
+    if not has_expected_content then
+      error("Config file does not contain expected content")
     end
     
-    -- Clean up
-    os.remove(temp_file)
+    return true
+  end)
+  
+  -- Always clean up temp file if it was created
+  if temp_file and vim.fn.filereadable(temp_file) == 1 then
+    pcall(os.remove, temp_file)
+  end
+  
+  if success then
+    cprint("green", "✅ Successfully generated MCP config")
   else
-    cprint("red", "❌ Failed to generate MCP config")
+    cprint("red", "❌ Failed to generate MCP config: " .. tostring(error_msg))
   end
 end
 

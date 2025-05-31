@@ -40,7 +40,7 @@ jobs:
         run: mkdir -p ~/.luarocks
       
       - name: Cache LuaRocks dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.luarocks
           key: ${{ runner.os }}-luarocks-5.4-${{ hashFiles('**/*.rockspec') }}
@@ -92,7 +92,7 @@ jobs:
         run: mkdir -p ~/.luarocks
       
       - name: Cache LuaRocks dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.luarocks
           key: ${{ runner.os }}-luarocks-${{ matrix.lua-version }}-${{ hashFiles('**/*.rockspec') }}
@@ -129,7 +129,7 @@ jobs:
           mkdir -p ~/.local/share/nvim/site/pack
       
       - name: Cache plugin dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.local/share/nvim/site/pack
           key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-stable
@@ -218,7 +218,7 @@ jobs:
           mkdir -p ~/.local/share/nvim/site/pack
       
       - name: Cache plugin dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.local/share/nvim/site/pack
           key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-nightly

@@ -21,9 +21,18 @@ local record_test = test_utils.record_test
 function M.setup_test_environment()
   print(color("cyan", "\n🔧 Setting up test environment..."))
   
-  -- Create test directories
-  vim.fn.mkdir("test/mcp_test_workspace", "p")
-  vim.fn.mkdir("test/mcp_test_workspace/src", "p")
+  -- Create test directories with validation
+  local dirs = {
+    "test/mcp_test_workspace",
+    "test/mcp_test_workspace/src"
+  }
+  
+  for _, dir in ipairs(dirs) do
+    local result = vim.fn.mkdir(dir, "p")
+    if result == 0 and vim.fn.isdirectory(dir) == 0 then
+      error("Failed to create directory: " .. dir)
+    end
+  end
   
   -- Create test files for Claude to work with
   local test_files = {
@@ -54,10 +63,12 @@ return M
   }
   
   for path, content in pairs(test_files) do
-    local file = io.open(path, "w")
+    local file, err = io.open(path, "w")
     if file then
       file:write(content)
       file:close()
+    else
+      error("Failed to create file: " .. path .. " - " .. (err or "unknown error"))
     end
   end
   

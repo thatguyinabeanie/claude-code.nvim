@@ -17,8 +17,13 @@ local function get_mcp_server_path()
     vim.fn.stdpath('data') .. '/lazy/claude-code.nvim/bin/claude-code-mcp-server',
     vim.fn.stdpath('data') .. '/site/pack/*/start/claude-code.nvim/bin/claude-code-mcp-server',
     vim.fn.stdpath('data') .. '/site/pack/*/opt/claude-code.nvim/bin/claude-code-mcp-server',
-    vim.fn.expand('~/source/claude-code.nvim/bin/claude-code-mcp-server'), -- Development path
   }
+  
+  -- Add development path from environment variable if set
+  local dev_path = os.getenv('CLAUDE_CODE_DEV_PATH')
+  if dev_path then
+    table.insert(plugin_paths, 1, vim.fn.expand(dev_path) .. '/bin/claude-code-mcp-server')
+  end
 
   for _, path in ipairs(plugin_paths) do
     -- Handle wildcards in path

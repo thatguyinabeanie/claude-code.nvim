@@ -41,7 +41,11 @@ run_with_timeout() {
 
 # Test 1: Initialize
 echo "1. Testing initialization..."
-run_with_timeout '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}' "initialization" | head -1
+if ! response=$(run_with_timeout '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}' "initialization" | head -1); then
+    echo "ERROR: Server failed to initialize"
+    exit 1
+fi
+echo "$response"
 
 echo ""
 
