@@ -31,7 +31,8 @@
       "Bash(./scripts/lint_all.sh:*)",
       "Bash(make:*)",
       "Bash(git reset:*)",
-      "Bash(shellcheck:*)"
+      "Bash(shellcheck:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   },
