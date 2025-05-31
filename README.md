@@ -552,3 +552,18 @@ make format
 Made with ❤️ by [Gregg Housh](https://github.com/greggh)
 
 ---
+
+### File Reference Shortcut ✨
+
+- Quickly insert a file reference in the form `@File#L1-99` into the Claude prompt input.
+- **How to use:**
+  - Press `<leader>cf` in normal mode to insert the current file and line (e.g., `@myfile.lua#L10`).
+  - In visual mode, `<leader>cf` inserts the current file and selected line range (e.g., `@myfile.lua#L5-7`).
+- **Where it works:**
+  - Inserts into the Claude prompt input buffer (or falls back to the command line if not available).
+- **Why:**
+  - Useful for referencing code locations in your Claude conversations, just like in VSCode/JetBrains integrations.
+
+**Examples:**
+- Normal mode, cursor on line 10: `@myfile.lua#L10`
+- Visual mode, lines 5-7 selected: `@myfile.lua#L5-7`
