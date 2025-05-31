@@ -527,7 +527,7 @@ This plugin provides two complementary ways to interact with Claude Code:
 
 ## Contributing
 
-Contributions are welcome! Please check out our [contribution guidelines](CONTRIBUTING.md) for details on how to get started.
+Contributions are welcome. Please check out our [contribution guidelines](CONTRIBUTING.md) for details on how to get started.
 
 ## License
 
