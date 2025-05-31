@@ -50,13 +50,18 @@ jobs:
   validate-lua-examples:
     name: Validate Lua Examples
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lua-version: ["5.1", "5.3", "5.4", "luajit-2.1", "luajit-openresty"]
+    
     steps:
       - uses: actions/checkout@v4
       
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v11
         with:
-          luaVersion: "5.1"
+          luaVersion: ${{ matrix.lua-version }}
       
       - name: Check Lua code blocks in markdown
         run: |
