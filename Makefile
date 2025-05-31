@@ -41,7 +41,7 @@ test-mcp:
 	@./scripts/test_mcp.sh
 
 # Comprehensive linting for all file types
-lint: lint-lua lint-shell lint-markdown lint-stylua
+lint: lint-lua lint-shell lint-stylua lint-markdown
 
 # Lint Lua files with luacheck
 lint-lua:
