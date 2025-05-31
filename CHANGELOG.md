@@ -11,10 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - New `split_ratio` config option to replace `height_ratio` for better handling of both horizontal and vertical splits
+- Docker-based CI workflows using lua-docker images for faster builds
+
+### Changed
+
+- Migrated CI workflows from APT package installation to pre-built Docker containers
+- Optimized CI performance by using nickblah/lua Docker images with LuaRocks pre-installed
 
 ### Fixed
 
 - Fixed vertical split behavior when the window position is set to a vertical split command
+- Fixed slow CI builds caused by compiling Lua from source
 
 ## [0.4.2] - 2025-03-03
 
