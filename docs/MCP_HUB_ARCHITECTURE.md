@@ -1,10 +1,11 @@
+
 # MCP Hub Architecture for claude-code.nvim
 
 ## Overview
 
 Instead of building everything from scratch, we leverage the existing mcp-hub ecosystem:
 
-```
+```text
 ┌─────────────┐     ┌─────────────┐     ┌──────────────────┐     ┌────────────┐
 │ Claude Code │ ──► │   mcp-hub   │ ──► │ nvim-mcp-server  │ ──► │   Neovim   │
 │     CLI     │     │(coordinator)│     │   (our server)   │     │  Instance  │
@@ -15,7 +16,8 @@ Instead of building everything from scratch, we leverage the existing mcp-hub ec
                     │ Other MCP    │
                     │ Servers      │
                     └──────────────┘
-```
+
+```text
 
 ## Components
 
@@ -88,17 +90,20 @@ Create a robust MCP server that:
     }
   }
 }
-```
+
+```text
 
 ### In Claude Code
 
 ```bash
+
 # Configure Claude Code to use mcp-hub
 claude mcp add mcp-hub http://localhost:37373 --transport sse
 
 # Now Claude can access all servers managed by mcp-hub
 claude "Edit the current buffer in Neovim"
-```
+
+```text
 
 ## MCP Server Implementation
 
@@ -108,33 +113,39 @@ claude "Edit the current buffer in Neovim"
 
 ```typescript
 // Essential editing tools
+
 - edit_buffer: Modify buffer content
 - read_buffer: Get buffer content
 - list_buffers: Show open buffers
 - execute_command: Run Vim commands
 - search_project: Find in files
 - get_diagnostics: LSP diagnostics
-```
+
+```text
 
 #### 2. Resources
 
 ```typescript
 // Contextual information
+
 - current_buffer: Active buffer info
 - project_structure: File tree
 - git_status: Repository state
 - lsp_symbols: Code symbols
-```
+
+```text
 
 #### 3. Security
 
 ```typescript
 // Enterprise features
+
 - Permission model
 - Audit logging
 - Path restrictions
 - Operation limits
-```
+
+```text
 
 ## Benefits Over Direct Integration
 
@@ -155,6 +166,7 @@ claude "Edit the current buffer in Neovim"
 ## Example User Flow
 
 ```bash
+
 # 1. Install mcphub.nvim (already has mcp-hub)
 :Lazy install mcphub.nvim
 
@@ -165,11 +177,13 @@ npm install -g @claude-code/nvim-mcp-server
 nvim --listen /tmp/nvim.sock myfile.lua
 
 # 4. Register our server with mcp-hub (automatic or manual)
+
 # This happens via mcphub.nvim UI or config
 
 # 5. Use Claude Code with full Neovim access
 claude "Refactor this function to use async/await"
-```
+
+```text
 
 ## Conclusion
 
@@ -181,3 +195,4 @@ By building on top of mcp-hub, we get:
 - Faster time to market
 
 We focus our efforts on making the best possible Neovim MCP server while leveraging existing coordination infrastructure.
+

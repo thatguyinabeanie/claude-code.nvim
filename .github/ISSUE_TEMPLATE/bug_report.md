@@ -38,11 +38,13 @@ If applicable, add screenshots to help explain your problem.
 require("claude-code").setup({
   -- Your configuration options
 })
-```
+
+```text
 
 ## Additional Context
 
 Add any other context about the problem here, such as:
+
 - Error messages from Neovim (:messages)
 - Logs from the Claude Code terminal
 - Any recent changes to your setup
@@ -57,4 +59,6 @@ For faster debugging, try to reproduce the issue using our minimal configuration
    ```bash
    nvim --clean -u minimal-init.lua
    ```
+
 4. Try to reproduce the issue with this minimal setup
+

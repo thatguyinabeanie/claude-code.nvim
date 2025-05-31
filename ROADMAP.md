@@ -1,3 +1,4 @@
+
 # Claude Code Plugin Roadmap
 
 This document outlines the planned development path for the Claude Code Neovim plugin. It's divided into short-term, medium-term, and long-term goals. This roadmap may evolve over time based on user feedback and project priorities.
@@ -70,6 +71,7 @@ This document outlines the planned development path for the Claude Code Neovim p
 ## Completed Goals
 
 ### Core Plugin Features
+
 - Basic Claude Code integration in Neovim ✅
 - Terminal-based interaction ✅
 - Configurable keybindings ✅
@@ -81,6 +83,7 @@ This document outlines the planned development path for the Claude Code Neovim p
 - Project tree context integration ✅
 
 ### Code Quality & Security (PR #30 Review Implementation)
+
 - **Security & Validation** ✅
   - Path validation for plugin directory in MCP server binary ✅
   - Input validation for command line arguments ✅
@@ -96,6 +99,7 @@ This document outlines the planned development path for the Claude Code Neovim p
   - Removed stray chat transcript from README.md ✅
 
 ### MCP Integration
+
 - Native Lua MCP server implementation ✅
 - MCP resource handlers (buffers, git status, project structure, etc.) ✅
 - MCP tool handlers (read buffer, edit buffer, run command, etc.) ✅
@@ -122,3 +126,4 @@ We welcome community contributions to help achieve these goals! See [CONTRIBUTIN
 
 - **User-Friendly Config UI:**
   Develop a TUI for configuring plugin options, providing a more accessible alternative to Lua config files.
+

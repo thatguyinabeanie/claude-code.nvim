@@ -1,3 +1,4 @@
+
 # Technical Resources and Documentation
 
 ## MCP (Model Context Protocol) Resources
@@ -94,7 +95,8 @@ vim.fn.serverstart('/tmp/nvim.sock')
 
 -- Client connection
 local socket_path = '/tmp/nvim.sock'
-```
+
+```text
 
 #### RPC Communication
 
@@ -187,3 +189,4 @@ Reference the TypeScript SDK examples:
   - Server coordinator we'll integrate with
 - **mcphub.nvim**: <https://github.com/ravitemer/mcphub.nvim>
   - Neovim plugin for MCP hub integration
+

@@ -25,7 +25,13 @@
       "Bash(gh pr list:*)",
       "Bash(./scripts/test.sh:*)",
       "Bash(gh pr comment:*)",
-      "Bash(stylua:*)"
+      "Bash(stylua:*)",
+      "Bash(markdownlint:*)",
+      "Bash(./scripts/markdown/fix_markdown_comprehensive.sh:*)",
+      "Bash(./scripts/lint_all.sh:*)",
+      "Bash(make:*)",
+      "Bash(git reset:*)",
+      "Bash(shellcheck:*)"
     ],
     "deny": []
   },

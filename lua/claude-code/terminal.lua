@@ -201,7 +201,7 @@ function M.toggle(claude_code, config, git)
       -- unless user prefers to start in normal mode for navigation
       if not config.window.start_in_normal_mode then
         vim.schedule(function()
-          vim.cmd 'stopinsert | startinsert'  -- Reset and enter insert mode
+          vim.cmd 'stopinsert | startinsert' -- Reset and enter insert mode
         end)
       end
     end
@@ -249,9 +249,9 @@ function M.toggle(claude_code, config, git)
     if _TEST or os.getenv('NVIM_TEST') then
       buffer_name = buffer_name
         .. '-'
-        .. tostring(os.time())  -- Timestamp component
+        .. tostring(os.time()) -- Timestamp component
         .. '-'
-        .. tostring(math.random(10000, 99999))  -- Random component
+        .. tostring(math.random(10000, 99999)) -- Random component
     end
     vim.cmd('file ' .. buffer_name)
 
@@ -316,7 +316,7 @@ function M.toggle_with_variant(claude_code, config, git, variant_name)
       -- unless user prefers to start in normal mode for navigation
       if not config.window.start_in_normal_mode then
         vim.schedule(function()
-          vim.cmd 'stopinsert | startinsert'  -- Reset and enter insert mode
+          vim.cmd 'stopinsert | startinsert' -- Reset and enter insert mode
         end)
       end
     end

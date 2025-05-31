@@ -34,7 +34,7 @@ fi
 # Run tests with minimal Neovim configuration and add a timeout
 # Timeout after 60 seconds to prevent hanging in CI
 echo "Running tests with a 60 second timeout..."
-timeout --foreground 60 $NVIM --headless --noplugin -u tests/minimal-init.lua -c "luafile tests/run_tests.lua"
+timeout --foreground 60 "$NVIM" --headless --noplugin -u tests/minimal-init.lua -c "luafile tests/run_tests.lua"
 
 # Check exit code
 EXIT_CODE=$?

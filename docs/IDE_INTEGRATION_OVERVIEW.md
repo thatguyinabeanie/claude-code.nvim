@@ -1,3 +1,4 @@
+
 # 🚀 Claude Code IDE Integration for Neovim
 
 ## 📋 Overview
@@ -203,3 +204,4 @@ To ensure full parity with Anthropic's official IDE integrations, the following 
 - **User-Friendly Config UI:** A terminal-based UI for configuring plugin options, making setup more accessible for all users.
 
 These are tracked in the main ROADMAP and README.
+

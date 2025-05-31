@@ -1,3 +1,4 @@
+
 # Claude Code Neovim Plugin: Enhanced Context Features Implementation
 
 ## Overview
@@ -80,7 +81,8 @@ Added four new MCP resources for advanced context access:
     }
   ]
 }
-```
+
+```text
 
 #### **`neovim://recent-files`**
 
@@ -95,7 +97,8 @@ Added four new MCP resources for advanced context access:
     }
   ]
 }
-```
+
+```text
 
 #### **`neovim://workspace-context`**
 
@@ -116,7 +119,8 @@ Complete enhanced context including current file, related files, recent files, a
     }
   ]
 }
-```
+
+```text
 
 ### 4. Enhanced MCP Tools (`lua/claude-code/mcp/tools.lua`)
 
@@ -152,7 +156,8 @@ Added new user commands for context-aware interactions:
 :ClaudeCodeWithSelection " Visual selection
 :ClaudeCodeWithContext   " Smart auto-detection
 :ClaudeCodeWithWorkspace " Enhanced workspace context
-```
+
+```text
 
 ### 6. Test Infrastructure Consolidation
 
@@ -204,7 +209,8 @@ The context analysis uses sophisticated regex patterns for each language:
 
 -- Python example
 "from%s+([%w%.]+)%s+import",
-```
+
+```text
 
 ### **Path Resolution Logic**
 
@@ -219,6 +225,7 @@ Smart path resolution handles different import styles:
 Workspace context generates comprehensive markdown files:
 
 ```markdown
+
 # Workspace Context
 
 **Current File:** lua/claude-code/init.lua
@@ -226,21 +233,26 @@ Workspace context generates comprehensive markdown files:
 **File Type:** lua
 
 ## Related Files (through imports/requires)
+
 - **lua/claude-code/config.lua** (depth: 1, language: lua, imports: 3)
 
 ## Recent Files
+
 - lua/claude-code/terminal.lua
 
 ## Current File Content
+
 ```lua
 -- Complete file content here
-```
 
-```
+```text
+
+```text
 
 ### **Temporary File Management**
 
 Context-aware features use secure temporary file handling:
+
 - Files created in system temp directory with `.md` extension
 - Automatic cleanup after 10 seconds using `vim.defer_fn()`
 - Proper error handling for file operations
@@ -248,18 +260,21 @@ Context-aware features use secure temporary file handling:
 ## Benefits Achieved
 
 ### **For Users:**
+
 1. **Seamless Context Experience** - Same automatic context as built-in IDE integrations
 2. **Smart Context Detection** - Auto-detects whether to send file or selection
 3. **Enhanced Workspace Awareness** - Related files discovered automatically
 4. **Flexible Context Control** - Choose specific context type when needed
 
 ### **For Developers:**
+
 1. **Comprehensive MCP Resources** - Rich context data for MCP clients
 2. **Advanced Analysis Tools** - Programmatic access to workspace intelligence
 3. **Language-Agnostic Design** - Extensible pattern system for new languages
 4. **Robust Error Handling** - Graceful fallbacks when modules unavailable
 
 ### **For the Project:**
+
 1. **Test Organization** - Cleaner, more maintainable test structure
 2. **Documentation Quality** - Comprehensive usage examples and feature descriptions
 3. **Feature Completeness** - Addresses all missing context features identified
@@ -268,6 +283,7 @@ Context-aware features use secure temporary file handling:
 ## Usage Examples
 
 ### **Basic Context Commands:**
+
 ```vim
 " Pass current file with cursor position
 :ClaudeCodeWithFile
@@ -280,7 +296,8 @@ Context-aware features use secure temporary file handling:
 
 " Full workspace context with related files
 :ClaudeCodeWithWorkspace
-```
+
+```text
 
 ### **MCP Client Usage:**
 
@@ -293,7 +310,8 @@ const analysis = await client.callTool("analyze_related", { max_depth: 3 });
 
 // Search workspace symbols
 const symbols = await client.callTool("find_symbols", { query: "setup" });
-```
+
+```text
 
 ## Latest Update: Configurable CLI Path Support (TDD Implementation)
 
@@ -318,7 +336,8 @@ require('claude-code').setup({
   cli_path = "/custom/path/to/claude",  -- Optional custom CLI path
   -- ... other config options
 })
-```
+
+```text
 
 #### **Test-Driven Development:**
 
@@ -390,3 +409,4 @@ This implementation successfully bridges the gap between traditional MCP server 
 - **Flexible context options** for different use cases
 
 The modular design ensures maintainability while the comprehensive test coverage and documentation provide a solid foundation for future development.
+

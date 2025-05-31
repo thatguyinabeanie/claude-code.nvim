@@ -49,12 +49,11 @@ local import_patterns = {
       if module_name:match('^%.') then
         -- Base path as-is (may already have extension)
         table.insert(paths, module_name)
-        
         -- Extension resolution: Try multiple file extensions if not specified
         if not module_name:match('%.js$') then
-          table.insert(paths, module_name .. '.js')     -- Standard JS
-          table.insert(paths, module_name .. '.jsx')    -- React JSX
-          table.insert(paths, module_name .. '/index.js')  -- Directory with index
+          table.insert(paths, module_name .. '.js') -- Standard JS
+          table.insert(paths, module_name .. '.jsx') -- React JSX
+          table.insert(paths, module_name .. '/index.js') -- Directory with index
           table.insert(paths, module_name .. '/index.jsx') -- Directory with JSX index
         end
       else
@@ -207,12 +206,12 @@ end
 function M.get_related_files(filepath, max_depth)
   max_depth = max_depth or 2
   local related_files = {}
-  local visited = {}  -- Cycle detection: prevents infinite loops in circular dependencies
-  local to_process = { { path = filepath, depth = 0 } }  -- BFS queue with depth tracking
+  local visited = {} -- Cycle detection: prevents infinite loops in circular dependencies
+  local to_process = { { path = filepath, depth = 0 } } -- BFS queue with depth tracking
 
   -- Breadth-first traversal of the dependency tree
   while #to_process > 0 do
-    local current = table.remove(to_process, 1)  -- Dequeue next file to process
+    local current = table.remove(to_process, 1) -- Dequeue next file to process
     local current_path = current.path
     local current_depth = current.depth
 

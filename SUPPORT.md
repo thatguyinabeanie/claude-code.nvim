@@ -1,3 +1,4 @@
+
 # Support
 
 This document outlines the various ways you can get help with Claude Code.
@@ -46,3 +47,4 @@ If you're interested in contributing to the project, please read our [CONTRIBUTI
 ## Security Issues
 
 For security-related issues, please refer to our [SECURITY.md](SECURITY.md) document for proper disclosure procedures.
+

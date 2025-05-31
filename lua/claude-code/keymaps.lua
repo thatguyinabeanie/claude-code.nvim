@@ -28,9 +28,9 @@ function M.register_keymaps(claude_code, config)
     -- <C-\><C-n> is the standard escape sequence to exit terminal mode to normal mode
     -- This ensures the keymap works reliably from within Claude Code terminal
     vim.api.nvim_set_keymap(
-      't',                                    -- Terminal mode
-      config.keymaps.toggle.terminal,         -- User-configured key (e.g., <C-,>)
-      [[<C-\><C-n>:ClaudeCode<CR>]],         -- Exit terminal mode → execute command
+      't', -- Terminal mode
+      config.keymaps.toggle.terminal, -- User-configured key (e.g., <C-,>)
+      [[<C-\><C-n>:ClaudeCode<CR>]], -- Exit terminal mode → execute command
       vim.tbl_extend('force', map_opts, { desc = 'Claude Code: Toggle' })
     )
   end
@@ -116,8 +116,8 @@ function M.setup_terminal_navigation(claude_code, config)
       -- Pattern: <C-\><C-n> (exit terminal) → <C-w>h (move window) → force_insert_mode() (re-enter terminal)
       vim.api.nvim_buf_set_keymap(
         buf,
-        't',                          -- Terminal mode binding
-        '<C-h>',                      -- Ctrl+h for left movement
+        't', -- Terminal mode binding
+        '<C-h>', -- Ctrl+h for left movement
         [[<C-\><C-n><C-w>h:lua require("claude-code").force_insert_mode()<CR>]],
         { noremap = true, silent = true, desc = 'Window: move left' }
       )

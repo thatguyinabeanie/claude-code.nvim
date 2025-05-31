@@ -21,7 +21,7 @@ if ! command -v "$NVIM" >/dev/null 2>&1; then
 fi
 
 echo "📍 Testing from: $(pwd)"
-echo "🔧 Using Neovim: $(command -v $NVIM)"
+echo "🔧 Using Neovim: $(command -v "$NVIM")"
 
 # Make MCP server executable
 chmod +x ./bin/claude-code-mcp-server

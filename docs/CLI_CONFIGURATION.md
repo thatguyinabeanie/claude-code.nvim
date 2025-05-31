@@ -1,3 +1,4 @@
+
 # CLI Configuration and Detection
 
 ## Overview
@@ -16,7 +17,8 @@ If a custom CLI path is specified in the configuration:
 require('claude-code').setup({
   cli_path = "/custom/path/to/claude"
 })
-```
+
+```text
 
 ### 2. Local Installation (Preferred Default)
 
@@ -47,7 +49,8 @@ require('claude-code').setup({
 
   -- Other configuration options...
 })
-```
+
+```text
 
 ### Advanced Examples
 
@@ -58,7 +61,8 @@ require('claude-code').setup({
 require('claude-code').setup({
   cli_path = "/home/user/dev/claude-code/target/debug/claude"
 })
-```
+
+```text
 
 #### Enterprise Environment
 
@@ -67,7 +71,8 @@ require('claude-code').setup({
 require('claude-code').setup({
   cli_path = "/opt/company/tools/claude"
 })
-```
+
+```text
 
 #### Explicit Command Override
 
@@ -76,7 +81,8 @@ require('claude-code').setup({
 require('claude-code').setup({
   command = "/usr/local/bin/claude-beta"
 })
-```
+
+```text
 
 ## Detection Behavior
 
@@ -94,28 +100,32 @@ The plugin provides clear feedback about CLI detection:
 
 #### Successful Custom Path
 
-```
+```text
 Claude Code: Using custom CLI at /custom/path/claude
-```
+
+```text
 
 #### Successful Local Installation
 
-```
+```text
 Claude Code: Using local installation at ~/.claude/local/claude
-```
+
+```text
 
 #### PATH Installation
 
-```
+```text
 Claude Code: Using 'claude' from PATH
-```
+
+```text
 
 #### Warning Messages
 
-```
+```text
 Claude Code: Custom CLI path not found: /invalid/path - falling back to default detection
 Claude Code: CLI not found! Please install Claude Code or set config.command
-```
+
+```text
 
 ## Testing
 
@@ -133,12 +143,14 @@ The CLI detection feature was implemented using TDD with comprehensive test cove
 #### Running CLI Detection Tests
 
 ```bash
+
 # Run all tests
 nvim --headless -c "lua require('tests.run_tests')" -c "qall"
 
 # Run specific CLI detection tests
 nvim --headless -c "lua require('tests.run_tests').run_specific('cli_detection_spec')" -c "qall"
-```
+
+```text
 
 ### Test Scenarios Covered
 
@@ -175,12 +187,14 @@ If custom path fails to work:
 If file exists but isn't executable:
 
 ```bash
+
 # Make executable
 chmod +x ~/.claude/local/claude
 
 # Or for custom path
 chmod +x /your/custom/path/claude
-```
+
+```text
 
 ## Implementation Details
 
@@ -193,7 +207,8 @@ The plugin validates CLI configuration:
 if config.cli_path ~= nil and type(config.cli_path) ~= 'string' then
   return false, 'cli_path must be a string or nil'
 end
-```
+
+```text
 
 ### Detection Function
 
@@ -222,7 +237,8 @@ local function detect_claude_cli(custom_path)
   -- Nothing found
   return nil
 end
-```
+
+```text
 
 ### Silent Mode
 
@@ -231,7 +247,8 @@ For testing and programmatic usage:
 ```lua
 -- Skip CLI detection in silent mode
 local config = require('claude-code.config').parse_config({}, true)  -- silent = true
-```
+
+```text
 
 ## Best Practices
 
@@ -249,7 +266,8 @@ require('claude-code').setup({
   cli_path = os.getenv("CLAUDE_CLI_PATH") or "/opt/company/claude",
   -- Fallback to company standard path
 })
-```
+
+```text
 
 ### Development Workflow
 
@@ -265,7 +283,8 @@ local cli_paths = {
 require('claude-code').setup({
   cli_path = vim.fn.expand(cli_paths[claude_version])
 })
-```
+
+```text
 
 ## Migration Guide
 
@@ -283,7 +302,8 @@ require('claude-code').setup({
 require('claude-code').setup({
   cli_path = "/custom/path/claude"  -- Preferred for custom paths
 })
-```
+
+```text
 
 The `command` option still works and takes precedence over auto-detection, but `cli_path` is preferred for custom installations as it provides better error handling and user feedback.
 
@@ -302,3 +322,4 @@ Potential future improvements to CLI configuration:
 3. **Multiple CLI Support** - Support for multiple Claude CLI versions simultaneously
 4. **Auto-Update Integration** - Automatic CLI update notifications and handling
 5. **Configuration Profiles** - Named configuration profiles for different environments
+

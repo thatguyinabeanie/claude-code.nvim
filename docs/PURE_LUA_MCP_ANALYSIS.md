@@ -1,3 +1,4 @@
+
 # Pure Lua MCP Server Implementation Analysis
 
 ## Is It Feasible? YES
@@ -118,7 +119,8 @@ M.start = function()
 end
 
 return M
-```
+
+```text
 
 ## Advantages of Pure Lua
 
@@ -156,7 +158,8 @@ return M
 -- 1. Accept connections over stdio
 -- 2. List available tools
 -- 3. Execute simple buffer edits
-```
+
+```text
 
 ### Phase 2: Full Protocol
 
@@ -166,7 +169,8 @@ return M
 -- 2. Error handling
 -- 3. Async operations
 -- 4. Progress notifications
-```
+
+```text
 
 ### Phase 3: Advanced Features
 
@@ -176,7 +180,8 @@ return M
 -- 2. Git operations
 -- 3. Project-wide search
 -- 4. Security/permissions
-```
+
+```text
 
 ## Key Components Needed
 
@@ -186,7 +191,8 @@ return M
 -- Parse incoming messages
 -- Handle Content-Length headers
 -- Support batch requests
-```
+
+```text
 
 ### 2. Message Router
 
@@ -194,7 +200,8 @@ return M
 -- Route methods to handlers
 -- Manage request IDs
 -- Handle async responses
-```
+
+```text
 
 ### 3. Tool Implementations
 
@@ -203,7 +210,8 @@ return M
 -- File operations
 -- LSP queries
 -- Search functionality
-```
+
+```text
 
 ### 4. Resource Providers
 
@@ -212,7 +220,8 @@ return M
 -- Project structure
 -- Diagnostics
 -- Git status
-```
+
+```text
 
 ## Example: Complete Mini Server
 
@@ -267,7 +276,8 @@ end
 if arg and arg[0]:match("mcp%-server%.lua$") then
   start_mcp_server()
 end
-```
+
+```text
 
 ## Conclusion
 
@@ -279,3 +289,4 @@ A pure Lua MCP server is not only feasible but **preferable** for a Neovim plugi
 - No external dependencies
 
 We should definitely go with pure Lua!
+

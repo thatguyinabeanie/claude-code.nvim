@@ -1,3 +1,4 @@
+
 # Claude Code Neovim Plugin
 
 [![GitHub License](https://img.shields.io/github/license/greggh/claude-code.nvim?style=flat-square)](https://github.com/greggh/claude-code.nvim/blob/main/LICENSE)
@@ -107,7 +108,8 @@ return {
     require("claude-code").setup()
   end
 }
-```
+
+```text
 
 ### Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
@@ -121,7 +123,8 @@ use {
     require('claude-code').setup()
   end
 }
-```
+
+```text
 
 ### Using [vim-plug](https://github.com/junegunn/vim-plug)
 
@@ -130,7 +133,8 @@ Plug 'nvim-lua/plenary.nvim'
 Plug 'greggh/claude-code.nvim'
 " After installing, add this to your init.vim:
 " lua require('claude-code').setup()
-```
+
+```text
 
 ## MCP Server
 
@@ -205,12 +209,14 @@ The MCP server exposes these resources:
 You can also run the MCP server standalone:
 
 ```bash
+
 # Start standalone MCP server
 ./bin/claude-code-mcp-server
 
 # Test the server
 echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | ./bin/claude-code-mcp-server
-```
+
+```text
 
 ## Configuration
 
@@ -293,7 +299,8 @@ require("claude-code").setup({
     scrolling = true,         -- Enable scrolling keymaps (<C-f/b>) for page up/down
   }
 })
-```
+
+```text
 
 ## Claude Code Integration
 
@@ -365,7 +372,8 @@ The plugin provides seamless integration with the Claude Code CLI through MCP (M
 ```vim
 " In your Vim/Neovim commands or init file:
 :ClaudeCode
-```
+
+```text
 
 ```lua
 -- Or from Lua:
@@ -373,7 +381,8 @@ vim.cmd[[ClaudeCode]]
 
 -- Or map to a key:
 vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude Code' })
-```
+
+```text
 
 ### Context-Aware Usage Examples
 
@@ -392,7 +401,8 @@ vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude
 
 " Project file tree structure for codebase overview
 :ClaudeCodeWithProjectTree
-```
+
+```text
 
 The context-aware commands automatically include relevant information:
 
@@ -538,6 +548,7 @@ The project includes comprehensive setup for development:
 - Weekly dependency updates workflow for Claude CLI and actions
 
 ```bash
+
 # Run tests
 make test
 
@@ -549,7 +560,8 @@ scripts/setup-hooks.sh
 
 # Format code
 make format
-```
+
+```text
 
 ## Community
 
@@ -589,3 +601,4 @@ Made with ❤️ by [Gregg Housh](https://github.com/greggh)
 
 - Normal mode, cursor on line 10: `@myfile.lua#L10`
 - Visual mode, lines 5-7 selected: `@myfile.lua#L5-7`
+

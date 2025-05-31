@@ -1,3 +1,4 @@
+
 # Claude Code Neovim Plugin - MCP Integration Plan
 
 ## Current Plugin Architecture
@@ -20,7 +21,7 @@ Extend the existing plugin to:
 
 ## Integration Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                   claude-code.nvim                       │
 ├─────────────────────────────────────────────────────────┤
@@ -36,7 +37,8 @@ Extend the existing plugin to:
 │     └──────────────────────┴─────────┘                   │
 │              User Commands/Keymaps                       │
 └─────────────────────────────────────────────────────────┘
-```
+
+```text
 
 ## Implementation Steps
 
@@ -73,7 +75,8 @@ M.start = function(config)
 end
 
 return M
-```
+
+```text
 
 ### 2. Extend Main Plugin Configuration
 
@@ -92,7 +95,8 @@ mcp = {
     }
   }
 }
-```
+
+```text
 
 ### 3. Integrate MCP with Terminal Module
 
@@ -109,7 +113,8 @@ if config.mcp.enabled and config.mcp.auto_start then
     vim.fn.jobstart(cmd)
   end
 end
-```
+
+```text
 
 ### 4. Add MCP Commands
 
@@ -128,7 +133,8 @@ end, { desc = 'Stop MCP server' })
 vim.api.nvim_create_user_command('ClaudeCodeMCPStatus', function()
   require('claude-code.mcp').status()
 end, { desc = 'Show MCP server status' })
-```
+
+```text
 
 ### 5. Health Check Integration
 
@@ -159,7 +165,8 @@ M.check = function()
 end
 
 return M
-```
+
+```text
 
 ### 6. Installation Helper
 
@@ -190,7 +197,8 @@ vim.api.nvim_create_user_command('ClaudeCodeMCPInstall', function()
     end
   })
 end, { desc = 'Install MCP server for Claude Code' })
-```
+
+```text
 
 ## User Experience
 
@@ -210,7 +218,8 @@ require('claude-code').setup({
     enabled = false  -- Disable MCP, use CLI only
   }
 })
-```
+
+```text
 
 ### Manual Control
 
@@ -218,7 +227,8 @@ require('claude-code').setup({
 :ClaudeCodeMCPStart    " Start MCP server manually
 :ClaudeCodeMCPStop     " Stop MCP server
 :ClaudeCodeMCPStatus   " Check server status
-```
+
+```text
 
 ## Benefits of This Approach
 
@@ -235,3 +245,4 @@ require('claude-code').setup({
 3. Add installation/build scripts
 4. Test integration with existing features
 5. Update documentation
+

@@ -1,3 +1,4 @@
+
 # Project: Claude Code Plugin
 
 ## Overview
@@ -49,9 +50,11 @@ require('claude-code').setup({
     multi_instance = false  -- Use a single global Claude instance
   }
 })
-```
+
+```text
 
 ## Documentation Links
 
 - Tasks: `/home/gregg/Projects/docs-projects/neovim-ecosystem-docs/tasks/claude-code-tasks.md`
 - Project Status: `/home/gregg/Projects/docs-projects/neovim-ecosystem-docs/project-status.md`
+

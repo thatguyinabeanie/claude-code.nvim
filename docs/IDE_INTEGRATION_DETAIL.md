@@ -1,3 +1,4 @@
+
 # IDE Integration Implementation Details
 
 ## Architecture Clarification
@@ -50,7 +51,8 @@ For our MCP server, stdio is the standard transport (following MCP conventions):
     prompts = false
   }
 }
-```
+
+```text
 
 #### 2. Message Format
 
@@ -91,12 +93,13 @@ The server manager handles MCP server lifecycle:
 
 **State Machine:**
 
-```
+```text
 STOPPED → STARTING → INITIALIZING → READY → SERVING
     ↑          ↓            ↓          ↓        ↓
     └──────────┴────────────┴──────────┴────────┘
                     (error/restart)
-```
+
+```text
 
 ### 2. Message Router
 
@@ -645,3 +648,4 @@ Ensuring responsive user experience:
 11. LPeg Documentation: <http://www.inf.puc-rio.br/~roberto/lpeg/>
 12. lua-resty-websocket: <https://github.com/openresty/lua-resty-websocket>
 13. luaossl Documentation: <https://github.com/wahern/luaossl>
+

@@ -1,3 +1,4 @@
+
 # Tutorials
 
 > Practical examples and patterns for effectively using Claude Code in Neovim.
@@ -77,7 +78,8 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 " Use custom keymaps (if configured)
 <leader>cc  " Continue conversation
 <leader>cr  " Resume session
-```
+
+```text
 
 ## Understand New Codebases
 
@@ -408,16 +410,19 @@ Claude Code in Neovim provides several options for resuming previous conversatio
    # Project: My Neovim Plugin
 
    ## Essential Commands
+
    - Run tests: `make test`
    - Lint code: `make lint`
    - Generate docs: `make docs`
 
    ## Code Conventions
+
    - Use snake_case for Lua functions
    - Prefix private functions with underscore
    - Always use plenary.nvim for testing
 
    ## Architecture Notes
+
    - Main entry point: lua/myplugin/init.lua
    - Configuration: lua/myplugin/config.lua
    - Use vim.notify for user messages
@@ -544,6 +549,7 @@ Claude Code in Neovim provides several options for resuming previous conversatio
    ```bash
    # Command for plugin development
    echo "Review this Neovim plugin code for best practices. Check for:
+
    - Proper use of vim.api vs vim.fn
    - Correct autocommand patterns
    - Memory leak prevention
@@ -551,6 +557,7 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 
    # Command for configuration review
    echo "Review this Neovim configuration for:
+
    - Deprecated options
    - Performance optimizations
    - Plugin compatibility
@@ -629,3 +636,4 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - Explore [MCP Integration](MCP_INTEGRATION.md) for advanced features
 - Check [CLAUDE.md](../CLAUDE.md) for project-specific setup
 - Join the community for tips and best practices
+

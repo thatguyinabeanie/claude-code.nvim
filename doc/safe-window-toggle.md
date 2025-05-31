@@ -1,3 +1,4 @@
+
 # Safe Window Toggle
 
 ## Overview
@@ -59,7 +60,8 @@ Previously, using `:ClaudeCode` to hide a visible Claude Code window would force
 
 " Smart toggle - hides if visible, shows if hidden
 :ClaudeCodeSafeToggle
-```
+
+```text
 
 ### Status Checking
 
@@ -71,7 +73,8 @@ Previously, using `:ClaudeCode` to hide a visible Claude Code window would force
 " List all instances across projects
 :ClaudeCodeInstances
 " Output: Lists all git roots with their Claude Code states
-```
+
+```text
 
 ### Multi-Project Workflow
 
@@ -89,7 +92,8 @@ Previously, using `:ClaudeCode` to hide a visible Claude Code window would force
 " Check all running instances
 :ClaudeCodeInstances
 " Shows both Project A (hidden) and Project B (visible)
-```
+
+```text
 
 ## Implementation Details
 
@@ -105,7 +109,8 @@ process_states = {
     last_updated = timestamp
   }
 }
-```
+
+```text
 
 ### Window Detection
 
@@ -157,7 +162,8 @@ Run tests:
 
 ```bash
 nvim --headless -c "lua require('tests.run_tests').run_specific('safe_window_toggle_spec')" -c "qall"
-```
+
+```text
 
 ## Configuration
 
@@ -193,18 +199,22 @@ The regular `:ClaudeCode` command continues to work as before. Users who want th
 
 ### Window Won't Show
 If `:ClaudeCodeShow` doesn't work:
+
 1. Check status with `:ClaudeCodeStatus`
 2. Verify buffer still exists
 3. Try `:ClaudeCodeSafeToggle` instead
 
 ### Process State Issues
 If state tracking seems incorrect:
+
 1. Use `:ClaudeCodeInstances` to see all tracked instances
 2. Invalid buffers are automatically cleaned up
 3. Restart Neovim to reset all state if needed
 
 ### Multiple Instances Confusion
 When working with multiple projects:
+
 1. Use `:ClaudeCodeInstances` to see all running instances
 2. Each git root maintains separate state
 3. Buffer names include project path for identification
+

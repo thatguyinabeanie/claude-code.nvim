@@ -1,3 +1,4 @@
+
 # MCP Server Code Examples
 
 ## Basic Server Structure (TypeScript)
@@ -36,7 +37,8 @@ server.tool(
 // Connect to stdio transport
 const transport = new StdioServerTransport();
 await server.connect(transport);
-```
+
+```text
 
 ### Complete Server Pattern
 
@@ -207,7 +209,8 @@ class NeovimMCPServer {
 // Entry point
 const server = new NeovimMCPServer();
 server.run().catch(console.error);
-```
+
+```text
 
 ## Neovim Client Integration
 
@@ -245,7 +248,8 @@ class NeovimClient {
     return await buffer.lines;
   }
 }
-```
+
+```text
 
 ## Tool Patterns
 
@@ -273,7 +277,8 @@ async handleSearchProject(args) {
   );
   // Parse and return results
 }
-```
+
+```text
 
 ### LSP Integration Tool
 
@@ -299,7 +304,8 @@ async handleGoToDefinition(args) {
   );
   // Return new cursor position
 }
-```
+
+```text
 
 ## Resource Patterns
 
@@ -327,7 +333,8 @@ async handleDiagnosticsResource() {
     }]
   };
 }
-```
+
+```text
 
 ## Error Handling Pattern
 
@@ -357,7 +364,8 @@ try {
     isError: true
   };
 }
-```
+
+```text
 
 ## Security Pattern
 
@@ -386,7 +394,8 @@ async handleFileOperation(args) {
   const sanitizedPath = this.security.sanitizePath(args.path);
   // Proceed with operation
 }
-```
+
+```text
 
 ## Testing Pattern
 
@@ -417,4 +426,6 @@ describe("NeovimMCPServer", () => {
     expect(result.content[0].text).toContain("Successfully edited");
   });
 });
-```
+
+```text
+

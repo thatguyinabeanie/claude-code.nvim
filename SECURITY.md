@@ -1,3 +1,4 @@
+
 # Security Policy
 
 ## Supported Versions
@@ -52,3 +53,4 @@ Security updates will be released as:
 ## Past Security Advisories
 
 No formal security advisories have been issued for this project yet.
+

@@ -1,3 +1,4 @@
+
 # Code Commenting Guidelines
 
 This document outlines the commenting strategy for claude-code.nvim to maintain code clarity while following the principle of "clean, self-documenting code."
@@ -38,7 +39,7 @@ This document outlines the commenting strategy for claude-code.nvim to maintain 
    ```lua
    -- BAD: Redundant comment
    local count = 0  -- Initialize count to zero
-   
+
    -- GOOD: No comment needed
    local count = 0
    ```
@@ -50,29 +51,34 @@ This document outlines the commenting strategy for claude-code.nvim to maintain 
 ## Comment Style Guidelines
 
 ### **Functional Comments**
+
 ```lua
 -- Multi-instance support: Each git repository gets its own Claude instance
 -- This prevents context bleeding between different projects
 local function get_instance_identifier(git)
   return git.get_git_root() or vim.fn.getcwd()
 end
-```
+
+```text
 
 ### **Complex Logic Blocks**
+
 ```lua
 -- Process JSON-RPC messages line by line per MCP specification
 -- Each message must be complete JSON on a single line
 while true do
   local newline_pos = buffer:find('\n')
   if not newline_pos then break end
-  
+
   local line = buffer:sub(1, newline_pos - 1)
   buffer = buffer:sub(newline_pos + 1)
   -- ... process message
 end
-```
+
+```text
 
 ### **Platform-Specific Handling**
+
 ```lua
 -- Terminal mode requires special escape sequence handling
 -- <C-\><C-n> exits terminal mode before executing commands
@@ -82,20 +88,24 @@ vim.api.nvim_set_keymap(
   [[<C-\><C-n>:ClaudeCode<CR>]],
   { noremap = true, silent = true }
 )
-```
+
+```text
 
 ## Implementation Priority
 
 ### **Phase 1: High-Impact Areas**
+
 1. Terminal buffer management (`terminal.lua`)
 2. MCP protocol implementation (`mcp/server.lua`)
 3. Import analysis algorithms (`context.lua`)
 
 ### **Phase 2: Platform-Specific Code**
+
 1. CLI detection logic (`config.lua`)
 2. Terminal keymap handling (`keymaps.lua`)
 
 ### **Phase 3: Security & Edge Cases**
+
 1. Path validation utilities (`utils.lua`)
 2. Error handling patterns
 3. Git command execution
@@ -120,14 +130,16 @@ local module_patterns = {
   typescript = { '%s.ts', '%s.tsx', '%s/index.ts' },
   python = { '%s.py', '%s/__init__.py' }
 }
-```
+
+```text
 
 ```lua
 -- Track process states to enable safe window hiding without interruption
 -- Maps instance_id -> { status: 'running'|'suspended', hidden: boolean }
 -- This prevents accidentally terminating Claude processes during UI operations
 local process_states = {}
-```
+
+```text
 
 ## Tools and Automation
 
@@ -136,3 +148,4 @@ local process_states = {}
 - Link comments to issues/PRs for complex business logic
 
 This approach ensures comments add real value while keeping the codebase clean and maintainable.
+

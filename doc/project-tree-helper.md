@@ -1,3 +1,4 @@
+
 # Project Tree Helper
 
 ## Overview
@@ -18,19 +19,21 @@ The Project Tree Helper provides utilities for generating comprehensive file tre
 
 ```vim
 :ClaudeCodeWithProjectTree
-```
+
+```text
 
 This command generates a project file tree and passes it to Claude Code as context.
 
 ### Example Output
 
-```
+```text
+
 # Project Structure
 
 **Project:** claude-code.nvim
 **Root:** ./
 
-```
+```text
 claude-code.nvim/
   README.md
   lua/
@@ -44,7 +47,8 @@ claude-code.nvim/
       tree_helper_spec.lua
   doc/
     claude-code.txt
-```
+
+```text
 
 ## Configuration
 
@@ -73,7 +77,8 @@ The tree helper uses sensible defaults but can be customized:
   "__pycache__",
   "%.mypy_cache"
 }
-```
+
+```text
 
 ## API Reference
 
@@ -84,6 +89,7 @@ The tree helper uses sensible defaults but can be customized:
 Generate a file tree representation of a directory.
 
 **Parameters:**
+
 - `root_dir` (string): Root directory to scan
 - `options` (table, optional): Configuration options
   - `max_depth` (number): Maximum depth to scan (default: 3)
@@ -98,6 +104,7 @@ Generate a file tree representation of a directory.
 Get project tree context as formatted markdown.
 
 **Parameters:**
+
 - `options` (table, optional): Same as `generate_tree`
 
 **Returns:** string - Markdown formatted project tree
@@ -107,6 +114,7 @@ Get project tree context as formatted markdown.
 Create a temporary file with project tree content.
 
 **Parameters:**
+
 - `options` (table, optional): Same as `generate_tree`
 
 **Returns:** string - Path to temporary file
@@ -124,6 +132,7 @@ Get the default ignore patterns.
 Add a new ignore pattern to the default list.
 
 **Parameters:**
+
 - `pattern` (string): Pattern to add
 
 ## Integration
@@ -161,7 +170,8 @@ local tree = tree_helper.generate_tree("/path/to/project", {
   max_files = 25,
   show_size = true
 })
-```
+
+```text
 
 ### Custom Ignore Patterns
 
@@ -175,7 +185,8 @@ tree_helper.add_ignore_pattern("%.log$")
 local tree = tree_helper.generate_tree("/path/to/project", {
   ignore_patterns = {"%.git", "node_modules", "%.tmp$"}
 })
-```
+
+```text
 
 ### Markdown Context
 
@@ -191,7 +202,8 @@ local context = tree_helper.get_project_tree_context({
 -- Create temporary file for Claude Code
 local temp_file = tree_helper.create_tree_file()
 -- File is automatically cleaned up after 10 seconds
-```
+
+```text
 
 ## Implementation Details
 
@@ -251,7 +263,8 @@ local options = {
   max_files = 50,
   show_size = true
 }
-```
+
+```text
 
 ### Custom Workflows
 
@@ -266,7 +279,8 @@ Combine with other context types:
 
 " Or provide workspace context
 :ClaudeCodeWithWorkspace
-```
+
+```text
 
 ## Troubleshooting
 
@@ -307,4 +321,6 @@ Run tests:
 
 ```bash
 nvim --headless -c "lua require('tests.run_tests').run_specific('tree_helper_spec')" -c "qall"
-```
+
+```text
+

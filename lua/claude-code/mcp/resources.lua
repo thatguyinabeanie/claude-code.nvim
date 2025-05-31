@@ -67,7 +67,8 @@ M.project_structure = {
     local handle = io.popen(
       'find '
         .. vim.fn.shellescape(cwd)
-        .. " -type f -name '*.lua' -o -name '*.vim' -o -name '*.js' -o -name '*.ts' -o -name '*.py' -o -name '*.md' | head -50"
+        .. " -type f -name '*.lua' -o -name '*.vim' -o -name '*.js'"
+        .. " -o -name '*.ts' -o -name '*.py' -o -name '*.md' | head -50"
     )
     if not handle then
       return 'Error: Could not list project files'

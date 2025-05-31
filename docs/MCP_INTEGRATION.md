@@ -1,3 +1,4 @@
+
 # MCP Integration with Claude Code CLI
 
 ## Overview
@@ -18,7 +19,8 @@ All tools follow the Claude/Anthropic naming convention:
 
 ```text
 mcp__{server-name}__{tool-name}
-```
+
+```text
 
 For example:
 
@@ -56,13 +58,15 @@ Start the MCP server using the Neovim command:
 
 ```vim
 :ClaudeCodeMCPStart
-```
+
+```text
 
 Or programmatically in Lua:
 
 ```lua
 require('claude-code.mcp').start()
-```
+
+```text
 
 The server automatically starts on `127.0.0.1:27123` by default, but can be configured through options.
 
@@ -72,19 +76,22 @@ The server automatically starts on `127.0.0.1:27123` by default, but can be conf
 
 ```sh
 claude code --mcp-config http://localhost:27123/mcp/config -e "Describe the current buffer"
-```
+
+```text
 
 ### Restricting Tool Access
 
 ```sh
 claude code --mcp-config http://localhost:27123/mcp/config --allowedTools mcp__neovim-lua__vim_buffer -e "What's in the buffer?"
-```
+
+```text
 
 ### Using with Recent Claude Models
 
 ```sh
 claude code --mcp-config http://localhost:27123/mcp/config --model claude-3-opus-20240229 -e "Help me refactor this Neovim plugin"
-```
+
+```text
 
 ## Session Management
 
@@ -131,7 +138,8 @@ require('claude-code').setup({
     }
   }
 })
-```
+
+```text
 
 ### Custom Host
 
@@ -143,7 +151,8 @@ require('claude-code').setup({
     }
   }
 })
-```
+
+```text
 
 ### Session Timeout
 
@@ -153,4 +162,6 @@ require('claude-code').setup({
     session_timeout_minutes = 60  -- Default: 30
   }
 })
-```
+
+```text
+

@@ -48,7 +48,7 @@ M.colors = {
 -- @param color string Color name from M.colors
 -- @param text string Text to print
 function M.cprint(color, text)
-  print(M.colors[color] .. text .. M.colors.reset)
+  vim.print(M.colors[color] .. text .. M.colors.reset)
 end
 
 -- Colorize text without printing

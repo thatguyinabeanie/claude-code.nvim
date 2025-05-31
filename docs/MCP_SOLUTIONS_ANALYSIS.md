@@ -1,3 +1,4 @@
+
 # MCP Solutions Analysis for Neovim
 
 ## Executive Summary
@@ -62,6 +63,7 @@ Claude Code CLI has built-in MCP support with the following commands:
 ### Adding an MCP Server
 
 ```bash
+
 # Add a stdio-based MCP server (default)
 claude mcp add neovim-server nvim-mcp-server
 
@@ -70,7 +72,8 @@ claude mcp add neovim-server nvim-mcp-server -e NVIM_SOCKET=/tmp/nvim
 
 # Add with specific scope
 claude mcp add neovim-server nvim-mcp-server --scope project
-```
+
+```text
 
 Scopes:
 
@@ -139,7 +142,8 @@ Scopes:
 -- 3. Neovim API wrapper
 -- 4. Tool definitions (edit, read, etc.)
 -- 5. Resource providers (buffers, files)
-```
+
+```text
 
 ## Recommendation
 
@@ -196,3 +200,4 @@ Any solution must address:
 - Sandboxing capabilities
 - Audit logging
 - User consent for operations
+

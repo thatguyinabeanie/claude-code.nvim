@@ -1,3 +1,4 @@
+
 # Development Guide for Neovim Projects
 
 This document outlines the development workflow, testing setup, and requirements for working with Neovim Lua projects such as this configuration, Laravel Helper plugin, and Claude Code plugin.
@@ -25,6 +26,7 @@ This document outlines the development workflow, testing setup, and requirements
 #### Ubuntu/Debian
 
 ```bash
+
 # Install Neovim (from PPA for latest version)
 sudo add-apt-repository ppa:neovim-ppa/unstable
 sudo apt-get update
@@ -41,11 +43,13 @@ curl -L -o stylua.zip $(curl -s https://api.github.com/repos/JohnnyMorganz/StyLu
 unzip stylua.zip
 chmod +x stylua
 sudo mv stylua /usr/local/bin/
-```
+
+```text
 
 #### Arch Linux
 
 ```bash
+
 # Install dependencies
 sudo pacman -S neovim luarocks ripgrep fd git make
 
@@ -54,11 +58,13 @@ sudo luarocks install luacheck
 
 # Install stylua (from AUR)
 yay -S stylua
-```
+
+```text
 
 #### Fedora
 
 ```bash
+
 # Install dependencies
 sudo dnf install neovim luarocks ripgrep fd-find git make
 
@@ -70,11 +76,13 @@ curl -L -o stylua.zip $(curl -s https://api.github.com/repos/JohnnyMorganz/StyLu
 unzip stylua.zip
 chmod +x stylua
 sudo mv stylua /usr/local/bin/
-```
+
+```text
 
 ### macOS
 
 ```bash
+
 # Install Homebrew if not already installed
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
@@ -86,13 +94,15 @@ luarocks install luacheck
 
 # Install stylua
 brew install stylua
-```
+
+```text
 
 ### Windows
 
 #### Using scoop
 
 ```powershell
+
 # Install scoop if not already installed
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
@@ -108,11 +118,13 @@ luarocks install luacheck
 
 # Install stylua
 scoop install stylua
-```
+
+```text
 
 #### Using chocolatey
 
 ```powershell
+
 # Install chocolatey if not already installed
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
@@ -126,8 +138,10 @@ choco install luarocks
 luarocks install luacheck
 
 # Install stylua (download from GitHub)
+
 # Visit https://github.com/JohnnyMorganz/StyLua/releases
-```
+
+```text
 
 ## Development Workflow
 
@@ -165,13 +179,15 @@ If you need to bypass these checks, use:
 
 ```bash
 git commit --no-verify
-```
+
+```text
 
 ## Testing
 
 ### Running Tests
 
 ```bash
+
 # Run all tests
 make test
 
@@ -181,7 +197,8 @@ make test-verbose
 # Run specific test suites
 make test-basic
 make test-config
-```
+
+```text
 
 ### Writing Tests
 
@@ -196,7 +213,8 @@ test.describe("Feature name", function()
     test.expect(result).to_be(expected)
   end)
 end)
-```
+
+```text
 
 ## Continuous Integration
 
@@ -259,7 +277,8 @@ These tools improve development efficiency:
 All our Neovim projects follow a similar structure:
 
 ```plaintext
-```
+
+```text
 
 .
 ├── .github/            # GitHub-specific files and workflows
@@ -271,7 +290,8 @@ All our Neovim projects follow a similar structure:
 ├── .luacheckrc         # LuaCheck configuration
 
 ```plaintext
-```
+
+```text
 
 ├── .stylua.toml        # StyLua configuration
 ├── Makefile            # Common commands
@@ -279,7 +299,8 @@ All our Neovim projects follow a similar structure:
 └── README.md           # Project overview
 
 ```plaintext
-```
+
+```text
 
 ## Troubleshooting
 
@@ -300,3 +321,4 @@ If you encounter issues:
 3. Check that your Neovim version is 0.10.0 or higher
 4. Review the project's issues on GitHub for similar problems
 5. Open a new issue with detailed reproduction steps if needed
+

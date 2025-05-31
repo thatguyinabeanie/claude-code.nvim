@@ -285,8 +285,8 @@ function M.start()
 
   -- Platform-specific file descriptor validation for MCP communication
   -- MCP uses stdin/stdout for JSON-RPC message exchange per specification
-  local stdin_fd = 0   -- Standard input file descriptor
-  local stdout_fd = 1  -- Standard output file descriptor
+  local stdin_fd = 0 -- Standard input file descriptor
+  local stdout_fd = 1 -- Standard output file descriptor
 
   -- Headless mode requires strict validation since MCP clients expect reliable I/O
   -- UI mode is more forgiving as stdin/stdout may be redirected or unavailable

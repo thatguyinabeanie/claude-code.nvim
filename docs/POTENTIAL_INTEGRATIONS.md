@@ -1,3 +1,4 @@
+
 # Potential IDE-like Integrations for Claude Code + Neovim MCP
 
 Based on research into VS Code and Cursor Claude integrations, here are exciting possibilities for our Neovim MCP implementation:
@@ -128,3 +129,4 @@ Based on research into VS Code and Cursor Claude integrations, here are exciting
 5. **Customization**: Highly configurable interface and behavior
 
 This represents a significant opportunity to create IDE-like capabilities that rival or exceed what's available in VS Code and Cursor, while maintaining Neovim's philosophy of speed, customization, and terminal-native operation.
+

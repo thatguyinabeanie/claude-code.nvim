@@ -1,3 +1,4 @@
+
 # Contributing to Claude-Code.nvim
 
 Thank you for your interest in contributing to Claude-Code.nvim! This document provides guidelines and instructions to help you contribute effectively.
@@ -113,6 +114,7 @@ Before submitting your changes, please test them thoroughly:
 You can run the test suite using the Makefile:
 
 ```bash
+
 # Run all tests
 make test
 
@@ -120,7 +122,8 @@ make test
 make test-basic    # Run basic functionality tests
 make test-config   # Run configuration tests
 make test-plenary  # Run plenary tests
-```
+
+```text
 
 See `test/README.md` and `tests/README.md` for more details on the different test types.
 
@@ -148,3 +151,4 @@ By contributing to Claude-Code.nvim, you agree that your contributions will be l
 If you have any questions about contributing, please open an issue with your question.
 
 Thank you for contributing to Claude-Code.nvim!
+

@@ -78,9 +78,9 @@ lint-shell:
 lint-markdown:
 	@echo "Linting markdown files..."
 	@if command -v markdownlint-cli2 > /dev/null 2>&1; then \
-		markdownlint-cli2 '**/*.md' --config .markdownlint.json --ignore .vscode/ --ignore node_modules/; \
+		markdownlint-cli2 '*.md' 'doc/**/*.md' 'docs/**/*.md' 'tests/**/*.md' 'mcp-server/**/*.md' --config .markdownlint.json; \
 	elif command -v markdownlint > /dev/null 2>&1; then \
-		markdownlint '**/*.md' --config .markdownlint.json --ignore .vscode/ --ignore node_modules/; \
+		markdownlint '*.md' 'doc/**/*.md' 'docs/**/*.md' 'tests/**/*.md' 'mcp-server/**/*.md' --config .markdownlint.json; \
 	else \
 		echo "markdownlint not found. Install with: npm install -g markdownlint-cli2"; \
 		exit 1; \

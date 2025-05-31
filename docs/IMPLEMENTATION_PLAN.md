@@ -1,3 +1,4 @@
+
 # Implementation Plan: Neovim MCP Server
 
 ## Decision Point: Language Choice
@@ -45,7 +46,7 @@
 
 We're extending the existing plugin with MCP server capabilities:
 
-```
+```text
 claude-code.nvim/                  # THIS REPOSITORY
 ├── lua/claude-code/               # Existing plugin code
 │   ├── init.lua                  # Main plugin entry
@@ -83,7 +84,8 @@ claude-code.nvim/                  # THIS REPOSITORY
 └── doc/                          # Existing + new documentation
     ├── claude-code.txt          # Existing vim help
     └── mcp-integration.txt      # NEW: MCP help docs
-```
+
+```text
 
 ## How It Works Together
 
@@ -211,24 +213,29 @@ claude-code.nvim/                  # THIS REPOSITORY
 ### 1. Validate Approach (Today)
 
 ```bash
+
 # Test mcp-neovim-server with mcp-hub
 npm install -g @bigcodegen/mcp-neovim-server
 nvim --listen /tmp/nvim
 
 # In another terminal
+
 # Configure with mcp-hub and test
-```
+
+```text
 
 ### 2. Setup Development (Today/Tomorrow)
 
 ```bash
+
 # Create MCP server directory
 mkdir mcp-server
 cd mcp-server
 npm init -y
 npm install @modelcontextprotocol/sdk
 npm install neovim-client
-```
+
+```text
 
 ### 3. Create Minimal Server (This Week)
 
@@ -298,3 +305,4 @@ npm install neovim-client
 - **Performance Optimization** - Efficient Lua implementation
 
 The implementation has exceeded the original goals and provides a complete, production-ready solution for Claude Code integration with Neovim.
+

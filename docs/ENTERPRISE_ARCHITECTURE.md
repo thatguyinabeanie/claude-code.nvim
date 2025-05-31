@@ -1,3 +1,4 @@
+
 # Enterprise Architecture for claude-code.nvim
 
 ## Problem Statement
@@ -21,7 +22,8 @@ Instead of connecting to Claude Desktop (cloud), we need to enable **Claude Code
 │     CLI     │    (stdio)   │   (our server)   │                     │  Instance  │
 └─────────────┘              └──────────────────┘                     └────────────┘
      LOCAL                          LOCAL                                   LOCAL
-```
+
+```text
 
 **Key Points:**
 
@@ -73,6 +75,7 @@ Claude Code CLI connects directly to our MCP server:
 **Implementation:**
 
 ```bash
+
 # Start Neovim with socket listener
 nvim --listen /tmp/nvim.sock
 
@@ -81,13 +84,14 @@ claude mcp add neovim-editor nvim-mcp-server -e NVIM_SOCKET=/tmp/nvim.sock
 
 # Now Claude Code can access Neovim via the MCP server
 claude "Help me refactor this function"
-```
+
+```text
 
 #### Option 2: Enterprise Claude Deployment
 
 For organizations using Claude via Amazon Bedrock or Google Vertex AI:
 
-```
+```text
 ┌─────────────┐      ┌──────────────────┐      ┌─────────────────┐
 │   Neovim    │ ◄──► │  MCP Server      │ ◄──► │  Claude Code    │
 │             │      │  (local)         │      │  CLI (local)    │
@@ -98,7 +102,8 @@ For organizations using Claude via Amazon Bedrock or Google Vertex AI:
                                                 │ Private Claude  │
                                                 │ (Bedrock/Vertex)│
                                                 └─────────────────┘
-```
+
+```text
 
 ### Security Considerations
 
@@ -163,7 +168,8 @@ require('claude-code').setup({
     server = "embedded"  -- Run in Neovim process
   }
 })
-```
+
+```text
 
 #### Enterprise Setup
 
@@ -194,8 +200,10 @@ require('claude-code').setup({
     }
   }
 })
-```
+
+```text
 
 ### Conclusion
 
 By building an MCP server that prioritizes local execution and enterprise security, we can enable AI-assisted development for organizations that cannot use cloud-based solutions. This approach provides the benefits of Claude Code integration while maintaining complete control over sensitive codebases.
+

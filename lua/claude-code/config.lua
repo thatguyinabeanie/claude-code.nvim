@@ -8,7 +8,8 @@ local M = {}
 
 --- ClaudeCodeWindow class for window configuration
 -- @table ClaudeCodeWindow
--- @field split_ratio number Percentage of screen for the terminal window (height for horizontal, width for vertical splits)
+-- @field split_ratio number Percentage of screen for the terminal window
+-- (height for horizontal, width for vertical splits)
 -- @field position string Position of the window: "botright", "topleft", "vertical", etc.
 -- @field enter_insert boolean Whether to enter insert mode when opening Claude Code
 -- @field start_in_normal_mode boolean Whether to start in normal mode instead of insert mode when opening Claude Code
@@ -389,7 +390,6 @@ local function detect_claude_cli(custom_path)
 
   -- Auto-detect Claude CLI across different installation methods
   -- Priority order ensures most specific/recent installations are preferred
-  
   -- Check for local development installation (highest priority)
   -- ~/.claude/local/claude is used for development builds and custom installations
   local local_claude = vim.fn.expand('~/.claude/local/claude')

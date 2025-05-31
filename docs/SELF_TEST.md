@@ -1,3 +1,4 @@
+
 # Claude Code Neovim Plugin Self-Test Suite
 
 This document describes the self-test functionality included with the Claude Code Neovim plugin. These tests are designed to verify that the plugin is working correctly and to demonstrate its capabilities.
@@ -8,7 +9,8 @@ Run all tests with:
 
 ```vim
 :ClaudeCodeTestAll
-```
+
+```text
 
 This will execute all tests and provide a comprehensive report on plugin functionality.
 
@@ -116,3 +118,4 @@ The test results can be used to:
 ---
 
 * This self-test suite was designed and implemented by Claude as a demonstration of the Claude Code Neovim plugin's MCP capabilities.*
+
