@@ -565,5 +565,6 @@ Made with ❤️ by [Gregg Housh](https://github.com/greggh)
   - Useful for referencing code locations in your Claude conversations, just like in VSCode/JetBrains integrations.
 
 **Examples:**
+
 - Normal mode, cursor on line 10: `@myfile.lua#L10`
 - Visual mode, lines 5-7 selected: `@myfile.lua#L5-7`
