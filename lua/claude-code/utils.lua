@@ -56,7 +56,8 @@ end
 -- @param text string Text to colorize
 -- @return string Colorized text
 function M.color(color, text)
-  return M.colors[color] .. text .. M.colors.reset
+  local color_code = M.colors[color] or ""
+  return color_code .. text .. M.colors.reset
 end
 
 -- Get git root with fallback to current directory

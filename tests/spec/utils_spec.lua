@@ -37,9 +37,10 @@ describe("Utils Module", function()
     it("should colorize text", function()
       local colored = utils.color("red", "test")
       assert.is_string(colored)
-      assert.is_true(colored:find(utils.colors.red) == 1)
-      assert.is_true(colored:find(utils.colors.reset) > 1)
-      assert.is_true(colored:find("test") > 1)
+      -- Use plain text search to avoid pattern issues with escape sequences
+      assert.is_true(colored:find(utils.colors.red, 1, true) == 1)
+      assert.is_true(colored:find(utils.colors.reset, 1, true) > 1)
+      assert.is_true(colored:find("test", 1, true) > 1)
     end)
 
     it("should handle invalid colors gracefully", function()
@@ -87,9 +88,15 @@ describe("Utils Module", function()
 
   describe("Working Directory", function()
     it("should return working directory", function()
-      local dir = utils.get_working_directory()
+      -- Mock git module for this test
+      local mock_git = {
+        get_git_root = function() return nil end
+      }
+      local dir = utils.get_working_directory(mock_git)
       assert.is_string(dir)
       assert.is_true(#dir > 0)
+      -- Should fall back to getcwd when git returns nil
+      assert.equals(vim.fn.getcwd(), dir)
     end)
 
     it("should work with mock git module", function()

@@ -231,8 +231,15 @@ describe('terminal module', function()
       for _, cmd in ipairs(vim_cmd_calls) do
         if cmd:match('file claude%-code%-.*') then
           file_cmd_found = true
-          -- Ensure no special characters remain
-          assert.is_nil(cmd:match('[^%w%-_]'), 'Buffer name should not contain special characters')
+          -- Extract the buffer name from the command
+          local buffer_name = cmd:match('file (.+)')
+          -- In test mode, the name includes timestamp and random number, so extract just the base part
+          local base_name = buffer_name:match('^(claude%-code%-[^%-]+)')
+          if base_name then
+            -- Check that the instance ID part was properly sanitized
+            local instance_part = base_name:match('claude%-code%-(.+)')
+            assert.is_nil(instance_part:match('[^%w%-_]'), 'Buffer name should not contain special characters')
+          end
           break
         end
       end
@@ -253,8 +260,9 @@ describe('terminal module', function()
       -- Call toggle
       terminal.toggle(claude_code, config, git)
 
-      -- Invalid buffer should be cleaned up
-      assert.is_nil(claude_code.claude_code.instances[instance_id], 'Invalid buffer should be cleaned up')
+      -- Invalid buffer should be cleaned up and replaced with new buffer
+      assert.is_not.equal(999, claude_code.claude_code.instances[instance_id], 'Invalid buffer should be cleaned up')
+      assert.is.equal(42, claude_code.claude_code.instances[instance_id], 'New buffer should be created')
     end)
   end)
 

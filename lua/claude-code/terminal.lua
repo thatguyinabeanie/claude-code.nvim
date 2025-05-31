@@ -177,6 +177,9 @@ function M.toggle(claude_code, config, git)
       for _, win_id in ipairs(win_ids) do
         vim.api.nvim_win_close(win_id, true)
       end
+      
+      -- Update process state to hidden
+      update_process_state(claude_code, instance_id, 'running', true)
     else
       -- Claude Code buffer exists but is not visible, open it in a split
       create_split(config.window.position, config, bufnr)
@@ -270,6 +273,9 @@ function M.toggle_with_variant(claude_code, config, git, variant_name)
       for _, win_id in ipairs(win_ids) do
         vim.api.nvim_win_close(win_id, true)
       end
+      
+      -- Update process state to hidden
+      update_process_state(claude_code, instance_id, 'running', true)
     else
       -- Claude Code buffer exists but is not visible, open it in a split
       create_split(config.window.position, config, bufnr)
