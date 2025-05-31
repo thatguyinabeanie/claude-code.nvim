@@ -40,10 +40,51 @@ test-mcp:
 	@echo "Running MCP integration tests..."
 	@./scripts/test_mcp.sh
 
-# Lint Lua files
-lint:
+# Comprehensive linting for all file types
+lint: lint-lua lint-shell lint-markdown lint-stylua
+
+# Lint Lua files with luacheck
+lint-lua:
 	@echo "Linting Lua files..."
-	@luacheck $(LUA_PATH)
+	@if command -v luacheck > /dev/null 2>&1; then \
+		luacheck $(LUA_PATH); \
+	else \
+		echo "luacheck not found. Install with: luarocks install luacheck"; \
+		exit 1; \
+	fi
+
+# Check Lua formatting with stylua
+lint-stylua:
+	@echo "Checking Lua formatting..."
+	@if command -v stylua > /dev/null 2>&1; then \
+		stylua --check $(LUA_PATH); \
+	else \
+		echo "stylua not found. Install with: cargo install stylua"; \
+		exit 1; \
+	fi
+
+# Lint shell scripts with shellcheck
+lint-shell:
+	@echo "Linting shell scripts..."
+	@if command -v shellcheck > /dev/null 2>&1; then \
+		find . -name "*.sh" -type f ! -path "./.git/*" ! -path "./node_modules/*" ! -path "./.vscode/*" -print0 | \
+		xargs -0 -I {} sh -c 'echo "Checking {}"; shellcheck "{}"'; \
+	else \
+		echo "shellcheck not found. Install with your package manager (apt install shellcheck, brew install shellcheck, etc.)"; \
+		exit 1; \
+	fi
+
+# Lint markdown files
+lint-markdown:
+	@echo "Linting markdown files..."
+	@if command -v markdownlint-cli2 > /dev/null 2>&1; then \
+		markdownlint-cli2 '**/*.md' --config .markdownlint.json --ignore .vscode/ --ignore node_modules/; \
+	elif command -v markdownlint > /dev/null 2>&1; then \
+		markdownlint '**/*.md' --config .markdownlint.json --ignore .vscode/ --ignore node_modules/; \
+	else \
+		echo "markdownlint not found. Install with: npm install -g markdownlint-cli2"; \
+		exit 1; \
+	fi
 
 # Format Lua files with stylua
 format:
@@ -75,7 +116,11 @@ help:
 	@echo "  make test-legacy  - Run legacy tests (VimL-based)"
 	@echo "  make test-basic   - Run only basic functionality tests (legacy)"
 	@echo "  make test-config  - Run only configuration tests (legacy)"
-	@echo "  make lint         - Lint Lua files"
+	@echo "  make lint         - Run comprehensive linting (Lua, shell, markdown)"
+	@echo "  make lint-lua     - Lint only Lua files with luacheck"
+	@echo "  make lint-stylua  - Check Lua formatting with stylua"
+	@echo "  make lint-shell   - Lint shell scripts with shellcheck"
+	@echo "  make lint-markdown - Lint markdown files with markdownlint"
 	@echo "  make format       - Format Lua files with stylua"
 	@echo "  make docs         - Generate documentation"
 	@echo "  make clean        - Remove generated files"
