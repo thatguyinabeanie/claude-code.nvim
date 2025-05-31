@@ -33,7 +33,9 @@
       "Bash(git reset:*)",
       "Bash(shellcheck:*)",
       "Bash(git commit:*)",
-      "Bash(vale:*)"
+      "Bash(vale:*)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:vale.sh)"
     ],
     "deny": []
   },
