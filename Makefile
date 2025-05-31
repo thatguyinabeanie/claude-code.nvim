@@ -41,7 +41,7 @@ test-mcp:
 	@./scripts/test_mcp.sh
 
 # Comprehensive linting for all file types
-lint: lint-lua lint-shell lint-stylua lint-markdown
+lint: lint-lua lint-shell lint-stylua lint-markdown lint-yaml
 
 # Lint Lua files with luacheck
 lint-lua:
@@ -85,6 +85,16 @@ lint-markdown:
 		vale *.md docs/*.md doc/*.md .github/**/*.md; \
 	else \
 		echo "vale not found. Install with: make install-dependencies"; \
+		exit 1; \
+	fi
+
+# Lint YAML files
+lint-yaml:
+	@echo "Linting YAML files..."
+	@if command -v yamllint > /dev/null 2>&1; then \
+		yamllint .; \
+	else \
+		echo "yamllint not found. Install with: pip install yamllint"; \
 		exit 1; \
 	fi
 
@@ -151,6 +161,12 @@ check-dependencies:
 		echo "  ✓ vale: $$(vale --version | head -1)"; \
 	else \
 		echo "  ✗ vale: not found"; \
+		failed=1; \
+	fi; \
+	if command -v yamllint > /dev/null 2>&1; then \
+		echo "  ✓ yamllint: $$(yamllint --version)"; \
+	else \
+		echo "  ✗ yamllint: not found"; \
 		failed=1; \
 	fi; \
 	echo; \
@@ -295,6 +311,7 @@ help:
 	@echo "  make lint-stylua  - Check Lua formatting with stylua"
 	@echo "  make lint-shell   - Lint shell scripts with shellcheck"
 	@echo "  make lint-markdown - Lint markdown files with vale"
+	@echo "  make lint-yaml    - Lint YAML files with yamllint"
 	@echo "  make format       - Format Lua files with stylua"
 	@echo "  make docs         - Generate documentation"
 	@echo "  make clean        - Remove generated files"

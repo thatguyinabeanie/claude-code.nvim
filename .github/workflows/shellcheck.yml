@@ -18,10 +18,10 @@ jobs:
     name: ShellCheck
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install shellcheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
-        
+
       - name: List shell scripts
         id: list-scripts
         run: |
@@ -32,7 +32,7 @@ jobs:
             echo "SHELL_SCRIPTS_EXIST=false" >> $GITHUB_ENV
             echo "No shell scripts found in ./scripts directory"
           fi
-          
+
       - name: Run shellcheck
         if: env.SHELL_SCRIPTS_EXIST == 'true'
         run: |

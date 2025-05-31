@@ -21,59 +21,59 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Vale
         run: |
           wget https://github.com/errata-ai/vale/releases/download/v3.0.3/vale_3.0.3_Linux_64-bit.tar.gz
           tar -xzf vale_3.0.3_Linux_64-bit.tar.gz
           sudo mv vale /usr/local/bin/
           vale --version
-      
+
       - name: Run Vale
         run: vale --glob='*.md' .
-        
+
   check-links:
     name: Check Links
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Link Checker
         uses: lycheeverse/lychee-action@v1.8.0
         with:
           args: --verbose --no-progress '**/*.md'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
 
   generate-api-docs:
     name: Generate API Documentation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Lua
         uses: leafo/gh-actions-lua@v11
         with:
           luaVersion: "5.1"
-      
+
       - name: Install LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-      
+
       - name: Install dependencies for ldoc
         run: |
           # Install dependencies required by ldoc
           sudo apt-get update
           sudo apt-get install -y lua-discount
-          
+
       - name: Install ldoc
         run: luarocks install ldoc
-      
+
       - name: Verify ldoc installation
         run: |
           which ldoc || echo "ldoc not found in PATH"
           ldoc --version || echo "ldoc command failed"
-          
+
       - name: Generate API documentation
         run: |
           mkdir -p doc/luadoc
@@ -83,6 +83,6 @@ jobs:
           else
             echo "Warning: No .ldoc.cfg found, skipping documentation generation"
           fi
-          
+
       - name: List generated documentation
         run: ls -la doc/luadoc || echo "No documentation generated"

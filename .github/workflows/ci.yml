@@ -27,18 +27,18 @@ jobs:
       passed: ${{ steps.set-output.outputs.passed }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Lua
         uses: leafo/gh-actions-lua@v11
         with:
           luaVersion: "5.4"
-      
+
       - name: Install LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-      
+
       - name: Create cache directories
         run: mkdir -p ~/.luarocks
-      
+
       - name: Cache LuaRocks dependencies
         uses: actions/cache@v4
         with:
@@ -47,25 +47,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-luarocks-5.4-
             ${{ runner.os }}-luarocks-
-      
+
       - name: Install luacheck
         run: luarocks install luacheck
-      
+
       - name: Check formatting with stylua
         uses: JohnnyMorganz/stylua-action@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: latest
           args: --check lua/
-        
+
       - name: Run Luacheck
         run: luacheck lua/
-        
+
       - name: Set output
         id: set-output
         if: success()
         run: echo "passed=true" >> $GITHUB_OUTPUT
-  
+
   # Run lint with older versions only if latest passes
   lint-older:
     needs: lint-latest
@@ -75,22 +75,22 @@ jobs:
       fail-fast: false
       matrix:
         lua-version: ["5.1", "5.3", "luajit-2.0", "luajit-2.1", "luajit-openresty"]
-    
+
     name: Lint with Lua ${{ matrix.lua-version }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Lua
         uses: leafo/gh-actions-lua@v11
         with:
           luaVersion: ${{ matrix.lua-version }}
-      
+
       - name: Install LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-      
+
       - name: Create cache directories
         run: mkdir -p ~/.luarocks
-      
+
       - name: Cache LuaRocks dependencies
         uses: actions/cache@v4
         with:
@@ -99,13 +99,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-luarocks-${{ matrix.lua-version }}-
             ${{ runner.os }}-luarocks-
-      
+
       - name: Install luacheck
         run: luarocks install luacheck
-        
+
       - name: Run Luacheck
         run: luacheck lua/
-  
+
   # Test with stable Neovim first as a gate
   test-stable:
     needs: lint-latest
@@ -116,18 +116,18 @@ jobs:
       passed: ${{ steps.set-output.outputs.passed }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Neovim
         uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
           version: stable
-      
+
       - name: Create cache directories
         run: |
           mkdir -p ~/.luarocks
           mkdir -p ~/.local/share/nvim/site/pack
-      
+
       - name: Cache plugin dependencies
         uses: actions/cache@v4
         with:
@@ -135,7 +135,7 @@ jobs:
           key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-stable
           restore-keys: |
             ${{ runner.os }}-nvim-plugins-
-      
+
       - name: Install dependencies
         run: |
           mkdir -p ~/.local/share/nvim/site/pack/vendor/start
@@ -146,7 +146,7 @@ jobs:
             echo "plenary.nvim directory already exists, updating..."
             cd ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim && git pull origin master
           fi
-      
+
       - name: Verify test directory structure
         run: |
           echo "Main tests directory:"
@@ -157,21 +157,21 @@ jobs:
           ls -la ./tests/legacy/
           echo "Interactive tests:"
           ls -la ./tests/interactive/
-          
+
       - name: Display Neovim version
         run: nvim --version
-        
+
       - name: Run unit tests
         run: |
           export PLUGIN_ROOT="$(pwd)"
           ./scripts/test.sh
         continue-on-error: false
-      
+
       - name: Set output
         id: set-output
         if: success()
         run: echo "passed=true" >> $GITHUB_OUTPUT
-      
+
       - name: Test MCP server standalone
         run: |
           # Test that MCP server can start without errors
@@ -195,28 +195,28 @@ jobs:
           cat test-config.json
           rm test-config.json
         continue-on-error: false
-  
+
   # Test with nightly Neovim only if stable passes
   test-nightly:
     needs: test-stable
     if: needs.test-stable.outputs.passed == 'true'
     runs-on: ubuntu-latest
     name: Test with Neovim nightly
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Neovim
         uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
           version: nightly
-      
+
       - name: Create cache directories
         run: |
           mkdir -p ~/.luarocks
           mkdir -p ~/.local/share/nvim/site/pack
-      
+
       - name: Cache plugin dependencies
         uses: actions/cache@v4
         with:
@@ -224,7 +224,7 @@ jobs:
           key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-nightly
           restore-keys: |
             ${{ runner.os }}-nvim-plugins-
-      
+
       - name: Install dependencies
         run: |
           mkdir -p ~/.local/share/nvim/site/pack/vendor/start
@@ -235,7 +235,7 @@ jobs:
             echo "plenary.nvim directory already exists, updating..."
             cd ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim && git pull origin master
           fi
-      
+
       - name: Verify test directory structure
         run: |
           echo "Main tests directory:"
@@ -246,16 +246,16 @@ jobs:
           ls -la ./tests/legacy/
           echo "Interactive tests:"
           ls -la ./tests/interactive/
-          
+
       - name: Display Neovim version
         run: nvim --version
-        
+
       - name: Run unit tests
         run: |
           export PLUGIN_ROOT="$(pwd)"
           ./scripts/test.sh
         continue-on-error: false
-      
+
       - name: Test MCP server standalone
         run: |
           # Test that MCP server can start without errors
@@ -269,7 +269,7 @@ jobs:
             exit 1
           fi
         continue-on-error: false
-        
+
       - name: Test config generation
         run: |
           # Test config generation in headless mode
@@ -280,25 +280,25 @@ jobs:
           cat test-config.json
           rm test-config.json
         continue-on-error: false
-        
+
   mcp-integration:
     needs: test-stable
     if: needs.test-stable.outputs.passed == 'true'
     runs-on: ubuntu-latest
     name: MCP Integration Tests
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install Neovim
         uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
           version: stable
-      
+
       - name: Make MCP server executable
         run: chmod +x ./bin/claude-code-mcp-server
-        
+
       - name: Test MCP server initialization
         run: |
           # Test MCP server can load without errors
@@ -306,23 +306,23 @@ jobs:
           nvim --headless --noplugin -u tests/minimal-init.lua \
             -c "lua local mcp = require('claude-code.mcp'); print('MCP module loaded successfully'); vim.cmd('qa!')" \
             || { echo "❌ Failed to load MCP module"; exit 1; }
-          
+
           echo "✅ MCP server module loads successfully"
-          
+
       - name: Test MCP tools enumeration
         run: |
           # Create a test that verifies our tools are available
           nvim --headless --noplugin -u tests/minimal-init.lua \
             -c "lua local tools = require('claude-code.mcp.tools'); local count = 0; for _ in pairs(tools) do count = count + 1 end; print('Tools found: ' .. count); assert(count >= 8, 'Expected at least 8 tools'); print('✅ Tools test passed')" \
             -c "qa!"
-            
-      - name: Test MCP resources enumeration  
+
+      - name: Test MCP resources enumeration
         run: |
           # Create a test that verifies our resources are available
           nvim --headless --noplugin -u tests/minimal-init.lua \
             -c "lua local resources = require('claude-code.mcp.resources'); local count = 0; for _ in pairs(resources) do count = count + 1 end; print('Resources found: ' .. count); assert(count >= 6, 'Expected at least 6 resources'); print('✅ Resources test passed')" \
             -c "qa!"
-            
+
       - name: Test MCP Hub functionality
         run: |
           # Test hub can list servers and generate configs
