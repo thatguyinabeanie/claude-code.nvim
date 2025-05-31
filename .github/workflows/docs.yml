@@ -26,7 +26,7 @@ jobs:
         run: npm install -g markdownlint-cli2
       
       - name: Run markdownlint
-        run: markdownlint-cli2 '**/*.md' --config .markdownlint.json --ignore .vscode/
+        run: markdownlint-cli2 '**/*.md' --config .markdownlint.json
         
   check-links:
     name: Check Links
