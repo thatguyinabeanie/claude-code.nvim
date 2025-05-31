@@ -54,14 +54,26 @@ jobs:
 
       - name: Install build dependencies for luacheck
         run: |
-          apk add --no-cache build-base
+          apk add --no-cache build-base git
           
       - name: Install luacheck
         run: |
-          luarocks install luacheck
+          # For LuaJIT, install from git to avoid manifest parsing issues
+          if [ "${{ matrix.lua-version }}" = "luajit" ]; then
+            git clone https://github.com/lunarmodules/luacheck.git
+            cd luacheck
+            luarocks make
+          else
+            luarocks install luacheck
+          fi
 
       - name: Run Luacheck
-        run: luacheck lua/
+        run: |
+          if [ "${{ matrix.lua-version }}" = "luajit" ]; then
+            ./luacheck/bin/luacheck lua/
+          else
+            luacheck lua/
+          fi
 
   test:
     runs-on: ubuntu-latest
