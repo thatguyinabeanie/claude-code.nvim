@@ -32,7 +32,8 @@
       "Bash(make:*)",
       "Bash(git reset:*)",
       "Bash(shellcheck:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(vale:*)"
     ],
     "deny": []
   },

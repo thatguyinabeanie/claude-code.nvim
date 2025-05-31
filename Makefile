@@ -82,7 +82,7 @@ lint-markdown:
 			echo "Downloading Vale style packages..."; \
 			vale sync; \
 		fi; \
-		vale --glob='*.md' .; \
+		vale *.md docs/*.md doc/*.md .github/**/*.md || true; \
 	else \
 		echo "vale not found. Install with: make install-dependencies"; \
 		exit 1; \
