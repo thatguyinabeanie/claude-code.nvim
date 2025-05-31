@@ -51,7 +51,7 @@ describe("Safe Window Toggle", function()
             -- Setup: Claude Code is running and visible
             local bufnr = 42
             local win_id = 100
-            local instance_id = "test_project"
+            local instance_id = "/test/project"
             local closed_windows = {}
 
             -- Mock Claude Code instance setup
@@ -121,7 +121,7 @@ describe("Safe Window Toggle", function()
         it("should show hidden Claude Code window without creating new process", function()
             -- Setup: Claude Code process exists but window is hidden
             local bufnr = 42
-            local instance_id = "test_project"
+            local instance_id = "/test/project"
 
             local claude_code = {
                 claude_code = {
@@ -190,22 +190,16 @@ describe("Safe Window Toggle", function()
             -- Setup: Active Claude Code process
             local bufnr = 42
             local job_id = 1001
-            local instance_id = "test_project"
+            local instance_id = "/test/project"
 
             local claude_code = {
                 claude_code = {
                     instances = {
-                        [instance_id] = bufnr,
-                        ["/test/project"] = bufnr
+                        [instance_id] = bufnr
                     },
-                    current_instance = "/test/project",
+                    current_instance = instance_id,
                     process_states = {
                         [instance_id] = {
-                            job_id = job_id,
-                            status = "running",
-                            hidden = false
-                        },
-                        ["/test/project"] = {
                             job_id = job_id,
                             status = "running",
                             hidden = false
@@ -260,22 +254,16 @@ describe("Safe Window Toggle", function()
             -- Setup: Hidden Claude Code process that has finished
             local bufnr = 42
             local job_id = 1001
-            local instance_id = "test_project"
+            local instance_id = "/test/project"
 
             local claude_code = {
                 claude_code = {
                     instances = {
-                        [instance_id] = bufnr,
-                        ["/test/project"] = bufnr
+                        [instance_id] = bufnr
                     },
-                    current_instance = "/test/project",
+                    current_instance = instance_id,
                     process_states = {
                         [instance_id] = {
-                            job_id = job_id,
-                            status = "running",
-                            hidden = true
-                        },
-                        ["/test/project"] = {
                             job_id = job_id,
                             status = "running",
                             hidden = true
@@ -295,6 +283,9 @@ describe("Safe Window Toggle", function()
             vim.fn.win_findbuf = function(buf)
                 return {}
             end -- Hidden
+
+            -- Mock vim.cmd to prevent buffer commands
+            vim.cmd = function() end
 
             -- Test: Show window of finished process
             terminal.safe_toggle(claude_code, {
@@ -400,6 +391,9 @@ describe("Safe Window Toggle", function()
             vim.fn.jobwait = function(jobs, timeout)
                 return {0} -- Job finished
             end
+
+            -- Mock vim.cmd to prevent buffer commands
+            vim.cmd = function() end
 
             -- Test: Show window
             terminal.safe_toggle(claude_code, {
@@ -519,10 +513,10 @@ describe("Safe Window Toggle", function()
             local claude_code = {
                 claude_code = {
                     instances = {
-                        test = bufnr
+                        global = bufnr
                     },
                     process_states = {
-                        test = {
+                        global = {
                             status = "running"
                         }
                     }
@@ -548,6 +542,9 @@ describe("Safe Window Toggle", function()
             vim.api.nvim_win_close = function()
             end
 
+            -- Mock vim.cmd to prevent buffer commands
+            vim.cmd = function() end
+
             -- Test: Multiple rapid toggles
             for i = 1, 3 do
                 terminal.safe_toggle(claude_code, {
@@ -563,7 +560,7 @@ describe("Safe Window Toggle", function()
             end
 
             -- Verify: Instance still tracked after multiple toggles
-            assert.equals(bufnr, claude_code.claude_code.instances.test)
+            assert.equals(bufnr, claude_code.claude_code.instances.global)
         end)
     end)
 end)
