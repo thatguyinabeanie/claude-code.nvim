@@ -215,6 +215,10 @@ function M.toggle(claude_code, config, git)
     else
       buffer_name = 'claude-code'
     end
+    -- Patch: Make buffer name unique in test mode
+    if _TEST or os.getenv('NVIM_TEST') then
+      buffer_name = buffer_name .. '-' .. tostring(os.time()) .. '-' .. tostring(math.random(10000,99999))
+    end
     vim.cmd('file ' .. buffer_name)
 
     if config.window.hide_numbers then
@@ -312,6 +316,10 @@ function M.toggle_with_variant(claude_code, config, git, variant_name)
       buffer_name = 'claude-code-' .. variant_name .. '-' .. instance_id:gsub('[^%w%-_]', '-')
     else
       buffer_name = 'claude-code-' .. variant_name
+    end
+    -- Patch: Make buffer name unique in test mode
+    if _TEST or os.getenv('NVIM_TEST') then
+      buffer_name = buffer_name .. '-' .. tostring(os.time()) .. '-' .. tostring(math.random(10000,99999))
     end
     vim.cmd('file ' .. buffer_name)
 
