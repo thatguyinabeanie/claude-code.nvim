@@ -19,52 +19,19 @@ on:
       - '.github/workflows/yaml-lint.yml'
 
 jobs:
-  # First, run lint with latest Lua version as a gate
-  lint-latest:
-    runs-on: ubuntu-latest
-    container: nickblah/lua:5.4-luarocks-alpine
-    name: Lint with Lua 5.4 (Latest)
-    outputs:
-      passed: ${{ steps.set-output.outputs.passed }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install build dependencies for luacheck
-        run: |
-          apk add --no-cache build-base
-          
-      - name: Install luacheck
-        run: |
-          luarocks install luacheck
-
-      - name: Check formatting with stylua
-        uses: JohnnyMorganz/stylua-action@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          version: latest
-          args: --check lua/
-
-      - name: Run Luacheck
-        run: luacheck lua/
-
-      - name: Set output
-        id: set-output
-        if: success()
-        run: echo "passed=true" >> $GITHUB_OUTPUT
-
-  # Run lint with older versions only if latest passes
-  lint-older:
-    needs: lint-latest
-    if: needs.lint-latest.outputs.passed == 'true'
+  lint:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          - lua-version: "5.1"
-            container: "nickblah/lua:5.1-luarocks-alpine"
+          - lua-version: "5.4"
+            container: "nickblah/lua:5.4-luarocks-alpine"
+            run-stylua: true
           - lua-version: "5.3"
             container: "nickblah/lua:5.3-luarocks-alpine"
+          - lua-version: "5.1"
+            container: "nickblah/lua:5.1-luarocks-alpine"
           - lua-version: "luajit"
             container: "nickblah/luajit:luarocks-alpine"
 
@@ -81,17 +48,25 @@ jobs:
         run: |
           luarocks install luacheck
 
+      - name: Check formatting with stylua
+        if: matrix.run-stylua
+        uses: JohnnyMorganz/stylua-action@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
+          args: --check lua/
+
       - name: Run Luacheck
         run: luacheck lua/
 
-  # Test with stable Neovim first as a gate
-  test-stable:
-    needs: lint-latest
-    if: needs.lint-latest.outputs.passed == 'true'
+  test:
     runs-on: ubuntu-latest
-    name: Test with Neovim stable
-    outputs:
-      passed: ${{ steps.set-output.outputs.passed }}
+    strategy:
+      fail-fast: false
+      matrix:
+        neovim-version: [stable, nightly]
+
+    name: Test with Neovim ${{ matrix.neovim-version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -99,7 +74,7 @@ jobs:
         uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
-          version: stable
+          version: ${{ matrix.neovim-version }}
 
       - name: Create cache directories
         run: |
@@ -110,96 +85,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.local/share/nvim/site/pack
-          key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-stable
-          restore-keys: |
-            ${{ runner.os }}-nvim-plugins-
-
-      - name: Install dependencies
-        run: |
-          mkdir -p ~/.local/share/nvim/site/pack/vendor/start
-          if [ ! -d "$HOME/.local/share/nvim/site/pack/vendor/start/plenary.nvim" ]; then
-            echo "Cloning plenary.nvim..."
-            git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
-          else
-            echo "plenary.nvim directory already exists, updating..."
-            cd ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim && git pull origin master
-          fi
-
-      - name: Verify test directory structure
-        run: |
-          echo "Main tests directory:"
-          ls -la ./tests/
-          echo "Unit test specs:"
-          ls -la ./tests/spec/
-          echo "Legacy tests:"
-          ls -la ./tests/legacy/
-          echo "Interactive tests:"
-          ls -la ./tests/interactive/
-
-      - name: Display Neovim version
-        run: nvim --version
-
-      - name: Run unit tests
-        run: |
-          export PLUGIN_ROOT="$(pwd)"
-          ./scripts/test.sh
-        continue-on-error: false
-
-      - name: Set output
-        id: set-output
-        if: success()
-        run: echo "passed=true" >> $GITHUB_OUTPUT
-
-      - name: Test MCP server standalone
-        run: |
-          # Test that MCP server can start without errors
-          echo "Testing MCP server help command..."
-          nvim -l ./bin/claude-code-mcp-server --help > help_output.txt 2>&1
-          if grep -q "Claude Code MCP Server" help_output.txt; then
-            echo "✅ MCP server help command works"
-          else
-            echo "❌ MCP server help command failed"
-            cat help_output.txt
-            exit 1
-          fi
-        continue-on-error: false
-      - name: Test config generation
-        run: |
-          # Test config generation in headless mode
-          nvim --headless --noplugin -u tests/minimal-init.lua \
-            -c "lua require('claude-code.mcp').generate_config('test-config.json', 'claude-code')" \
-            -c "qa!"
-          test -f test-config.json
-          cat test-config.json
-          rm test-config.json
-        continue-on-error: false
-
-  # Test with nightly Neovim only if stable passes
-  test-nightly:
-    needs: test-stable
-    if: needs.test-stable.outputs.passed == 'true'
-    runs-on: ubuntu-latest
-    name: Test with Neovim nightly
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Neovim
-        uses: rhysd/action-setup-vim@v1
-        with:
-          neovim: true
-          version: nightly
-
-      - name: Create cache directories
-        run: |
-          mkdir -p ~/.luarocks
-          mkdir -p ~/.local/share/nvim/site/pack
-
-      - name: Cache plugin dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.local/share/nvim/site/pack
-          key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-nightly
+          key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-${{ matrix.neovim-version }}
           restore-keys: |
             ${{ runner.os }}-nvim-plugins-
 
@@ -260,8 +146,6 @@ jobs:
         continue-on-error: false
 
   mcp-integration:
-    needs: test-stable
-    if: needs.test-stable.outputs.passed == 'true'
     runs-on: ubuntu-latest
     name: MCP Integration Tests
 

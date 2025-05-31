@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Migrated CI workflows from APT package installation to pre-built Docker containers
 - Optimized CI performance by using nickblah/lua Docker images with LuaRocks pre-installed
+- Simplified CI workflow by removing gating logic - all jobs now run in parallel
 
 ### Fixed
 
