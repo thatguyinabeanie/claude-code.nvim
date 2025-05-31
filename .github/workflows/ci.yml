@@ -120,7 +120,7 @@ jobs:
       - name: Test MCP server standalone
         run: |
           # Test that MCP server can start without errors
-          timeout 5s ./bin/claude-code-mcp-server --help || test $? -eq 124
+          timeout 5s nvim -l ./bin/claude-code-mcp-server --help || test $? -eq 124
         continue-on-error: false
       - name: Test config generation
         run: |
@@ -153,7 +153,7 @@ jobs:
         run: |
           # Test MCP server can initialize and respond to basic requests
           echo '{"method":"initialize","id":1,"params":{"protocolVersion":"2024-11-05","capabilities":{"tools":{},"resources":{}},"clientInfo":{"name":"test-client","version":"1.0.0"}}}' | \
-          timeout 10s ./bin/claude-code-mcp-server > mcp_output.txt 2>&1 &
+          timeout 10s nvim -l ./bin/claude-code-mcp-server > mcp_output.txt 2>&1 &
           MCP_PID=$!
           sleep 2
           
