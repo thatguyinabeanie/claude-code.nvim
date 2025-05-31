@@ -10,7 +10,7 @@ M.current_buffer = {
     local bufnr = vim.api.nvim_get_current_buf()
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
     local buf_name = vim.api.nvim_buf_get_name(bufnr)
-    local filetype = vim.api.nvim_get_option_value('filetype', {buf = bufnr})
+    local filetype = vim.api.nvim_get_option_value('filetype', { buf = bufnr })
 
     local header = string.format('File: %s\nType: %s\nLines: %d\n\n', buf_name, filetype, #lines)
     return header .. table.concat(lines, '\n')
@@ -29,10 +29,10 @@ M.buffer_list = {
     for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
       if vim.api.nvim_buf_is_loaded(bufnr) then
         local buf_name = vim.api.nvim_buf_get_name(bufnr)
-        local filetype = vim.api.nvim_get_option_value('filetype', {buf = bufnr})
-        local modified = vim.api.nvim_get_option_value('modified', {buf = bufnr})
+        local filetype = vim.api.nvim_get_option_value('filetype', { buf = bufnr })
+        local modified = vim.api.nvim_get_option_value('modified', { buf = bufnr })
         local line_count = vim.api.nvim_buf_line_count(bufnr)
-        local listed = vim.api.nvim_get_option_value('buflisted', {buf = bufnr})
+        local listed = vim.api.nvim_get_option_value('buflisted', { buf = bufnr })
 
         table.insert(buffers, {
           number = bufnr,
@@ -93,12 +93,12 @@ M.git_status = {
     if not ok then
       return 'Utils module not available'
     end
-    
+
     local git_path = utils.find_executable_by_name('git')
     if not git_path then
       return 'Git executable not found in PATH'
     end
-    
+
     local cmd = vim.fn.shellescape(git_path) .. ' status --porcelain 2>/dev/null'
     local handle = io.popen(cmd)
     if not handle then
@@ -230,7 +230,7 @@ M.vim_options = {
     }
 
     for _, opt in ipairs(buffer_opts) do
-      local ok, value = pcall(vim.api.nvim_get_option_value, opt, {buf = bufnr})
+      local ok, value = pcall(vim.api.nvim_get_option_value, opt, { buf = bufnr })
       if ok then
         options.buffer[opt] = value
       end

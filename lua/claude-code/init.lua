@@ -37,7 +37,7 @@ local _internal = {
   terminal = terminal,
   git = git,
   version = version,
-  file_reference = file_reference
+  file_reference = file_reference,
 }
 
 --- Plugin configuration (merged from defaults and user input)

@@ -232,7 +232,7 @@ function M.configure(config)
   if not config then
     return
   end
-  
+
   -- Validate and set protocol version
   if config.protocol_version ~= nil then
     if type(config.protocol_version) == 'string' and config.protocol_version ~= '' then
@@ -241,7 +241,10 @@ function M.configure(config)
         server.protocol_version = config.protocol_version
       else
         -- Allow non-standard formats but warn
-        notify('Non-standard protocol version format: ' .. config.protocol_version, vim.log.levels.WARN)
+        notify(
+          'Non-standard protocol version format: ' .. config.protocol_version,
+          vim.log.levels.WARN
+        )
         server.protocol_version = config.protocol_version
       end
     else
@@ -249,12 +252,12 @@ function M.configure(config)
       notify('Invalid protocol version type, using default', vim.log.levels.WARN)
     end
   end
-  
+
   -- Allow overriding server name and version
   if config.server_name and type(config.server_name) == 'string' then
     server.name = config.server_name
   end
-  
+
   if config.server_version and type(config.server_version) == 'string' then
     server.version = config.server_version
   end
@@ -264,11 +267,14 @@ end
 function M.start()
   -- Check if we're in headless mode for appropriate file descriptor usage
   local is_headless = utils.is_headless()
-  
+
   if not is_headless then
-    notify('MCP server should typically run in headless mode for stdin/stdout communication', vim.log.levels.WARN)
+    notify(
+      'MCP server should typically run in headless mode for stdin/stdout communication',
+      vim.log.levels.WARN
+    )
   end
-  
+
   local stdin = uv.new_pipe(false)
   local stdout = uv.new_pipe(false)
 
@@ -277,23 +283,26 @@ function M.start()
     return false
   end
 
-  -- Validate file descriptor availability before opening
-  local stdin_fd = 0
-  local stdout_fd = 1
-  
-  -- In headless mode, validate that standard file descriptors are available
+  -- Platform-specific file descriptor validation for MCP communication
+  -- MCP uses stdin/stdout for JSON-RPC message exchange per specification
+  local stdin_fd = 0   -- Standard input file descriptor
+  local stdout_fd = 1  -- Standard output file descriptor
+
+  -- Headless mode requires strict validation since MCP clients expect reliable I/O
+  -- UI mode is more forgiving as stdin/stdout may be redirected or unavailable
   if is_headless then
-    -- Additional validation for headless environments
+    -- Strict validation required for MCP client communication
+    -- Headless Neovim running as MCP server must have working stdio
     local stdin_ok = stdin:open(stdin_fd)
     local stdout_ok = stdout:open(stdout_fd)
-    
+
     if not stdin_ok then
       notify('Failed to open stdin file descriptor in headless mode', vim.log.levels.ERROR)
       stdin:close()
       stdout:close()
       return false
     end
-    
+
     if not stdout_ok then
       notify('Failed to open stdout file descriptor in headless mode', vim.log.levels.ERROR)
       stdin:close()
@@ -301,7 +310,8 @@ function M.start()
       return false
     end
   else
-    -- In UI mode, still try to open but with less strict validation
+    -- UI mode: Best effort opening without strict error handling
+    -- Interactive Neovim may have stdio redirected or used by other processes
     stdin:open(stdin_fd)
     stdout:open(stdout_fd)
   end
@@ -326,25 +336,36 @@ function M.start()
       return
     end
 
+    -- Accumulate incoming data in buffer for line-based processing
     buffer = buffer .. data
 
-    -- Process complete lines
+    -- JSON-RPC message processing: MCP uses line-delimited JSON format
+    -- Each complete message is terminated by a newline character
+    -- This loop processes all complete messages in the current buffer
     while true do
       local newline_pos = buffer:find('\n')
       if not newline_pos then
+        -- No complete message available, wait for more data
         break
       end
 
+      -- Extract one complete JSON message (everything before newline)
       local line = buffer:sub(1, newline_pos - 1)
+      -- Remove processed message from buffer, keep remaining data
       buffer = buffer:sub(newline_pos + 1)
 
+      -- Process non-empty messages (skip empty lines for robustness)
       if line ~= '' then
+        -- Parse JSON-RPC message and validate structure
         local message, parse_err = parse_message(line)
         if message then
+          -- Handle valid message and generate appropriate response
           local response = handle_message(message)
+          -- Send response back to MCP client with newline terminator
           local json_response = vim.json.encode(response)
           stdout:write(json_response .. '\n')
         else
+          -- Log parsing errors but continue processing (resilient to malformed input)
           notify('MCP parse error: ' .. (parse_err or 'unknown'), vim.log.levels.WARN)
         end
       end
@@ -373,7 +394,7 @@ end
 
 -- Expose internal functions for testing
 M._internal = {
-  handle_initialize = handle_initialize
+  handle_initialize = handle_initialize,
 }
 
 return M

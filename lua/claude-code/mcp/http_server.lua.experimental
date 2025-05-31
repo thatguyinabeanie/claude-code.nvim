@@ -66,23 +66,23 @@ function M.start(opts)
           },
           mode = {
             type = "string",
-            enum: ["insert", "replace", "replaceAll"],
-            description: "Edit mode"
+            enum = {"insert", "replace", "replaceAll"},
+            description = "Edit mode"
           },
           position = {
-            type: "object",
-            description: "Position for edit operation",
-            properties: {
-              line: { type: "number" },
-              character: { type: "number" }
+            type = "object",
+            description = "Position for edit operation",
+            properties = {
+              line = { type = "number" },
+              character = { type = "number" }
             }
           },
-          text: {
-            type: "string",
-            description: "Text content to insert/replace"
+          text = {
+            type = "string",
+            description = "Text content to insert/replace"
           }
         },
-        required: ["filename", "mode", "text"],
+        required = {"filename", "mode", "text"},
         additionalProperties: false
       }
     },

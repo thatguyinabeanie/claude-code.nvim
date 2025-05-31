@@ -60,11 +60,17 @@ local function get_process_state(claude_code, instance_id)
 end
 
 --- Clean up invalid buffers and update process states
+--- Multi-instance support requires careful state management to prevent memory leaks
+--- and stale references. This function removes references to buffers that no longer
+--- exist and cleans up corresponding process state tracking.
 --- @param claude_code table The main plugin module
 local function cleanup_invalid_instances(claude_code)
+  -- Iterate through all tracked Claude instances
   for instance_id, bufnr in pairs(claude_code.claude_code.instances) do
+    -- Remove stale buffer references (deleted buffers or invalid handles)
     if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
       claude_code.claude_code.instances[instance_id] = nil
+      -- Also clean up process state tracking for this instance
       if claude_code.claude_code.process_states then
         claude_code.claude_code.process_states[instance_id] = nil
       end
@@ -72,15 +78,21 @@ local function cleanup_invalid_instances(claude_code)
   end
 end
 
---- Get the current git root or a fallback identifier
+--- Get unique identifier for Claude instance based on project context
+--- Multi-instance support: Each git repository gets its own Claude instance.
+--- This prevents context bleeding between different projects and allows working
+--- on multiple codebases simultaneously without losing conversation state.
 --- @param git table The git module
 --- @return string identifier Git root path or fallback identifier
 local function get_instance_identifier(git)
   local git_root = git.get_git_root()
   if git_root then
+    -- Use git root as identifier for consistency across terminal sessions
+    -- This ensures the same Claude instance is used regardless of current directory
     return git_root
   else
     -- Fallback to current working directory if not in a git repo
+    -- Non-git projects still get instance isolation based on working directory
     return vim.fn.getcwd()
   end
 end
@@ -167,26 +179,29 @@ function M.toggle(claude_code, config, git)
 
   claude_code.claude_code.current_instance = instance_id
 
-  -- Check if this Claude Code instance is already running
+  -- Instance state management: Check if this Claude instance exists and handle visibility
+  -- This enables "safe toggle" - hiding windows without killing the Claude process
   local bufnr = claude_code.claude_code.instances[instance_id]
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-    -- Check if there's a window displaying this Claude Code buffer
+    -- Find all windows currently displaying this Claude buffer
     local win_ids = vim.fn.win_findbuf(bufnr)
     if #win_ids > 0 then
-      -- Claude Code is visible, close the window
+      -- Claude is visible: Hide the window(s) but preserve the process
+      -- This allows users to minimize Claude without interrupting conversations
       for _, win_id in ipairs(win_ids) do
         vim.api.nvim_win_close(win_id, true)
       end
-      
-      -- Update process state to hidden
+
+      -- Track that the process is still running but hidden for safe restoration
       update_process_state(claude_code, instance_id, 'running', true)
     else
-      -- Claude Code buffer exists but is not visible, open it in a split
+      -- Claude buffer exists but is hidden: Restore it to a visible split
       create_split(config.window.position, config, bufnr)
-      -- Force insert mode more aggressively unless configured to start in normal mode
+      -- Terminal mode setup: Enter insert mode for immediate interaction
+      -- unless user prefers to start in normal mode for navigation
       if not config.window.start_in_normal_mode then
         vim.schedule(function()
-          vim.cmd 'stopinsert | startinsert'
+          vim.cmd 'stopinsert | startinsert'  -- Reset and enter insert mode
         end)
       end
     end
@@ -198,12 +213,16 @@ function M.toggle(claude_code, config, git)
     -- This Claude Code instance is not running, start it in a new split
     create_split(config.window.position, config)
 
-    -- Determine if we should use the git root directory
+    -- Construct terminal command with optional directory change
+    -- We use pushd/popd shell commands instead of Neovim's :cd to avoid
+    -- affecting the global working directory of the editor
     local cmd = 'terminal ' .. config.command
     if config.git and config.git.use_git_root then
       local git_root = git.get_git_root()
       if git_root then
-        -- Use pushd/popd to change directory instead of --cwd
+        -- Shell command pattern: pushd <dir> && <command> && popd
+        -- This ensures Claude runs in the git root context while preserving
+        -- the user's current working directory in other windows
         cmd = 'terminal pushd ' .. git_root .. ' && ' .. config.command .. ' && popd'
       end
     end
@@ -211,16 +230,28 @@ function M.toggle(claude_code, config, git)
     vim.cmd(cmd)
     vim.cmd 'setlocal bufhidden=hide'
 
-    -- Create a unique buffer name (or a standard one in single instance mode)
+    -- Generate unique buffer names to avoid conflicts between instances
+    -- Buffer naming strategy:
+    -- - Multi-instance: claude-code-<sanitized-git-root-path>
+    -- - Single instance: claude-code
+    -- - Test mode: Add timestamp+random to prevent collisions during parallel tests
     local buffer_name
     if config.git.multi_instance then
+      -- Sanitize instance_id (git root path) for use as buffer name
+      -- Replace non-alphanumeric characters with hyphens for valid buffer names
       buffer_name = 'claude-code-' .. instance_id:gsub('[^%w%-_]', '-')
     else
+      -- Single instance mode uses predictable name for easier identification
       buffer_name = 'claude-code'
     end
-    -- Patch: Make buffer name unique in test mode
+    -- Test mode enhancement: Prevent buffer name collisions during parallel test runs
+    -- Each test gets a unique buffer name to avoid interference
     if _TEST or os.getenv('NVIM_TEST') then
-      buffer_name = buffer_name .. '-' .. tostring(os.time()) .. '-' .. tostring(math.random(10000,99999))
+      buffer_name = buffer_name
+        .. '-'
+        .. tostring(os.time())  -- Timestamp component
+        .. '-'
+        .. tostring(math.random(10000, 99999))  -- Random component
     end
     vim.cmd('file ' .. buffer_name)
 
@@ -263,26 +294,29 @@ function M.toggle_with_variant(claude_code, config, git, variant_name)
 
   claude_code.claude_code.current_instance = instance_id
 
-  -- Check if this Claude Code instance is already running
+  -- Instance state management: Check if this Claude instance exists and handle visibility
+  -- This enables "safe toggle" - hiding windows without killing the Claude process
   local bufnr = claude_code.claude_code.instances[instance_id]
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-    -- Check if there's a window displaying this Claude Code buffer
+    -- Find all windows currently displaying this Claude buffer
     local win_ids = vim.fn.win_findbuf(bufnr)
     if #win_ids > 0 then
-      -- Claude Code is visible, close the window
+      -- Claude is visible: Hide the window(s) but preserve the process
+      -- This allows users to minimize Claude without interrupting conversations
       for _, win_id in ipairs(win_ids) do
         vim.api.nvim_win_close(win_id, true)
       end
-      
-      -- Update process state to hidden
+
+      -- Track that the process is still running but hidden for safe restoration
       update_process_state(claude_code, instance_id, 'running', true)
     else
-      -- Claude Code buffer exists but is not visible, open it in a split
+      -- Claude buffer exists but is hidden: Restore it to a visible split
       create_split(config.window.position, config, bufnr)
-      -- Force insert mode more aggressively unless configured to start in normal mode
+      -- Terminal mode setup: Enter insert mode for immediate interaction
+      -- unless user prefers to start in normal mode for navigation
       if not config.window.start_in_normal_mode then
         vim.schedule(function()
-          vim.cmd 'stopinsert | startinsert'
+          vim.cmd 'stopinsert | startinsert'  -- Reset and enter insert mode
         end)
       end
     end
@@ -325,7 +359,11 @@ function M.toggle_with_variant(claude_code, config, git, variant_name)
     end
     -- Patch: Make buffer name unique in test mode
     if _TEST or os.getenv('NVIM_TEST') then
-      buffer_name = buffer_name .. '-' .. tostring(os.time()) .. '-' .. tostring(math.random(10000,99999))
+      buffer_name = buffer_name
+        .. '-'
+        .. tostring(os.time())
+        .. '-'
+        .. tostring(math.random(10000, 99999))
     end
     vim.cmd('file ' .. buffer_name)
 

@@ -332,22 +332,31 @@ local function validate_config(config)
       config.startup_notification = {
         enabled = config.startup_notification,
         message = 'Claude Code plugin loaded',
-        level = vim.log.levels.INFO
+        level = vim.log.levels.INFO,
       }
     elseif type(config.startup_notification) == 'table' then
       -- Validate table structure
-      if config.startup_notification.enabled ~= nil and type(config.startup_notification.enabled) ~= 'boolean' then
+      if
+        config.startup_notification.enabled ~= nil
+        and type(config.startup_notification.enabled) ~= 'boolean'
+      then
         return false, 'startup_notification.enabled must be a boolean'
       end
-      
-      if config.startup_notification.message ~= nil and type(config.startup_notification.message) ~= 'string' then
+
+      if
+        config.startup_notification.message ~= nil
+        and type(config.startup_notification.message) ~= 'string'
+      then
         return false, 'startup_notification.message must be a string'
       end
-      
-      if config.startup_notification.level ~= nil and type(config.startup_notification.level) ~= 'number' then
+
+      if
+        config.startup_notification.level ~= nil
+        and type(config.startup_notification.level) ~= 'number'
+      then
         return false, 'startup_notification.level must be a number'
       end
-      
+
       -- Set defaults for missing values
       if config.startup_notification.enabled == nil then
         config.startup_notification.enabled = true
@@ -378,18 +387,23 @@ local function detect_claude_cli(custom_path)
     -- If custom path doesn't work, fall through to default search
   end
 
-  -- Check for local installation in ~/.claude/local/claude
+  -- Auto-detect Claude CLI across different installation methods
+  -- Priority order ensures most specific/recent installations are preferred
+  
+  -- Check for local development installation (highest priority)
+  -- ~/.claude/local/claude is used for development builds and custom installations
   local local_claude = vim.fn.expand('~/.claude/local/claude')
   if vim.fn.filereadable(local_claude) == 1 and vim.fn.executable(local_claude) == 1 then
     return local_claude
   end
 
-  -- Fall back to 'claude' in PATH
+  -- Fall back to system-wide installation in PATH
+  -- This handles package manager installations, official releases, etc.
   if vim.fn.executable('claude') == 1 then
     return 'claude'
   end
 
-  -- If nothing found, return nil to indicate failure
+  -- No Claude CLI found - return nil to trigger user notification
   return nil
 end
 

@@ -56,7 +56,7 @@ end
 -- @param text string Text to colorize
 -- @return string Colorized text
 function M.color(color, text)
-  local color_code = M.colors[color] or ""
+  local color_code = M.colors[color] or ''
   return color_code .. text .. M.colors.reset
 end
 
@@ -77,7 +77,7 @@ function M.find_executable(paths)
   if type(paths) ~= 'table' then
     return nil
   end
-  
+
   for _, path in ipairs(paths) do
     if type(path) == 'string' then
       local expanded = vim.fn.expand(path)
@@ -97,7 +97,7 @@ function M.find_executable_by_name(name)
   if type(name) ~= 'string' or name == '' then
     return nil
   end
-  
+
   -- Use 'where' on Windows, 'which' on Unix-like systems
   local cmd
   if vim.fn.has('win32') == 1 or vim.fn.has('win64') == 1 then
@@ -105,15 +105,15 @@ function M.find_executable_by_name(name)
   else
     cmd = 'which ' .. vim.fn.shellescape(name) .. ' 2>/dev/null'
   end
-  
+
   local handle = io.popen(cmd)
   if not handle then
     return nil
   end
-  
+
   local result = handle:read('*l') -- Read first line only
   local close_result = handle:close()
-  
+
   -- Handle different return formats from close()
   local exit_code
   if type(close_result) == 'number' then
@@ -123,7 +123,7 @@ function M.find_executable_by_name(name)
   else
     exit_code = 1
   end
-  
+
   if exit_code == 0 and result and result ~= '' then
     -- Trim whitespace and validate the path exists
     result = result:gsub('^%s+', ''):gsub('%s+$', '')
@@ -131,7 +131,7 @@ function M.find_executable_by_name(name)
       return result
     end
   end
-  
+
   return nil
 end
 
@@ -151,18 +151,18 @@ function M.ensure_directory(path)
   if type(path) ~= 'string' or path == '' then
     return false, 'Invalid directory path'
   end
-  
+
   -- Check if already exists
   if vim.fn.isdirectory(path) == 1 then
     return true
   end
-  
+
   -- Try to create directory
   local success = vim.fn.mkdir(path, 'p')
   if success ~= 1 then
     return false, 'Failed to create directory: ' .. path
   end
-  
+
   return true
 end
 

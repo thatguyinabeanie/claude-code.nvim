@@ -16,14 +16,17 @@ local import_patterns = {
     },
     extensions = { '.lua' },
     module_to_path = function(module_name)
-      -- Convert lua module names to file paths
+      -- Language-specific module resolution: Lua dot notation to file paths
+      -- Lua follows specific patterns for module-to-file mapping
       local paths = {}
 
-      -- Standard lua path conversion: module.name -> module/name.lua
+      -- Primary pattern: module.name -> module/name.lua
+      -- This handles most require('foo.bar') cases
       local path = module_name:gsub('%.', '/') .. '.lua'
       table.insert(paths, path)
 
-      -- Also try module/name/init.lua pattern
+      -- Secondary pattern: module.name -> module/name/init.lua
+      -- This handles package-style modules where init.lua serves as entry point
       table.insert(paths, module_name:gsub('%.', '/') .. '/init.lua')
 
       return paths
@@ -38,19 +41,24 @@ local import_patterns = {
     },
     extensions = { '.js', '.mjs', '.jsx' },
     module_to_path = function(module_name)
+      -- JavaScript/ES6 module resolution with extension variants
+      -- Only process relative imports (local files), skip node_modules
       local paths = {}
 
-      -- Relative imports
+      -- Filter: Only process relative imports starting with . or ./
       if module_name:match('^%.') then
+        -- Base path as-is (may already have extension)
         table.insert(paths, module_name)
+        
+        -- Extension resolution: Try multiple file extensions if not specified
         if not module_name:match('%.js$') then
-          table.insert(paths, module_name .. '.js')
-          table.insert(paths, module_name .. '.jsx')
-          table.insert(paths, module_name .. '/index.js')
-          table.insert(paths, module_name .. '/index.jsx')
+          table.insert(paths, module_name .. '.js')     -- Standard JS
+          table.insert(paths, module_name .. '.jsx')    -- React JSX
+          table.insert(paths, module_name .. '/index.js')  -- Directory with index
+          table.insert(paths, module_name .. '/index.jsx') -- Directory with JSX index
         end
       else
-        -- Node modules - usually not local files
+        -- Skip external modules (node_modules) - not local project files
         return {}
       end
 
@@ -189,25 +197,31 @@ local function resolve_import_paths(import_name, current_file, language)
   return resolved_paths
 end
 
---- Get all files related to the current file through imports
+--- Recursive dependency analysis with cycle detection
+--- Follows import/require statements to build a dependency graph of related files.
+--- This enables Claude to understand file relationships and provide better context.
+--- Uses breadth-first traversal with depth limiting to prevent infinite loops.
 --- @param filepath string The file to analyze
 --- @param max_depth number|nil Maximum dependency depth (default: 2)
 --- @return table List of related file paths with metadata
 function M.get_related_files(filepath, max_depth)
   max_depth = max_depth or 2
   local related_files = {}
-  local visited = {}
-  local to_process = { { path = filepath, depth = 0 } }
+  local visited = {}  -- Cycle detection: prevents infinite loops in circular dependencies
+  local to_process = { { path = filepath, depth = 0 } }  -- BFS queue with depth tracking
 
+  -- Breadth-first traversal of the dependency tree
   while #to_process > 0 do
-    local current = table.remove(to_process, 1)
+    local current = table.remove(to_process, 1)  -- Dequeue next file to process
     local current_path = current.path
     local current_depth = current.depth
 
+    -- Skip if already processed (cycle detection) or depth limit reached
     if visited[current_path] or current_depth >= max_depth then
       goto continue
     end
 
+    -- Mark as visited to prevent reprocessing
     visited[current_path] = true
 
     -- Read file content

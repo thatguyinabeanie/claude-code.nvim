@@ -23,13 +23,14 @@ function M.register_keymaps(claude_code, config)
   end
 
   if config.keymaps.toggle.terminal then
-    -- Terminal mode toggle keymap
-    -- In terminal mode, special keys like Ctrl need different handling
-    -- We use a direct escape sequence approach for more reliable terminal mappings
+    -- Terminal mode escape sequence handling for reliable keymap functionality
+    -- Terminal mode in Neovim requires special escape sequences to work properly
+    -- <C-\><C-n> is the standard escape sequence to exit terminal mode to normal mode
+    -- This ensures the keymap works reliably from within Claude Code terminal
     vim.api.nvim_set_keymap(
-      't',
-      config.keymaps.toggle.terminal,
-      [[<C-\><C-n>:ClaudeCode<CR>]],
+      't',                                    -- Terminal mode
+      config.keymaps.toggle.terminal,         -- User-configured key (e.g., <C-,>)
+      [[<C-\><C-n>:ClaudeCode<CR>]],         -- Exit terminal mode → execute command
       vim.tbl_extend('force', map_opts, { desc = 'Claude Code: Toggle' })
     )
   end
@@ -108,13 +109,15 @@ function M.setup_terminal_navigation(claude_code, config)
       }
     )
 
-    -- Window navigation keymaps
+    -- Terminal-aware window navigation with mode preservation
     if config.keymaps.window_navigation then
-      -- Window navigation keymaps with special handling to force insert mode in the target window
+      -- Complex navigation pattern: exit terminal → move window → re-enter terminal mode
+      -- This provides seamless navigation while preserving Claude Code's interactive state
+      -- Pattern: <C-\><C-n> (exit terminal) → <C-w>h (move window) → force_insert_mode() (re-enter terminal)
       vim.api.nvim_buf_set_keymap(
         buf,
-        't',
-        '<C-h>',
+        't',                          -- Terminal mode binding
+        '<C-h>',                      -- Ctrl+h for left movement
         [[<C-\><C-n><C-w>h:lua require("claude-code").force_insert_mode()<CR>]],
         { noremap = true, silent = true, desc = 'Window: move left' }
       )
