@@ -18,7 +18,7 @@ local function get_mcp_server_path()
     vim.fn.stdpath('data') .. '/site/pack/*/start/claude-code.nvim/bin/claude-code-mcp-server',
     vim.fn.stdpath('data') .. '/site/pack/*/opt/claude-code.nvim/bin/claude-code-mcp-server',
   }
-  
+
   -- Add development path from environment variable if set
   local dev_path = os.getenv('CLAUDE_CODE_DEV_PATH')
   if dev_path then

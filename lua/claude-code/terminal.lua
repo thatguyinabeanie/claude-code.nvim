@@ -213,7 +213,7 @@ local function toggle_common(claude_code, config, git, variant_name)
     if bufnr and not vim.api.nvim_buf_is_valid(bufnr) then
       claude_code.claude_code.instances[instance_id] = nil
     end
-    
+
     -- This Claude Code instance is not running, start it in a new split
     create_split(config.window.position, config)
 
@@ -223,7 +223,7 @@ local function toggle_common(claude_code, config, git, variant_name)
       -- Get the variant flag with validation
       local variant_flag = config.command_variants and config.command_variants[variant_name]
       if not variant_flag then
-        vim.notify("Unknown command variant: " .. variant_name, vim.log.levels.ERROR)
+        vim.notify('Unknown command variant: ' .. variant_name, vim.log.levels.ERROR)
         return false
       end
       cmd_suffix = ' ' .. variant_flag
