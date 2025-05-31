@@ -17,6 +17,7 @@ _A seamless integration between [Claude Code](https://github.com/anthropics/clau
 [MCP Server](#mcp-server) •
 [Configuration](#configuration) •
 [Usage](#usage) •
+[Tutorials](#tutorials) •
 [Contributing](#contributing) •
 [Discussions](https://github.com/greggh/claude-code.nvim/discussions)
 
@@ -466,6 +467,26 @@ Additionally, when in the Claude Code terminal:
 Note: After scrolling with `<C-f>` or `<C-b>`, you'll need to press the `i` key to re-enter insert mode so you can continue typing to Claude Code.
 
 When Claude Code modifies files that are open in Neovim, they'll be automatically reloaded.
+
+## Tutorials
+
+For comprehensive tutorials and practical examples, see our [Tutorials Guide](docs/TUTORIALS.md). The guide covers:
+
+- **Resume Previous Conversations** - Continue where you left off with session management
+- **Understand New Codebases** - Quickly navigate and understand unfamiliar projects  
+- **Fix Bugs Efficiently** - Diagnose and resolve issues with Claude's help
+- **Refactor Code** - Modernize legacy code with confidence
+- **Work with Tests** - Generate and improve test coverage
+- **Create Pull Requests** - Generate comprehensive PR descriptions
+- **Handle Documentation** - Auto-generate and update docs
+- **Work with Images** - Analyze mockups and screenshots
+- **Use Extended Thinking** - Leverage deep reasoning for complex tasks
+- **Set up Project Memory** - Configure CLAUDE.md for project context
+- **MCP Integration** - Configure and use the Model Context Protocol
+- **Custom Commands** - Create reusable slash commands
+- **Parallel Sessions** - Work on multiple features simultaneously
+
+Each tutorial includes step-by-step instructions, tips, and real-world examples tailored for Neovim users.
 
 ## How it Works
 
