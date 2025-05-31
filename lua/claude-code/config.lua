@@ -47,6 +47,14 @@ local M = {}
 -- @field verbose string|boolean Enable verbose logging with full turn-by-turn output
 -- Additional options can be added as needed
 
+--- ClaudeCodeMCP class for MCP server configuration
+-- @table ClaudeCodeMCP
+-- @field enabled boolean Enable MCP server
+-- @field http_server table HTTP server configuration
+-- @field http_server.host string Host to bind HTTP server to (default: "127.0.0.1")
+-- @field http_server.port number Port for HTTP server (default: 27123)
+-- @field session_timeout_minutes number Session timeout in minutes (default: 30)
+
 --- ClaudeCodeConfig class for main configuration
 -- @table ClaudeCodeConfig
 -- @field window ClaudeCodeWindow Terminal window settings
@@ -55,6 +63,7 @@ local M = {}
 -- @field command string Command used to launch Claude Code
 -- @field command_variants ClaudeCodeCommandVariants Command variants configuration
 -- @field keymaps ClaudeCodeKeymaps Keymaps configuration
+-- @field mcp ClaudeCodeMCP MCP server configuration
 
 --- Default configuration options
 --- @type ClaudeCodeConfig
@@ -109,6 +118,11 @@ M.default_config = {
   -- MCP server settings
   mcp = {
     enabled = true, -- Enable MCP server functionality
+    http_server = {
+      host = "127.0.0.1", -- Host to bind HTTP server to
+      port = 27123, -- Port for HTTP server
+    },
+    session_timeout_minutes = 30, -- Session timeout in minutes
     auto_start = false, -- Don't auto-start the MCP server by default
     tools = {
       buffer = true,
@@ -127,7 +141,12 @@ M.default_config = {
       git_status = true,
       lsp_diagnostics = true,
       vim_options = true
-    }
+    },
+    http_server = {
+      host = "127.0.0.1", -- Host to bind HTTP server to
+      port = 27123 -- Port for HTTP server
+    },
+    session_timeout_minutes = 30 -- Session timeout in minutes
   },
 }
 
@@ -273,6 +292,31 @@ local function validate_config(config)
 
   if type(config.keymaps.scrolling) ~= 'boolean' then
     return false, 'keymaps.scrolling must be a boolean'
+  end
+
+  -- Validate MCP server settings
+  if type(config.mcp) ~= 'table' then
+    return false, 'mcp config must be a table'
+  end
+
+  if type(config.mcp.enabled) ~= 'boolean' then
+    return false, 'mcp.enabled must be a boolean'
+  end
+
+  if type(config.mcp.http_server) ~= 'table' then
+    return false, 'mcp.http_server config must be a table'
+  end
+
+  if type(config.mcp.http_server.host) ~= 'string' then
+    return false, 'mcp.http_server.host must be a string'
+  end
+
+  if type(config.mcp.http_server.port) ~= 'number' then
+    return false, 'mcp.http_server.port must be a number'
+  end
+
+  if type(config.mcp.session_timeout_minutes) ~= 'number' then
+    return false, 'mcp.session_timeout_minutes must be a number'
   end
 
   return true, nil

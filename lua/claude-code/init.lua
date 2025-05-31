@@ -24,6 +24,7 @@ local file_refresh = require('claude-code.file_refresh')
 local terminal = require('claude-code.terminal')
 local git = require('claude-code.git')
 local version = require('claude-code.version')
+local file_reference = require('claude-code.file_reference')
 
 local M = {}
 
@@ -234,6 +235,9 @@ function M.setup(user_config)
     end
   end
 
+  -- Setup keymap for file reference shortcut
+  vim.keymap.set({'n', 'v'}, '<leader>cf', file_reference.insert_file_reference, { desc = 'Insert @File#L1-99 reference for Claude prompt' })
+
   vim.notify("Claude Code plugin loaded", vim.log.levels.INFO)
 end
 
@@ -255,4 +259,17 @@ function M.version()
   return version.string()
 end
 
-return M
+--- Get the current prompt input buffer content, or an empty string if not available
+--- @return string The current prompt input buffer content
+function M.get_prompt_input()
+  -- Stub for test: return last inserted text or command line
+  -- In real plugin, this should return the current prompt input buffer content
+  return vim.fn.getcmdline() or ""
+end
+
+-- (Optional) Export for tests
+return {
+  -- ... existing exports ...
+  insert_file_reference = file_reference.insert_file_reference,
+  -- ...
+}
