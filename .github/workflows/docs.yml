@@ -49,22 +49,15 @@ jobs:
   generate-api-docs:
     name: Generate API Documentation
     runs-on: ubuntu-latest
+    container: nickblah/lua:5.1-luarocks
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Lua
-        uses: leafo/gh-actions-lua@v11
-        with:
-          luaVersion: "5.1"
-
-      - name: Install LuaRocks
-        uses: leafo/gh-actions-luarocks@v4
 
       - name: Install dependencies for ldoc
         run: |
           # Install dependencies required by ldoc
-          sudo apt-get update
-          sudo apt-get install -y lua-discount
+          apt-get update
+          apt-get install -y lua-discount
 
       - name: Install ldoc
         run: luarocks install ldoc

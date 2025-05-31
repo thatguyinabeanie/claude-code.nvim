@@ -22,20 +22,16 @@ jobs:
   # First, run lint with latest Lua version as a gate
   lint-latest:
     runs-on: ubuntu-latest
+    container: nickblah/lua:5.4-luarocks
     name: Lint with Lua 5.4 (Latest)
     outputs:
       passed: ${{ steps.set-output.outputs.passed }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Lua and LuaRocks from APT
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lua5.4 liblua5.4-dev luarocks
-          
       - name: Install luacheck
         run: |
-          sudo luarocks install luacheck
+          luarocks install luacheck
 
       - name: Check formatting with stylua
         uses: JohnnyMorganz/stylua-action@v3
@@ -62,27 +58,20 @@ jobs:
       matrix:
         include:
           - lua-version: "5.1"
-            lua-package: "lua5.1"
-            lua-dev-package: "liblua5.1-0-dev"
+            container: "nickblah/lua:5.1-luarocks"
           - lua-version: "5.3"
-            lua-package: "lua5.3"
-            lua-dev-package: "liblua5.3-dev"
+            container: "nickblah/lua:5.3-luarocks"
           - lua-version: "luajit"
-            lua-package: "luajit"
-            lua-dev-package: "libluajit-5.1-dev"
+            container: "nickblah/luajit:2.1-luarocks"
 
+    container: ${{ matrix.container }}
     name: Lint with Lua ${{ matrix.lua-version }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Lua from APT
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ${{ matrix.lua-package }} ${{ matrix.lua-dev-package }} luarocks
-
       - name: Install luacheck
         run: |
-          sudo luarocks install luacheck
+          luarocks install luacheck
 
       - name: Run Luacheck
         run: luacheck lua/
