@@ -36,58 +36,61 @@ function M.register_commands(claude_code)
   vim.api.nvim_create_user_command('ClaudeCodeVersion', function()
     vim.notify('Claude Code version: ' .. claude_code.version(), vim.log.levels.INFO)
   end, { desc = 'Display Claude Code version' })
-  
+
   -- Add context-aware commands
   vim.api.nvim_create_user_command('ClaudeCodeWithFile', function()
     claude_code.toggle_with_context('file')
   end, { desc = 'Toggle Claude Code with current file context' })
-  
+
   vim.api.nvim_create_user_command('ClaudeCodeWithSelection', function()
     claude_code.toggle_with_context('selection')
   end, { desc = 'Toggle Claude Code with visual selection', range = true })
-  
+
   vim.api.nvim_create_user_command('ClaudeCodeWithContext', function()
     claude_code.toggle_with_context('auto')
   end, { desc = 'Toggle Claude Code with automatic context detection', range = true })
-  
+
   vim.api.nvim_create_user_command('ClaudeCodeWithWorkspace', function()
     claude_code.toggle_with_context('workspace')
   end, { desc = 'Toggle Claude Code with enhanced workspace context including related files' })
-  
+
   vim.api.nvim_create_user_command('ClaudeCodeWithProjectTree', function()
     claude_code.toggle_with_context('project_tree')
   end, { desc = 'Toggle Claude Code with project file tree structure' })
-  
+
   -- Add safe window toggle commands
   vim.api.nvim_create_user_command('ClaudeCodeHide', function()
     claude_code.safe_toggle()
   end, { desc = 'Hide Claude Code window without stopping the process' })
-  
+
   vim.api.nvim_create_user_command('ClaudeCodeShow', function()
     claude_code.safe_toggle()
   end, { desc = 'Show Claude Code window if hidden' })
-  
+
   vim.api.nvim_create_user_command('ClaudeCodeSafeToggle', function()
     claude_code.safe_toggle()
   end, { desc = 'Safely toggle Claude Code window without interrupting execution' })
-  
+
   -- Add status and management commands
   vim.api.nvim_create_user_command('ClaudeCodeStatus', function()
     local status = claude_code.get_process_status()
     vim.notify(status.message, vim.log.levels.INFO)
   end, { desc = 'Show current Claude Code process status' })
-  
+
   vim.api.nvim_create_user_command('ClaudeCodeInstances', function()
     local instances = claude_code.list_instances()
     if #instances == 0 then
-      vim.notify("No Claude Code instances running", vim.log.levels.INFO)
+      vim.notify('No Claude Code instances running', vim.log.levels.INFO)
     else
-      local msg = "Claude Code instances:\n"
+      local msg = 'Claude Code instances:\n'
       for _, instance in ipairs(instances) do
-        msg = msg .. string.format("  %s: %s (%s)\n", 
-          instance.instance_id, 
-          instance.status,
-          instance.visible and "visible" or "hidden")
+        msg = msg
+          .. string.format(
+            '  %s: %s (%s)\n',
+            instance.instance_id,
+            instance.status,
+            instance.visible and 'visible' or 'hidden'
+          )
       end
       vim.notify(msg, vim.log.levels.INFO)
     end

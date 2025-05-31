@@ -10,106 +10,106 @@ local M = {}
 local import_patterns = {
   lua = {
     patterns = {
-      "require%s*%(?['\"]([^'\"]+)['\"]%)?",
-      "dofile%s*%(?['\"]([^'\"]+)['\"]%)?",
-      "loadfile%s*%(?['\"]([^'\"]+)['\"]%)?",
+      'require%s*%(?[\'"]([^\'"]+)[\'"]%)?',
+      'dofile%s*%(?[\'"]([^\'"]+)[\'"]%)?',
+      'loadfile%s*%(?[\'"]([^\'"]+)[\'"]%)?',
     },
-    extensions = { ".lua" },
+    extensions = { '.lua' },
     module_to_path = function(module_name)
       -- Convert lua module names to file paths
       local paths = {}
-      
+
       -- Standard lua path conversion: module.name -> module/name.lua
-      local path = module_name:gsub("%.", "/") .. ".lua"
+      local path = module_name:gsub('%.', '/') .. '.lua'
       table.insert(paths, path)
-      
+
       -- Also try module/name/init.lua pattern
-      table.insert(paths, module_name:gsub("%.", "/") .. "/init.lua")
-      
+      table.insert(paths, module_name:gsub('%.', '/') .. '/init.lua')
+
       return paths
-    end
+    end,
   },
-  
+
   javascript = {
     patterns = {
-      "import%s+.-from%s+['\"]([^'\"]+)['\"]",
-      "require%s*%(['\"]([^'\"]+)['\"]%)",
-      "import%s*%(['\"]([^'\"]+)['\"]%)",
+      'import%s+.-from%s+[\'"]([^\'"]+)[\'"]',
+      'require%s*%([\'"]([^\'"]+)[\'"]%)',
+      'import%s*%([\'"]([^\'"]+)[\'"]%)',
     },
-    extensions = { ".js", ".mjs", ".jsx" },
+    extensions = { '.js', '.mjs', '.jsx' },
     module_to_path = function(module_name)
       local paths = {}
-      
+
       -- Relative imports
-      if module_name:match("^%.") then
+      if module_name:match('^%.') then
         table.insert(paths, module_name)
-        if not module_name:match("%.js$") then
-          table.insert(paths, module_name .. ".js")
-          table.insert(paths, module_name .. ".jsx")
-          table.insert(paths, module_name .. "/index.js")
-          table.insert(paths, module_name .. "/index.jsx")
+        if not module_name:match('%.js$') then
+          table.insert(paths, module_name .. '.js')
+          table.insert(paths, module_name .. '.jsx')
+          table.insert(paths, module_name .. '/index.js')
+          table.insert(paths, module_name .. '/index.jsx')
         end
       else
         -- Node modules - usually not local files
         return {}
       end
-      
+
       return paths
-    end
+    end,
   },
-  
+
   typescript = {
     patterns = {
-      "import%s+.-from%s+['\"]([^'\"]+)['\"]",
-      "import%s*%(['\"]([^'\"]+)['\"]%)",
+      'import%s+.-from%s+[\'"]([^\'"]+)[\'"]',
+      'import%s*%([\'"]([^\'"]+)[\'"]%)',
     },
-    extensions = { ".ts", ".tsx" },
+    extensions = { '.ts', '.tsx' },
     module_to_path = function(module_name)
       local paths = {}
-      
-      if module_name:match("^%.") then
+
+      if module_name:match('^%.') then
         table.insert(paths, module_name)
-        if not module_name:match("%.tsx?$") then
-          table.insert(paths, module_name .. ".ts")
-          table.insert(paths, module_name .. ".tsx")
-          table.insert(paths, module_name .. "/index.ts")
-          table.insert(paths, module_name .. "/index.tsx")
+        if not module_name:match('%.tsx?$') then
+          table.insert(paths, module_name .. '.ts')
+          table.insert(paths, module_name .. '.tsx')
+          table.insert(paths, module_name .. '/index.ts')
+          table.insert(paths, module_name .. '/index.tsx')
         end
       end
-      
+
       return paths
-    end
+    end,
   },
-  
+
   python = {
     patterns = {
-      "from%s+([%w%.]+)%s+import",
-      "import%s+([%w%.]+)",
+      'from%s+([%w%.]+)%s+import',
+      'import%s+([%w%.]+)',
     },
-    extensions = { ".py" },
+    extensions = { '.py' },
     module_to_path = function(module_name)
       local paths = {}
-      local path = module_name:gsub("%.", "/") .. ".py"
+      local path = module_name:gsub('%.', '/') .. '.py'
       table.insert(paths, path)
-      table.insert(paths, module_name:gsub("%.", "/") .. "/__init__.py")
+      table.insert(paths, module_name:gsub('%.', '/') .. '/__init__.py')
       return paths
-    end
+    end,
   },
-  
+
   go = {
     patterns = {
       'import%s+["\']([^"\']+)["\']',
       'import%s+%w+%s+["\']([^"\']+)["\']',
     },
-    extensions = { ".go" },
+    extensions = { '.go' },
     module_to_path = function(module_name)
       -- Go imports are usually full URLs or relative paths
-      if module_name:match("^%.") then
+      if module_name:match('^%.') then
         return { module_name }
       end
       return {} -- External packages
-    end
-  }
+    end,
+  },
 }
 
 --- Get file type from extension or vim filetype
@@ -120,16 +120,16 @@ local function get_file_language(filepath)
   if filetype and import_patterns[filetype] then
     return filetype
   end
-  
-  local ext = filepath:match("%.([^%.]+)$")
+
+  local ext = filepath:match('%.([^%.]+)$')
   for lang, config in pairs(import_patterns) do
     for _, lang_ext in ipairs(config.extensions) do
-      if lang_ext == "." .. ext then
+      if lang_ext == '.' .. ext then
         return lang
       end
     end
   end
-  
+
   return nil
 end
 
@@ -142,14 +142,14 @@ local function extract_imports(content, language)
   if not config then
     return {}
   end
-  
+
   local imports = {}
   for _, pattern in ipairs(config.patterns) do
     for match in content:gmatch(pattern) do
       table.insert(imports, match)
     end
   end
-  
+
   return imports
 end
 
@@ -163,29 +163,29 @@ local function resolve_import_paths(import_name, current_file, language)
   if not config or not config.module_to_path then
     return {}
   end
-  
+
   local possible_paths = config.module_to_path(import_name)
   local resolved_paths = {}
-  
-  local current_dir = vim.fn.fnamemodify(current_file, ":h")
+
+  local current_dir = vim.fn.fnamemodify(current_file, ':h')
   local project_root = vim.fn.getcwd()
-  
+
   for _, path in ipairs(possible_paths) do
     local full_path
-    
-    if path:match("^%.") then
+
+    if path:match('^%.') then
       -- Relative import
-      full_path = vim.fn.resolve(current_dir .. "/" .. path:gsub("^%./", ""))
+      full_path = vim.fn.resolve(current_dir .. '/' .. path:gsub('^%./', ''))
     else
       -- Absolute from project root
-      full_path = vim.fn.resolve(project_root .. "/" .. path)
+      full_path = vim.fn.resolve(project_root .. '/' .. path)
     end
-    
+
     if vim.fn.filereadable(full_path) == 1 then
       table.insert(resolved_paths, full_path)
     end
   end
-  
+
   return resolved_paths
 end
 
@@ -198,49 +198,49 @@ function M.get_related_files(filepath, max_depth)
   local related_files = {}
   local visited = {}
   local to_process = { { path = filepath, depth = 0 } }
-  
+
   while #to_process > 0 do
     local current = table.remove(to_process, 1)
     local current_path = current.path
     local current_depth = current.depth
-    
+
     if visited[current_path] or current_depth >= max_depth then
       goto continue
     end
-    
+
     visited[current_path] = true
-    
+
     -- Read file content
-    local content = ""
+    local content = ''
     if vim.fn.filereadable(current_path) == 1 then
       local lines = vim.fn.readfile(current_path)
-      content = table.concat(lines, "\n")
+      content = table.concat(lines, '\n')
     elseif current_path == vim.api.nvim_buf_get_name(0) then
       -- Current buffer content
       local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-      content = table.concat(lines, "\n")
+      content = table.concat(lines, '\n')
     else
       goto continue
     end
-    
+
     local language = get_file_language(current_path)
     if not language then
       goto continue
     end
-    
+
     -- Extract imports
     local imports = extract_imports(content, language)
-    
+
     -- Add current file to results (unless it's the original file)
     if current_depth > 0 then
       table.insert(related_files, {
         path = current_path,
         depth = current_depth,
         language = language,
-        imports = imports
+        imports = imports,
       })
     end
-    
+
     -- Resolve imports and add to processing queue
     for _, import_name in ipairs(imports) do
       local resolved_paths = resolve_import_paths(import_name, current_path, language)
@@ -250,10 +250,10 @@ function M.get_related_files(filepath, max_depth)
         end
       end
     end
-    
+
     ::continue::
   end
-  
+
   return related_files
 end
 
@@ -265,22 +265,22 @@ function M.get_recent_files(limit)
   local recent_files = {}
   local oldfiles = vim.v.oldfiles or {}
   local project_root = vim.fn.getcwd()
-  
+
   for i, file in ipairs(oldfiles) do
     if #recent_files >= limit then
       break
     end
-    
+
     -- Only include files from current project
-    if file:match("^" .. vim.pesc(project_root)) and vim.fn.filereadable(file) == 1 then
+    if file:match('^' .. vim.pesc(project_root)) and vim.fn.filereadable(file) == 1 then
       table.insert(recent_files, {
         path = file,
-        relative_path = vim.fn.fnamemodify(file, ":~:."),
-        last_used = i -- Approximate ordering
+        relative_path = vim.fn.fnamemodify(file, ':~:.'),
+        last_used = i, -- Approximate ordering
       })
     end
   end
-  
+
   return recent_files
 end
 
@@ -288,29 +288,29 @@ end
 --- @return table List of workspace symbols
 function M.get_workspace_symbols()
   local symbols = {}
-  
+
   -- Try to get LSP workspace symbols
   local clients = vim.lsp.get_active_clients({ bufnr = 0 })
   if #clients > 0 then
-    local params = { query = "" }
-    
+    local params = { query = '' }
+
     for _, client in ipairs(clients) do
       if client.server_capabilities.workspaceSymbolProvider then
-        local results = client.request_sync("workspace/symbol", params, 5000, 0)
+        local results = client.request_sync('workspace/symbol', params, 5000, 0)
         if results and results.result then
           for _, symbol in ipairs(results.result) do
             table.insert(symbols, {
               name = symbol.name,
               kind = symbol.kind,
               location = symbol.location,
-              container_name = symbol.containerName
+              container_name = symbol.containerName,
             })
           end
         end
       end
     end
   end
-  
+
   return symbols
 end
 
@@ -323,30 +323,30 @@ function M.get_enhanced_context(include_related, include_recent, include_symbols
   include_related = include_related ~= false
   include_recent = include_recent ~= false
   include_symbols = include_symbols or false
-  
+
   local current_file = vim.api.nvim_buf_get_name(0)
   local context = {
     current_file = {
       path = current_file,
-      relative_path = vim.fn.fnamemodify(current_file, ":~:."),
+      relative_path = vim.fn.fnamemodify(current_file, ':~:.'),
       filetype = vim.bo.filetype,
       line_count = vim.api.nvim_buf_line_count(0),
-      cursor_position = vim.api.nvim_win_get_cursor(0)
-    }
+      cursor_position = vim.api.nvim_win_get_cursor(0),
+    },
   }
-  
-  if include_related and current_file ~= "" then
+
+  if include_related and current_file ~= '' then
     context.related_files = M.get_related_files(current_file)
   end
-  
+
   if include_recent then
     context.recent_files = M.get_recent_files()
   end
-  
+
   if include_symbols then
     context.workspace_symbols = M.get_workspace_symbols()
   end
-  
+
   return context
 end
 

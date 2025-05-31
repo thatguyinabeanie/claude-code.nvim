@@ -8,22 +8,22 @@ local M = {}
 function M.notify(msg, level, opts)
   level = level or vim.log.levels.INFO
   opts = opts or {}
-  
-  local prefix = opts.prefix or "Claude Code"
-  local full_msg = prefix and ("[" .. prefix .. "] " .. msg) or msg
-  
+
+  local prefix = opts.prefix or 'Claude Code'
+  local full_msg = prefix and ('[' .. prefix .. '] ' .. msg) or msg
+
   -- In server context or when forced, always use stderr
   if opts.force_stderr then
-    io.stderr:write(full_msg .. "\n")
+    io.stderr:write(full_msg .. '\n')
     io.stderr:flush()
     return
   end
-  
+
   -- Check if we're in a UI context
   local ok, uis = pcall(vim.api.nvim_list_uis)
   if not ok or #uis == 0 then
     -- Headless mode - write to stderr
-    io.stderr:write(full_msg .. "\n")
+    io.stderr:write(full_msg .. '\n')
     io.stderr:flush()
   else
     -- UI mode - use vim.notify with scheduling
@@ -35,13 +35,13 @@ end
 
 -- Terminal color codes
 M.colors = {
-  red = "\27[31m",
-  green = "\27[32m",
-  yellow = "\27[33m",
-  blue = "\27[34m",
-  magenta = "\27[35m",
-  cyan = "\27[36m",
-  reset = "\27[0m",
+  red = '\27[31m',
+  green = '\27[32m',
+  yellow = '\27[33m',
+  blue = '\27[34m',
+  magenta = '\27[35m',
+  cyan = '\27[36m',
+  reset = '\27[0m',
 }
 
 -- Print colored text to stdout
@@ -93,7 +93,7 @@ end
 -- @return boolean Success
 function M.ensure_directory(path)
   if vim.fn.isdirectory(path) == 0 then
-    return vim.fn.mkdir(path, "p") == 1
+    return vim.fn.mkdir(path, 'p') == 1
   end
   return true
 end

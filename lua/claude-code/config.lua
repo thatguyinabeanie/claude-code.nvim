@@ -119,7 +119,7 @@ M.default_config = {
   mcp = {
     enabled = true, -- Enable MCP server functionality
     http_server = {
-      host = "127.0.0.1", -- Host to bind HTTP server to
+      host = '127.0.0.1', -- Host to bind HTTP server to
       port = 27123, -- Port for HTTP server
     },
     session_timeout_minutes = 30, -- Session timeout in minutes
@@ -132,7 +132,7 @@ M.default_config = {
       window = true,
       mark = true,
       register = true,
-      visual = true
+      visual = true,
     },
     resources = {
       current_buffer = true,
@@ -140,13 +140,13 @@ M.default_config = {
       project_structure = true,
       git_status = true,
       lsp_diagnostics = true,
-      vim_options = true
+      vim_options = true,
     },
     http_server = {
-      host = "127.0.0.1", -- Host to bind HTTP server to
-      port = 27123 -- Port for HTTP server
+      host = '127.0.0.1', -- Host to bind HTTP server to
+      port = 27123, -- Port for HTTP server
     },
-    session_timeout_minutes = 30 -- Session timeout in minutes
+    session_timeout_minutes = 30, -- Session timeout in minutes
   },
 }
 
@@ -226,7 +226,7 @@ local function validate_config(config)
   if type(config.command) ~= 'string' then
     return false, 'command must be a string'
   end
-  
+
   -- Validate cli_path if provided
   if config.cli_path ~= nil and type(config.cli_path) ~= 'string' then
     return false, 'cli_path must be a string or nil'
@@ -333,18 +333,18 @@ local function detect_claude_cli(custom_path)
     end
     -- If custom path doesn't work, fall through to default search
   end
-  
+
   -- Check for local installation in ~/.claude/local/claude
-  local local_claude = vim.fn.expand("~/.claude/local/claude")
+  local local_claude = vim.fn.expand('~/.claude/local/claude')
   if vim.fn.filereadable(local_claude) == 1 and vim.fn.executable(local_claude) == 1 then
     return local_claude
   end
-  
+
   -- Fall back to 'claude' in PATH
-  if vim.fn.executable("claude") == 1 then
-    return "claude"
+  if vim.fn.executable('claude') == 1 then
+    return 'claude'
   end
-  
+
   -- If nothing found, return nil to indicate failure
   return nil
 end
@@ -363,37 +363,54 @@ function M.parse_config(user_config, silent)
   end
 
   local config = vim.tbl_deep_extend('force', {}, M.default_config, user_config or {})
-  
+
   -- Auto-detect Claude CLI if not explicitly set (skip in silent mode for tests)
   if not silent and (not user_config or not user_config.command) then
     local custom_path = config.cli_path
     local detected_cli = detect_claude_cli(custom_path)
-    config.command = detected_cli or "claude"
-    
+    config.command = detected_cli or 'claude'
+
     -- Notify user about the CLI selection
     if not silent then
       if custom_path then
         if detected_cli == custom_path then
-          vim.notify("Claude Code: Using custom CLI at " .. custom_path, vim.log.levels.INFO)
+          vim.notify('Claude Code: Using custom CLI at ' .. custom_path, vim.log.levels.INFO)
         else
-          vim.notify("Claude Code: Custom CLI path not found: " .. custom_path .. " - falling back to default detection", vim.log.levels.WARN)
+          vim.notify(
+            'Claude Code: Custom CLI path not found: '
+              .. custom_path
+              .. ' - falling back to default detection',
+            vim.log.levels.WARN
+          )
           -- Continue with default detection notifications
-          if detected_cli == vim.fn.expand("~/.claude/local/claude") then
-            vim.notify("Claude Code: Using local installation at ~/.claude/local/claude", vim.log.levels.INFO)
+          if detected_cli == vim.fn.expand('~/.claude/local/claude') then
+            vim.notify(
+              'Claude Code: Using local installation at ~/.claude/local/claude',
+              vim.log.levels.INFO
+            )
           elseif detected_cli and vim.fn.executable(detected_cli) == 1 then
             vim.notify("Claude Code: Using 'claude' from PATH", vim.log.levels.INFO)
           else
-            vim.notify("Claude Code: CLI not found! Please install Claude Code or set config.command", vim.log.levels.WARN)
+            vim.notify(
+              'Claude Code: CLI not found! Please install Claude Code or set config.command',
+              vim.log.levels.WARN
+            )
           end
         end
       else
         -- No custom path, use standard detection notifications
-        if detected_cli == vim.fn.expand("~/.claude/local/claude") then
-          vim.notify("Claude Code: Using local installation at ~/.claude/local/claude", vim.log.levels.INFO)
+        if detected_cli == vim.fn.expand('~/.claude/local/claude') then
+          vim.notify(
+            'Claude Code: Using local installation at ~/.claude/local/claude',
+            vim.log.levels.INFO
+          )
         elseif detected_cli and vim.fn.executable(detected_cli) == 1 then
           vim.notify("Claude Code: Using 'claude' from PATH", vim.log.levels.INFO)
         else
-          vim.notify("Claude Code: CLI not found! Please install Claude Code or set config.command", vim.log.levels.WARN)
+          vim.notify(
+            'Claude Code: CLI not found! Please install Claude Code or set config.command',
+            vim.log.levels.WARN
+          )
         end
       end
     end
@@ -414,7 +431,7 @@ end
 
 -- Internal API for testing
 M._internal = {
-  detect_claude_cli = detect_claude_cli
+  detect_claude_cli = detect_claude_cli,
 }
 
 return M

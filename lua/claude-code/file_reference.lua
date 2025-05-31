@@ -31,4 +31,4 @@ function M.insert_file_reference()
   end
 end
 
-return M 
+return M
