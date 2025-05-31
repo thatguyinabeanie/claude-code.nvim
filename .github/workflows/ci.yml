@@ -60,20 +60,15 @@ jobs:
         run: |
           # For LuaJIT, install from git to avoid manifest parsing issues
           if [ "${{ matrix.lua-version }}" = "luajit" ]; then
-            git clone https://github.com/lunarmodules/luacheck.git
-            cd luacheck
-            luarocks make
+            git clone https://github.com/lunarmodules/luacheck.git /tmp/luacheck
+            cd /tmp/luacheck
+            luarocks make --tree=/usr/local
           else
             luarocks install luacheck
           fi
 
       - name: Run Luacheck
-        run: |
-          if [ "${{ matrix.lua-version }}" = "luajit" ]; then
-            ./luacheck/bin/luacheck lua/
-          else
-            luacheck lua/
-          fi
+        run: luacheck lua/
 
   test:
     runs-on: ubuntu-latest
