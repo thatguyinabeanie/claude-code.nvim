@@ -119,3 +119,4 @@ luac.out
 *.zip
 *.tar.gz
 .claude
+!.vale/styles/config/
