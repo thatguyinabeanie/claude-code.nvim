@@ -32,6 +32,10 @@ This document outlines the planned development path for the Claude Code Neovim p
   - Make server path configurable in test_mcp.sh
   - Fix markdown formatting issues in documentation files
 
+- **Development Infrastructure Enhancements**
+  - Add explicit Windows dependency installation support to Makefile
+  - Support PowerShell/CMD scripts and Windows package managers (Chocolatey, Scoop, winget)
+
 ## Medium-term Goals (3-12 months)
 
 - **Prompt Library**: Create a comprehensive prompt system
