@@ -5,7 +5,7 @@ on:
     # Run weekly on Monday at 00:00 UTC
     - cron: '0 0 * * 1'
   workflow_dispatch:
-    # Allow manual triggering
+  # Allow manual triggering
 
 # Add explicit permissions needed for creating issues
 permissions:
@@ -129,7 +129,7 @@ jobs:
 
   create-update-issue:
     needs: [check-github-actions, check-neovim-version, check-claude-changes]
-    if: github.event_name == 'schedule' # Only create issues on scheduled runs
+    if: github.event_name == 'schedule'  # Only create issues on scheduled runs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
