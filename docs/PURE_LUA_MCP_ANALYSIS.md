@@ -1,22 +1,25 @@
 # Pure Lua MCP Server Implementation Analysis
 
-## Is It Feasible? YES!
+## Is It Feasible? YES
 
 MCP is just JSON-RPC 2.0 over stdio, which Neovim's Lua can handle natively.
 
 ## What We Need
 
 ### 1. JSON-RPC 2.0 Protocol ✅
+
 - Neovim has `vim.json` for JSON encoding/decoding
 - Simple request/response pattern over stdio
 - Can use `vim.loop` (libuv) for async I/O
 
 ### 2. stdio Communication ✅
-- Read from stdin: `vim.loop.new_pipe(false)` 
+
+- Read from stdin: `vim.loop.new_pipe(false)`
 - Write to stdout: `io.stdout:write()` or `vim.loop.write()`
 - Neovim's event loop handles async naturally
 
 ### 3. MCP Protocol Implementation ✅
+
 - Just need to implement the message patterns
 - Tools, resources, and prompts are simple JSON structures
 - No complex dependencies required
@@ -119,7 +122,7 @@ return M
 
 ## Advantages of Pure Lua
 
-1. **No Dependencies** 
+1. **No Dependencies**
    - No Node.js required
    - No npm packages
    - No build step
@@ -147,6 +150,7 @@ return M
 ## Implementation Approach
 
 ### Phase 1: Basic Server
+
 ```lua
 -- Minimal MCP server that can:
 -- 1. Accept connections over stdio
@@ -155,6 +159,7 @@ return M
 ```
 
 ### Phase 2: Full Protocol
+
 ```lua
 -- Add:
 -- 1. All MCP methods (initialize, tools/*, resources/*)
@@ -164,6 +169,7 @@ return M
 ```
 
 ### Phase 3: Advanced Features
+
 ```lua
 -- Add:
 -- 1. LSP integration
@@ -175,6 +181,7 @@ return M
 ## Key Components Needed
 
 ### 1. JSON-RPC Parser
+
 ```lua
 -- Parse incoming messages
 -- Handle Content-Length headers
@@ -182,6 +189,7 @@ return M
 ```
 
 ### 2. Message Router
+
 ```lua
 -- Route methods to handlers
 -- Manage request IDs
@@ -189,6 +197,7 @@ return M
 ```
 
 ### 3. Tool Implementations
+
 ```lua
 -- Buffer operations
 -- File operations
@@ -197,6 +206,7 @@ return M
 ```
 
 ### 4. Resource Providers
+
 ```lua
 -- Buffer list
 -- Project structure
@@ -262,6 +272,7 @@ end
 ## Conclusion
 
 A pure Lua MCP server is not only feasible but **preferable** for a Neovim plugin:
+
 - Simpler architecture
 - Better integration
 - Easier maintenance

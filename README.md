@@ -70,6 +70,16 @@ This plugin provides:
 - ✅ Configuration validation to prevent errors
 - 🧪 Testing framework for reliability (44 comprehensive tests)
 
+## Planned Features for IDE Integration Parity
+
+To match the full feature set of GUI IDE integrations (VSCode, JetBrains, etc.), the following features are planned:
+
+- **File Reference Shortcut:** Keyboard mapping to insert `@File#L1-99` style references into Claude prompts.
+- **External `/ide` Command Support:** Ability to attach an external Claude Code CLI session to a running Neovim MCP server, similar to the `/ide` command in GUI IDEs.
+- **User-Friendly Config UI:** A terminal-based UI for configuring plugin options, making setup more accessible for all users.
+
+These features are tracked in the [ROADMAP.md](ROADMAP.md) and will ensure full parity with Anthropic's official IDE integrations.
+
 ## Requirements
 
 - Neovim 0.7.0 or later

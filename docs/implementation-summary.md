@@ -7,6 +7,7 @@ This document summarizes the comprehensive enhancements made to the claude-code.
 ## Background
 
 The original plugin provided:
+
 - Basic terminal interface to Claude Code CLI
 - Traditional MCP server for programmatic control
 - Simple buffer management and file refresh
@@ -20,18 +21,21 @@ The original plugin provided:
 Created a comprehensive context analysis system supporting multiple programming languages:
 
 #### **Language Support:**
+
 - **Lua**: `require()`, `dofile()`, `loadfile()` patterns
 - **JavaScript/TypeScript**: `import`/`require` with relative path resolution
 - **Python**: `import`/`from` with module path conversion
 - **Go**: `import` statements with relative path handling
 
 #### **Key Functions:**
+
 - `get_related_files(filepath, max_depth)` - Discovers files through import/require analysis
 - `get_recent_files(limit)` - Retrieves recently accessed project files
 - `get_workspace_symbols()` - LSP workspace symbol discovery
 - `get_enhanced_context()` - Comprehensive context aggregation
 
 #### **Smart Features:**
+
 - **Dependency depth control** (default: 2 levels)
 - **Project-aware filtering** (only includes current project files)
 - **Module-to-path conversion** for each language's conventions
@@ -44,12 +48,14 @@ Extended the terminal interface with context-aware toggle functionality:
 #### **New Function: `toggle_with_context(context_type)`**
 
 **Context Types:**
+
 - `"file"` - Current file with cursor position (`claude --file "path#line"`)
 - `"selection"` - Visual selection as temporary markdown file
 - `"workspace"` - Enhanced context with related files, recent files, and current file content
 - `"auto"` - Smart detection (selection if in visual mode, otherwise file)
 
 #### **Workspace Context Features:**
+
 - **Context summary file** with current file info, cursor position, file type
 - **Related files section** with dependency depth and import counts
 - **Recent files list** (top 5 most recent)
@@ -61,6 +67,7 @@ Extended the terminal interface with context-aware toggle functionality:
 Added four new MCP resources for advanced context access:
 
 #### **`neovim://related-files`**
+
 ```json
 {
   "current_file": "lua/claude-code/init.lua",
@@ -76,6 +83,7 @@ Added four new MCP resources for advanced context access:
 ```
 
 #### **`neovim://recent-files`**
+
 ```json
 {
   "project_root": "/path/to/project",
@@ -90,9 +98,11 @@ Added four new MCP resources for advanced context access:
 ```
 
 #### **`neovim://workspace-context`**
+
 Complete enhanced context including current file, related files, recent files, and workspace symbols.
 
 #### **`neovim://search-results`**
+
 ```json
 {
   "search_pattern": "function",
@@ -113,18 +123,21 @@ Complete enhanced context including current file, related files, recent files, a
 Added three new MCP tools for intelligent workspace analysis:
 
 #### **`analyze_related`**
+
 - Analyzes files related through imports/requires
 - Configurable dependency depth
 - Lists imports and dependency relationships
 - Returns markdown formatted analysis
 
 #### **`find_symbols`**
+
 - LSP workspace symbol search
 - Query filtering support
 - Returns symbol locations and metadata
 - Supports symbol type and container information
 
 #### **`search_files`**
+
 - File pattern searching across project
 - Optional content inclusion
 - Returns file paths with preview content
@@ -146,12 +159,14 @@ Added new user commands for context-aware interactions:
 Reorganized and enhanced the testing structure:
 
 #### **Directory Consolidation:**
+
 - Moved files from `test/` to organized `tests/` subdirectories
 - Created `tests/legacy/` for VimL-based tests
 - Created `tests/interactive/` for manual testing utilities
 - Updated all references in Makefile, scripts, and CI
 
 #### **Updated References:**
+
 - Makefile test commands now use `tests/legacy/`
 - MCP test script updated for new paths
 - CI workflow enhanced with better directory verification
@@ -162,12 +177,14 @@ Reorganized and enhanced the testing structure:
 Comprehensive documentation updates across multiple files:
 
 #### **README.md Enhancements:**
+
 - Added context-aware commands section
 - Enhanced features list with new capabilities
 - Updated MCP server description with new resources
 - Added emoji indicators for new features
 
 #### **ROADMAP.md Updates:**
+
 - Marked context helper features as completed ✅
 - Added context-aware integration goals
 - Updated completion status for workspace context features
@@ -218,6 +235,7 @@ Workspace context generates comprehensive markdown files:
 ```lua
 -- Complete file content here
 ```
+
 ```
 
 ### **Temporary File Management**
@@ -265,6 +283,7 @@ Context-aware features use secure temporary file handling:
 ```
 
 ### **MCP Client Usage:**
+
 ```javascript
 // Read related files through MCP
 const relatedFiles = await client.readResource("neovim://related-files");
@@ -283,6 +302,7 @@ const symbols = await client.callTool("find_symbols", { query: "setup" });
 Added robust configurable Claude CLI path support using Test-Driven Development:
 
 #### **Key Features:**
+
 - **`cli_path` Configuration Option** - Custom path to Claude CLI executable
 - **Enhanced Detection Order:**
   1. Custom path from `config.cli_path` (if provided)
@@ -292,6 +312,7 @@ Added robust configurable Claude CLI path support using Test-Driven Development:
 - **User Notifications** - Informative messages about CLI detection results
 
 #### **Configuration Example:**
+
 ```lua
 require('claude-code').setup({
   cli_path = "/custom/path/to/claude",  -- Optional custom CLI path
@@ -300,12 +321,14 @@ require('claude-code').setup({
 ```
 
 #### **Test-Driven Development:**
+
 - **14 comprehensive test cases** covering all CLI detection scenarios
 - **Custom path validation** with fallback behavior
 - **Error handling tests** for invalid paths and missing CLI
 - **Notification testing** for different detection outcomes
 
 #### **Benefits:**
+
 - **Enterprise Compatibility** - Custom installation paths supported
 - **Development Flexibility** - Test different Claude CLI versions
 - **Robust Detection** - Graceful fallbacks when CLI not found
@@ -314,11 +337,13 @@ require('claude-code').setup({
 ## Files Modified/Created
 
 ### **New Files:**
+
 - `lua/claude-code/context.lua` - Context analysis engine
 - `tests/spec/cli_detection_spec.lua` - TDD test suite for CLI detection
 - Various test files moved to organized structure
 
 ### **Enhanced Files:**
+
 - `lua/claude-code/config.lua` - CLI detection and configuration validation
 - `lua/claude-code/terminal.lua` - Context-aware toggle function
 - `lua/claude-code/commands.lua` - New context commands
@@ -334,11 +359,13 @@ require('claude-code').setup({
 ## Testing and Validation
 
 ### **Automated Tests:**
+
 - MCP integration tests verify new resources load correctly
 - Context module functions validated for proper API exposure
 - Command registration confirmed for all new commands
 
 ### **Manual Validation:**
+
 - Context analysis tested with multi-language projects
 - Related file discovery validated across different import styles
 - Workspace context generation tested with various file types

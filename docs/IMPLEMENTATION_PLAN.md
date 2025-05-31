@@ -3,31 +3,39 @@
 ## Decision Point: Language Choice
 
 ### Option A: TypeScript/Node.js
+
 **Pros:**
+
 - Can fork/improve mcp-neovim-server
 - MCP SDK available for TypeScript
 - Standard in MCP ecosystem
 - Faster initial development
 
 **Cons:**
+
 - Requires Node.js runtime
 - Not native to Neovim ecosystem
 - Extra dependency for users
 
 ### Option B: Pure Lua
+
 **Pros:**
+
 - Native to Neovim (no extra deps)
 - Better performance potential
 - Tighter Neovim integration
 - Aligns with plugin philosophy
 
 **Cons:**
+
 - Need to implement MCP protocol
 - More initial work
 - Less MCP tooling available
 
 ### Option C: Hybrid (Recommended)
+
 **Start with TypeScript for MVP, plan Lua port:**
+
 1. Fork/improve mcp-neovim-server
 2. Add our enterprise features
 3. Test with real users
@@ -90,6 +98,7 @@ claude-code.nvim/                  # THIS REPOSITORY
 ## Implementation Phases
 
 ### Phase 1: MVP ✅ COMPLETED
+
 **Goal:** Basic working MCP server
 
 1. **Setup Project** ✅
@@ -121,6 +130,7 @@ claude-code.nvim/                  # THIS REPOSITORY
    - Comprehensive documentation
 
 ### Phase 2: Enhanced Features ✅ COMPLETED
+
 **Goal:** Productivity features
 
 1. **Advanced Tools** ✅
@@ -142,6 +152,7 @@ claude-code.nvim/                  # THIS REPOSITORY
    - Comprehensive user notifications
 
 ### Phase 3: Enterprise Features ✅ PARTIALLY COMPLETED
+
 **Goal:** Security and compliance
 
 1. **Security** ✅
@@ -163,6 +174,7 @@ claude-code.nvim/                  # THIS REPOSITORY
    - Multi-instance support for git repositories
 
 ### Phase 4: Pure Lua Implementation ✅ COMPLETED
+
 **Goal:** Native implementation
 
 1. **Core Implementation** ✅
@@ -176,6 +188,7 @@ claude-code.nvim/                  # THIS REPOSITORY
    - Minimal memory usage with efficient resource management
 
 ### Phase 5: Advanced CLI Configuration ✅ COMPLETED
+
 **Goal:** Robust CLI handling
 
 1. **Configuration System** ✅
@@ -196,6 +209,7 @@ claude-code.nvim/                  # THIS REPOSITORY
 ## Next Immediate Steps
 
 ### 1. Validate Approach (Today)
+
 ```bash
 # Test mcp-neovim-server with mcp-hub
 npm install -g @bigcodegen/mcp-neovim-server
@@ -206,6 +220,7 @@ nvim --listen /tmp/nvim
 ```
 
 ### 2. Setup Development (Today/Tomorrow)
+
 ```bash
 # Create MCP server directory
 mkdir mcp-server
@@ -216,6 +231,7 @@ npm install neovim-client
 ```
 
 ### 3. Create Minimal Server (This Week)
+
 - Implement basic MCP server
 - Add one tool (edit_buffer)
 - Test with Claude Code
@@ -223,12 +239,14 @@ npm install neovim-client
 ## Success Criteria
 
 ### MVP Success: ✅ ACHIEVED
+
 - [x] Server starts and registers with Claude Code
 - [x] Claude Code can connect and list tools
 - [x] Basic edit operations work
 - [x] No crashes or data loss
 
 ### Full Success: ✅ ACHIEVED
+
 - [x] All planned tools implemented (+ additional context tools)
 - [x] Enterprise features working (CLI configuration, security)
 - [x] Performance targets met (pure Lua, efficient context analysis)
@@ -236,6 +254,7 @@ npm install neovim-client
 - [x] Pure Lua implementation completed
 
 ### Advanced Success: ✅ ACHIEVED
+
 - [x] Context-aware integration matching IDE built-ins
 - [x] Configurable CLI path support for enterprise environments
 - [x] Test-Driven Development with 97+ passing tests
@@ -260,7 +279,8 @@ npm install neovim-client
 
 ## Current Status: IMPLEMENTATION COMPLETE ✅
 
-### What Was Accomplished:
+### What Was Accomplished
+
 1. ✅ **Pure Lua MCP Server** - No external dependencies
 2. ✅ **Context-Aware Integration** - IDE-like experience
 3. ✅ **Comprehensive Tool Set** - 11 MCP tools + 3 analysis tools
@@ -269,7 +289,8 @@ npm install neovim-client
 6. ✅ **Test Coverage** - 97+ comprehensive tests
 7. ✅ **Documentation** - Complete user and developer docs
 
-### Beyond Original Goals:
+### Beyond Original Goals
+
 - **Context Analysis Engine** - Multi-language import/require discovery
 - **Enhanced Terminal Interface** - Context-aware command variants
 - **Test-Driven Development** - Comprehensive test suite

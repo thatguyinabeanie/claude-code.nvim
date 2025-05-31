@@ -3,6 +3,7 @@
 ## Basic Server Structure (TypeScript)
 
 ### Minimal Server Setup
+
 ```typescript
 import { McpServer, StdioServerTransport } from "@modelcontextprotocol/sdk/server/index.js";
 import { z } from "zod";
@@ -38,6 +39,7 @@ await server.connect(transport);
 ```
 
 ### Complete Server Pattern
+
 Based on MCP example servers structure:
 
 ```typescript
@@ -210,6 +212,7 @@ server.run().catch(console.error);
 ## Neovim Client Integration
 
 ### Using node-client (JavaScript)
+
 ```javascript
 import { attach } from 'neovim';
 
@@ -247,6 +250,7 @@ class NeovimClient {
 ## Tool Patterns
 
 ### Search Tool
+
 ```typescript
 {
   name: "search_project",
@@ -272,6 +276,7 @@ async handleSearchProject(args) {
 ```
 
 ### LSP Integration Tool
+
 ```typescript
 {
   name: "go_to_definition",
@@ -299,6 +304,7 @@ async handleGoToDefinition(args) {
 ## Resource Patterns
 
 ### Dynamic Resource Provider
+
 ```typescript
 // Provide LSP diagnostics as a resource
 {
@@ -324,6 +330,7 @@ async handleDiagnosticsResource() {
 ```
 
 ## Error Handling Pattern
+
 ```typescript
 class MCPError extends Error {
   constructor(message: string, public code: string) {
@@ -353,6 +360,7 @@ try {
 ```
 
 ## Security Pattern
+
 ```typescript
 class SecurityManager {
   private allowedPaths: Set<string>;
@@ -381,6 +389,7 @@ async handleFileOperation(args) {
 ```
 
 ## Testing Pattern
+
 ```typescript
 // Mock Neovim client for testing
 class MockNeovimClient {

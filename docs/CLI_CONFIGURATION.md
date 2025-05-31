@@ -9,7 +9,9 @@ The claude-code.nvim plugin provides flexible configuration options for Claude C
 The plugin uses a prioritized detection system to find the Claude CLI executable:
 
 ### 1. Custom Path (Highest Priority)
+
 If a custom CLI path is specified in the configuration:
+
 ```lua
 require('claude-code').setup({
   cli_path = "/custom/path/to/claude"
@@ -17,13 +19,17 @@ require('claude-code').setup({
 ```
 
 ### 2. Local Installation (Preferred Default)
+
 Checks for Claude CLI at: `~/.claude/local/claude`
+
 - This is the recommended installation location
 - Provides user-specific Claude installations
 - Avoids PATH conflicts with system installations
 
 ### 3. PATH Fallback (Last Resort)
+
 Falls back to `claude` command in system PATH
+
 - Works with global installations
 - Compatible with package manager installations
 
@@ -46,6 +52,7 @@ require('claude-code').setup({
 ### Advanced Examples
 
 #### Development Environment
+
 ```lua
 -- Use development build of Claude CLI
 require('claude-code').setup({
@@ -54,6 +61,7 @@ require('claude-code').setup({
 ```
 
 #### Enterprise Environment
+
 ```lua
 -- Use company-specific Claude installation
 require('claude-code').setup({
@@ -62,6 +70,7 @@ require('claude-code').setup({
 ```
 
 #### Explicit Command Override
+
 ```lua
 -- Override auto-detection completely
 require('claude-code').setup({
@@ -72,6 +81,7 @@ require('claude-code').setup({
 ## Detection Behavior
 
 ### Robust Validation
+
 The detection system performs comprehensive validation:
 
 1. **File Readability Check** - Ensures the file exists and is readable
@@ -83,21 +93,25 @@ The detection system performs comprehensive validation:
 The plugin provides clear feedback about CLI detection:
 
 #### Successful Custom Path
+
 ```
 Claude Code: Using custom CLI at /custom/path/claude
 ```
 
 #### Successful Local Installation
+
 ```
 Claude Code: Using local installation at ~/.claude/local/claude
 ```
 
 #### PATH Installation
+
 ```
 Claude Code: Using 'claude' from PATH
 ```
 
 #### Warning Messages
+
 ```
 Claude Code: Custom CLI path not found: /invalid/path - falling back to default detection
 Claude Code: CLI not found! Please install Claude Code or set config.command
@@ -106,15 +120,18 @@ Claude Code: CLI not found! Please install Claude Code or set config.command
 ## Testing
 
 ### Test-Driven Development
+
 The CLI detection feature was implemented using TDD with comprehensive test coverage:
 
 #### Test Categories
+
 1. **Custom Path Tests** - Validate custom CLI path handling
 2. **Default Detection Tests** - Test standard detection order
 3. **Error Handling Tests** - Verify graceful failure modes
 4. **Notification Tests** - Confirm user feedback messages
 
 #### Running CLI Detection Tests
+
 ```bash
 # Run all tests
 nvim --headless -c "lua require('tests.run_tests')" -c "qall"
@@ -136,14 +153,17 @@ nvim --headless -c "lua require('tests.run_tests').run_specific('cli_detection_s
 ## Troubleshooting
 
 ### CLI Not Found
+
 If you see: `Claude Code: CLI not found! Please install Claude Code or set config.command`
 
 **Solutions:**
+
 1. Install Claude CLI: `curl -sSL https://claude.ai/install.sh | bash`
 2. Set custom path: `cli_path = "/path/to/claude"`
 3. Override command: `command = "/path/to/claude"`
 
 ### Custom Path Not Working
+
 If custom path fails to work:
 
 1. **Check file exists:** `ls -la /your/custom/path`
@@ -151,6 +171,7 @@ If custom path fails to work:
 3. **Test execution:** `/your/custom/path --version`
 
 ### Permission Issues
+
 If file exists but isn't executable:
 
 ```bash
@@ -164,6 +185,7 @@ chmod +x /your/custom/path/claude
 ## Implementation Details
 
 ### Configuration Validation
+
 The plugin validates CLI configuration:
 
 ```lua
@@ -174,6 +196,7 @@ end
 ```
 
 ### Detection Function
+
 Core detection logic:
 
 ```lua
@@ -202,6 +225,7 @@ end
 ```
 
 ### Silent Mode
+
 For testing and programmatic usage:
 
 ```lua
@@ -212,11 +236,13 @@ local config = require('claude-code.config').parse_config({}, true)  -- silent =
 ## Best Practices
 
 ### Recommended Setup
+
 1. **Use local installation** (`~/.claude/local/claude`) for most users
 2. **Use custom path** for development or enterprise environments
 3. **Avoid hardcoding command** unless necessary for specific use cases
 
 ### Enterprise Deployment
+
 ```lua
 -- Centralized configuration
 require('claude-code').setup({
@@ -226,6 +252,7 @@ require('claude-code').setup({
 ```
 
 ### Development Workflow
+
 ```lua
 -- Switch between versions easily
 local claude_version = os.getenv("CLAUDE_VERSION") or "stable"
@@ -243,6 +270,7 @@ require('claude-code').setup({
 ## Migration Guide
 
 ### From Previous Versions
+
 If you were using command override:
 
 ```lua
@@ -260,6 +288,7 @@ require('claude-code').setup({
 The `command` option still works and takes precedence over auto-detection, but `cli_path` is preferred for custom installations as it provides better error handling and user feedback.
 
 ### Backward Compatibility
+
 - All existing configurations continue to work
 - `command` option still overrides auto-detection
 - No breaking changes to existing functionality

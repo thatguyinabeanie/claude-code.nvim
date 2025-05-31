@@ -19,13 +19,15 @@ Transform the current CLI-based Claude Code plugin into a full-featured IDE inte
 
 The foundation of the integration, replacing CLI communication with direct server connectivity.
 
-#### Key Features:
+#### Key Features
+
 - **Direct MCP Protocol Implementation**: Native Lua client for MCP server communication
 - **Session Management**: Handle authentication, connection lifecycle, and session persistence
 - **Message Routing**: Efficient bidirectional message passing between Neovim and Claude Code
 - **Error Handling**: Robust retry mechanisms and connection recovery
 
-#### Technical Requirements:
+#### Technical Requirements
+
 - WebSocket or HTTP/2 client implementation in Lua
 - JSON-RPC message formatting and parsing
 - Connection pooling for multi-instance support
@@ -35,13 +37,15 @@ The foundation of the integration, replacing CLI communication with direct serve
 
 Intelligent context management that provides Claude with comprehensive project understanding.
 
-#### Context Types:
+#### Context Types
+
 - **Buffer Context**: Real-time buffer content, cursor positions, and selections
 - **Project Context**: File tree structure, dependencies, and configuration
 - **Git Context**: Branch information, uncommitted changes, and history
 - **Runtime Context**: Language servers data, diagnostics, and compilation state
 
-#### Optimization Strategies:
+#### Optimization Strategies
+
 - **Incremental Updates**: Send only deltas instead of full content
 - **Smart Pruning**: Context relevance scoring and automatic cleanup
 - **Lazy Loading**: On-demand context expansion based on Claude's needs
@@ -51,8 +55,9 @@ Intelligent context management that provides Claude with comprehensive project u
 
 Enable Claude to directly interact with the editor environment.
 
-#### Core Capabilities:
-- **Direct Buffer Manipulation**: 
+#### Core Capabilities
+
+- **Direct Buffer Manipulation**:
   - Insert, delete, and replace text operations
   - Multi-cursor support
   - Snippet expansion
@@ -76,7 +81,8 @@ Enable Claude to directly interact with the editor environment.
 
 User-facing features that leverage the deep integration.
 
-#### Interactive Features:
+#### Interactive Features
+
 - **Inline Suggestions**:
   - Ghost text for code completions
   - Multi-line suggestions with tab acceptance
@@ -101,13 +107,15 @@ User-facing features that leverage the deep integration.
 
 Ensuring smooth, responsive operation without impacting editor performance.
 
-#### Performance Optimizations:
+#### Performance Optimizations
+
 - **Asynchronous Architecture**: All operations run in background threads
 - **Debouncing**: Intelligent rate limiting for context updates
 - **Batch Processing**: Group related operations for efficiency
 - **Memory Management**: Automatic cleanup of stale contexts
 
-#### Reliability Features:
+#### Reliability Features
+
 - **Graceful Degradation**: Fallback to CLI mode when MCP unavailable
 - **State Persistence**: Save and restore sessions across restarts
 - **Conflict Resolution**: Handle concurrent edits from user and Claude
@@ -116,26 +124,31 @@ Ensuring smooth, responsive operation without impacting editor performance.
 ## 🛠️ Implementation Phases
 
 ### Phase 1: Foundation (Weeks 1-2)
+
 - Implement basic MCP client
 - Establish connection protocols
 - Create message routing system
 
 ### Phase 2: Context System (Weeks 3-4)
+
 - Build context extraction layer
 - Implement incremental sync
 - Add project-wide awareness
 
 ### Phase 3: Editor Integration (Weeks 5-6)
+
 - Enable buffer manipulation
 - Create diff preview system
 - Add undo/redo support
 
 ### Phase 4: User Features (Weeks 7-8)
+
 - Develop chat interface
 - Implement inline suggestions
 - Add visual indicators
 
 ### Phase 5: Polish & Optimization (Weeks 9-10)
+
 - Performance tuning
 - Error handling improvements
 - Documentation and testing
@@ -150,17 +163,19 @@ Ensuring smooth, responsive operation without impacting editor performance.
 
 ## 🚧 Challenges & Mitigations
 
-### Technical Challenges:
+### Technical Challenges
+
 1. **MCP Protocol Documentation**: Limited public docs
    - *Mitigation*: Reverse engineer from VSCode extension
-   
+
 2. **Lua Limitations**: No native WebSocket support
    - *Mitigation*: Use luv bindings or external process
-   
+
 3. **Performance Impact**: Real-time sync overhead
    - *Mitigation*: Aggressive optimization and debouncing
 
-### Security Considerations:
+### Security Considerations
+
 - Sandbox Claude's file system access
 - Validate all buffer modifications
 - Implement permission system for destructive operations
@@ -178,3 +193,13 @@ Ensuring smooth, responsive operation without impacting editor performance.
 2. Prototype basic WebSocket client in Lua
 3. Design plugin API for extensibility
 4. Engage community for early testing feedback
+
+## 🧩 IDE Integration Parity Audit & Roadmap
+
+To ensure full parity with Anthropic's official IDE integrations, the following features are planned:
+
+- **File Reference Shortcut:** Keyboard mapping to insert `@File#L1-99` style references into Claude prompts.
+- **External `/ide` Command Support:** Ability to attach an external Claude Code CLI session to a running Neovim MCP server, similar to the `/ide` command in GUI IDEs.
+- **User-Friendly Config UI:** A terminal-based UI for configuring plugin options, making setup more accessible for all users.
+
+These are tracked in the main ROADMAP and README.

@@ -20,18 +20,21 @@ Instead of building everything from scratch, we leverage the existing mcp-hub ec
 ## Components
 
 ### 1. mcphub.nvim (Already Exists)
+
 - Neovim plugin that manages MCP servers
 - Provides UI for server configuration
 - Handles server lifecycle
 - REST API at `http://localhost:37373`
 
 ### 2. Our MCP Server (To Build)
+
 - Exposes Neovim capabilities as MCP tools/resources
 - Connects to Neovim via RPC/socket
 - Registers with mcp-hub
 - Handles enterprise security requirements
 
 ### 3. Claude Code CLI Integration
+
 - Configure Claude Code to use mcp-hub
 - Access all registered MCP servers
 - Including our Neovim server
@@ -39,13 +42,16 @@ Instead of building everything from scratch, we leverage the existing mcp-hub ec
 ## Implementation Strategy
 
 ### Phase 1: Build MCP Server
+
 Create a robust MCP server that:
+
 - Implements MCP protocol (tools, resources)
 - Connects to Neovim via socket/RPC
 - Provides enterprise security features
 - Works with mcp-hub
 
 ### Phase 2: Integration
+
 1. Users install mcphub.nvim
 2. Users install our MCP server
 3. Register server with mcp-hub
@@ -70,7 +76,8 @@ Create a robust MCP server that:
 
 ## Server Configuration
 
-### In mcp-hub servers.json:
+### In mcp-hub servers.json
+
 ```json
 {
   "claude-code-nvim": {
@@ -83,7 +90,8 @@ Create a robust MCP server that:
 }
 ```
 
-### In Claude Code:
+### In Claude Code
+
 ```bash
 # Configure Claude Code to use mcp-hub
 claude mcp add mcp-hub http://localhost:37373 --transport sse
@@ -94,9 +102,10 @@ claude "Edit the current buffer in Neovim"
 
 ## MCP Server Implementation
 
-### Core Features to Implement:
+### Core Features to Implement
 
 #### 1. Tools
+
 ```typescript
 // Essential editing tools
 - edit_buffer: Modify buffer content
@@ -108,6 +117,7 @@ claude "Edit the current buffer in Neovim"
 ```
 
 #### 2. Resources
+
 ```typescript
 // Contextual information
 - current_buffer: Active buffer info
@@ -117,6 +127,7 @@ claude "Edit the current buffer in Neovim"
 ```
 
 #### 3. Security
+
 ```typescript
 // Enterprise features
 - Permission model
@@ -163,6 +174,7 @@ claude "Refactor this function to use async/await"
 ## Conclusion
 
 By building on top of mcp-hub, we get:
+
 - Proven infrastructure
 - Better user experience  
 - Ecosystem compatibility
