@@ -164,7 +164,7 @@ function M.setup(user_config)
   if M.config.mcp and M.config.mcp.enabled then
     local ok, mcp = pcall(require, 'claude-code.mcp')
     if ok then
-      mcp.setup()
+      mcp.setup(M.config)
 
       -- Initialize MCP Hub integration
       local hub_ok, hub = pcall(require, 'claude-code.mcp.hub')

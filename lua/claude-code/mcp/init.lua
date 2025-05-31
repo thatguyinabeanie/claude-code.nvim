@@ -40,11 +40,14 @@ local function register_resources()
 end
 
 -- Initialize MCP server
-function M.setup()
+function M.setup(config)
   register_tools()
   register_resources()
 
-  notify('Claude Code MCP server initialized', vim.log.levels.INFO)
+  -- Only show MCP initialization message if startup notifications are enabled
+  if config and config.startup_notification and config.startup_notification.enabled then
+    notify('Claude Code MCP server initialized', vim.log.levels.INFO)
+  end
 end
 
 -- Start MCP server

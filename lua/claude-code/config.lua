@@ -150,7 +150,7 @@ M.default_config = {
   },
   -- Startup notification settings
   startup_notification = {
-    enabled = true, -- Show startup notification when plugin loads
+    enabled = false, -- Show startup notification when plugin loads (disabled by default)
     message = 'Claude Code plugin loaded', -- Custom startup message
     level = vim.log.levels.INFO, -- Log level for startup notification
   },

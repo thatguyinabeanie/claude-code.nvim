@@ -27,12 +27,33 @@ describe('Startup Notification Configuration', function()
   end)
   
   describe('startup notification control', function()
-    it('should show startup notification by default', function()
-      -- Load plugin with default configuration
+    it('should hide startup notification by default', function()
+      -- Load plugin with default configuration (notifications disabled by default)
       claude_code = require('claude-code')
       claude_code.setup()
       
-      -- Should have startup notification
+      -- Should NOT have startup notification by default
+      local found_startup = false
+      for _, notif in ipairs(notifications) do
+        if notif.msg:match('Claude Code plugin loaded') then
+          found_startup = true
+          break
+        end
+      end
+      
+      assert.is_false(found_startup, 'Should hide startup notification by default')
+    end)
+    
+    it('should show startup notification when explicitly enabled', function()
+      -- Load plugin with startup notification explicitly enabled
+      claude_code = require('claude-code')
+      claude_code.setup({
+        startup_notification = {
+          enabled = true
+        }
+      })
+      
+      -- Should have startup notification when enabled
       local found_startup = false
       for _, notif in ipairs(notifications) do
         if notif.msg:match('Claude Code plugin loaded') then
@@ -42,7 +63,7 @@ describe('Startup Notification Configuration', function()
         end
       end
       
-      assert.is_true(found_startup, 'Should show startup notification by default')
+      assert.is_true(found_startup, 'Should show startup notification when explicitly enabled')
     end)
     
     it('should hide startup notification when disabled in config', function()
