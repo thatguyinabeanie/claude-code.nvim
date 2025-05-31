@@ -4,8 +4,8 @@ This document outlines the planned development path for the Claude Code Neovim p
 
 ## Short-term Goals (Next 3 months)
 
-- **Enhanced Terminal Integration**: Improve the Neovim terminal experience with Claude Code
-  - Add better window management options
+- **Enhanced Terminal Integration**: Improve the Neovim terminal experience with Claude Code ✅
+  - Add better window management options ✅ (Safe window toggle implemented)
   - Implement automatic terminal resizing
   - Create improved keybindings for common interactions
 

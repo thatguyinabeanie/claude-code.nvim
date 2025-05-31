@@ -33,9 +33,11 @@ This plugin provides:
 ### Terminal Interface
 
 - 🚀 Toggle Claude Code in a terminal window with a single key press
+- 🔒 **Safe window toggle** - Hide/show window without interrupting Claude Code execution
 - 🧠 Support for command-line arguments like `--continue` and custom variants
 - 🔄 Automatically detect and reload files modified by Claude Code
 - ⚡ Real-time buffer updates when files are changed externally
+- 📊 Process status monitoring and instance management
 - 📱 Customizable window position and size
 - 🤖 Integration with which-key (if available)
 - 📂 Automatically uses git project root as working directory (when available)
@@ -411,6 +413,14 @@ The context-aware commands automatically include relevant information:
 #### Output Options Command
 
 - `:ClaudeCodeVerbose` - Enable verbose logging with full turn-by-turn output
+
+#### Window Management Commands
+
+- `:ClaudeCodeHide` - Hide Claude Code window without stopping the process
+- `:ClaudeCodeShow` - Show Claude Code window if hidden
+- `:ClaudeCodeSafeToggle` - Safely toggle window without interrupting execution
+- `:ClaudeCodeStatus` - Show current Claude Code process status
+- `:ClaudeCodeInstances` - List all Claude Code instances and their states
 
 #### MCP Integration Commands
 

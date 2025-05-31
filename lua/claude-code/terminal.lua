@@ -15,7 +15,60 @@ M.terminal = {
   instances = {},
   saved_updatetime = nil,
   current_instance = nil,
+  process_states = {},  -- Track process states for safe window management
 }
+
+--- Check if a process is still running
+--- @param job_id number The job ID to check
+--- @return boolean True if process is still running
+local function is_process_running(job_id)
+  if not job_id then return false end
+  
+  -- Use jobwait with 0 timeout to check status without blocking
+  local result = vim.fn.jobwait({job_id}, 0)
+  return result[1] == -1  -- -1 means still running
+end
+
+--- Update process state for an instance
+--- @param claude_code table The main plugin module
+--- @param instance_id string The instance identifier
+--- @param status string The process status ("running", "finished", "unknown")
+--- @param hidden boolean Whether the window is hidden
+local function update_process_state(claude_code, instance_id, status, hidden)
+  if not claude_code.claude_code.process_states then
+    claude_code.claude_code.process_states = {}
+  end
+  
+  claude_code.claude_code.process_states[instance_id] = {
+    status = status,
+    hidden = hidden or false,
+    last_updated = vim.fn.localtime()
+  }
+end
+
+--- Get process state for an instance
+--- @param claude_code table The main plugin module
+--- @param instance_id string The instance identifier
+--- @return table|nil Process state or nil if not found
+local function get_process_state(claude_code, instance_id)
+  if not claude_code.claude_code.process_states then
+    return nil
+  end
+  return claude_code.claude_code.process_states[instance_id]
+end
+
+--- Clean up invalid buffers and update process states
+--- @param claude_code table The main plugin module
+local function cleanup_invalid_instances(claude_code)
+  for instance_id, bufnr in pairs(claude_code.claude_code.instances) do
+    if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+      claude_code.claude_code.instances[instance_id] = nil
+      if claude_code.claude_code.process_states then
+        claude_code.claude_code.process_states[instance_id] = nil
+      end
+    end
+  end
+end
 
 --- Get the current git root or a fallback identifier
 --- @param git table The git module
@@ -413,6 +466,150 @@ function M.toggle_with_context(claude_code, config, git, context_type)
       end
     end, 10000) -- 10 seconds
   end
+end
+
+--- Safe toggle that hides/shows window without stopping Claude Code process
+--- @param claude_code table The main plugin module
+--- @param config table The plugin configuration
+--- @param git table The git module
+function M.safe_toggle(claude_code, config, git)
+  -- Determine instance ID based on config
+  local instance_id
+  if config.git.multi_instance then
+    if config.git.use_git_root then
+      instance_id = get_instance_identifier(git)
+    else
+      instance_id = vim.fn.getcwd()
+    end
+  else
+    -- Use a fixed ID for single instance mode
+    instance_id = "global"
+  end
+
+  claude_code.claude_code.current_instance = instance_id
+  
+  -- Clean up invalid instances first
+  cleanup_invalid_instances(claude_code)
+
+  -- Check if this Claude Code instance exists
+  local bufnr = claude_code.claude_code.instances[instance_id]
+  if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
+    -- Get current process state
+    local process_state = get_process_state(claude_code, instance_id)
+    
+    -- Check if there's a window displaying this Claude Code buffer
+    local win_ids = vim.fn.win_findbuf(bufnr)
+    if #win_ids > 0 then
+      -- Claude Code is visible, hide the window (but keep process running)
+      for _, win_id in ipairs(win_ids) do
+        vim.api.nvim_win_close(win_id, false)  -- Don't force close to avoid data loss
+      end
+      
+      -- Update process state to hidden
+      update_process_state(claude_code, instance_id, "running", true)
+      
+      -- Notify user that Claude Code is now running in background
+      vim.notify("Claude Code hidden - process continues in background", vim.log.levels.INFO)
+      
+    else
+      -- Claude Code buffer exists but is not visible, show it
+      
+      -- Check if process is still running (if we have job ID)
+      if process_state and process_state.job_id then
+        local is_running = is_process_running(process_state.job_id)
+        if not is_running then
+          update_process_state(claude_code, instance_id, "finished", false)
+          vim.notify("Claude Code task completed while hidden", vim.log.levels.INFO)
+        else
+          update_process_state(claude_code, instance_id, "running", false)
+        end
+      else
+        -- No job ID tracked, assume it's still running
+        update_process_state(claude_code, instance_id, "running", false)
+      end
+      
+      -- Open it in a split
+      create_split(config.window.position, config, bufnr)
+      
+      -- Force insert mode more aggressively unless configured to start in normal mode
+      if not config.window.start_in_normal_mode then
+        vim.schedule(function()
+          vim.cmd 'stopinsert | startinsert'
+        end)
+      end
+      
+      vim.notify("Claude Code window restored", vim.log.levels.INFO)
+    end
+  else
+    -- No existing instance, create a new one (same as regular toggle)
+    M.toggle(claude_code, config, git)
+    
+    -- Initialize process state for new instance
+    update_process_state(claude_code, instance_id, "running", false)
+  end
+end
+
+--- Get process status for current or specified instance
+--- @param claude_code table The main plugin module
+--- @param instance_id string|nil The instance identifier (uses current if nil)
+--- @return table Process status information
+function M.get_process_status(claude_code, instance_id)
+  instance_id = instance_id or claude_code.claude_code.current_instance
+  
+  if not instance_id then
+    return { status = "none", message = "No active Claude Code instance" }
+  end
+  
+  local bufnr = claude_code.claude_code.instances[instance_id]
+  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+    return { status = "none", message = "No Claude Code instance found" }
+  end
+  
+  local process_state = get_process_state(claude_code, instance_id)
+  if not process_state then
+    return { status = "unknown", message = "Process state unknown" }
+  end
+  
+  local win_ids = vim.fn.win_findbuf(bufnr)
+  local is_visible = #win_ids > 0
+  
+  return {
+    status = process_state.status,
+    hidden = process_state.hidden,
+    visible = is_visible,
+    instance_id = instance_id,
+    buffer_number = bufnr,
+    message = string.format("Claude Code %s (%s)", 
+      process_state.status, 
+      is_visible and "visible" or "hidden")
+  }
+end
+
+--- List all Claude Code instances and their states
+--- @param claude_code table The main plugin module
+--- @return table List of all instance states
+function M.list_instances(claude_code)
+  local instances = {}
+  
+  cleanup_invalid_instances(claude_code)
+  
+  for instance_id, bufnr in pairs(claude_code.claude_code.instances) do
+    if vim.api.nvim_buf_is_valid(bufnr) then
+      local process_state = get_process_state(claude_code, instance_id)
+      local win_ids = vim.fn.win_findbuf(bufnr)
+      
+      table.insert(instances, {
+        instance_id = instance_id,
+        buffer_number = bufnr,
+        status = process_state and process_state.status or "unknown",
+        hidden = process_state and process_state.hidden or false,
+        visible = #win_ids > 0,
+        last_updated = process_state and process_state.last_updated or 0
+      })
+    end
+  end
+  
+  return instances
 end
 
 return M

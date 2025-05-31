@@ -108,6 +108,30 @@ function M.toggle_with_context(context_type)
   end
 end
 
+--- Safe toggle that hides/shows Claude Code window without stopping execution
+function M.safe_toggle()
+  terminal.safe_toggle(M, M.config, git)
+
+  -- Set up terminal navigation keymaps after toggling (if window is now visible)
+  local bufnr = get_current_buffer_number()
+  if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
+    keymaps.setup_terminal_navigation(M, M.config)
+  end
+end
+
+--- Get process status for current or specified Claude Code instance
+--- @param instance_id string|nil The instance identifier (uses current if nil)
+--- @return table Process status information
+function M.get_process_status(instance_id)
+  return terminal.get_process_status(M, instance_id)
+end
+
+--- List all Claude Code instances and their states
+--- @return table List of all instance states
+function M.list_instances()
+  return terminal.list_instances(M)
+end
+
 --- Setup function for the plugin
 --- @param user_config table|nil Optional user configuration
 function M.setup(user_config)
