@@ -69,23 +69,27 @@ describe("CLI detection", function()
     end)
     
     it("should return local installation path when it exists and is executable", function()
+      -- Use environment-aware test paths
+      local home_dir = os.getenv('HOME') or '/home/testuser'
+      local expected_path = home_dir .. "/.claude/local/claude"
+      
       -- Mock functions
       vim.fn.expand = function(path)
         if path == "~/.claude/local/claude" then
-          return "/home/user/.claude/local/claude"
+          return expected_path
         end
         return path
       end
       
       vim.fn.filereadable = function(path)
-        if path == "/home/user/.claude/local/claude" then
+        if path == expected_path then
           return 1
         end
         return 0
       end
       
       vim.fn.executable = function(path)
-        if path == "/home/user/.claude/local/claude" then
+        if path == expected_path then
           return 1
         end
         return 0
@@ -93,7 +97,7 @@ describe("CLI detection", function()
       
       -- Test CLI detection without custom path
       local result = config._internal.detect_claude_cli()
-      assert.equals("/home/user/.claude/local/claude", result)
+      assert.equals(expected_path, result)
     end)
     
     it("should fall back to 'claude' in PATH when local installation doesn't exist", function()

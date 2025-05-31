@@ -12,6 +12,7 @@ end
 local server = {
   name = 'claude-code-nvim',
   version = '1.0.0',
+  protocol_version = '2024-11-05', -- Default MCP protocol version
   initialized = false,
   tools = {},
   resources = {},
@@ -68,7 +69,7 @@ local function handle_initialize(params)
   server.initialized = true
 
   return {
-    protocolVersion = '2024-11-05',
+    protocolVersion = server.protocol_version,
     capabilities = {
       tools = {},
       resources = {},
@@ -226,8 +227,48 @@ function M.register_resource(name, uri, description, mimeType, handler)
   }
 end
 
+-- Configure server settings
+function M.configure(config)
+  if not config then
+    return
+  end
+  
+  -- Validate and set protocol version
+  if config.protocol_version ~= nil then
+    if type(config.protocol_version) == 'string' and config.protocol_version ~= '' then
+      -- Basic validation: should be in YYYY-MM-DD format
+      if config.protocol_version:match('^%d%d%d%d%-%d%d%-%d%d$') then
+        server.protocol_version = config.protocol_version
+      else
+        -- Allow non-standard formats but warn
+        notify('Non-standard protocol version format: ' .. config.protocol_version, vim.log.levels.WARN)
+        server.protocol_version = config.protocol_version
+      end
+    else
+      -- Invalid type, use default
+      notify('Invalid protocol version type, using default', vim.log.levels.WARN)
+    end
+  end
+  
+  -- Allow overriding server name and version
+  if config.server_name and type(config.server_name) == 'string' then
+    server.name = config.server_name
+  end
+  
+  if config.server_version and type(config.server_version) == 'string' then
+    server.version = config.server_version
+  end
+end
+
 -- Start the MCP server
 function M.start()
+  -- Check if we're in headless mode for appropriate file descriptor usage
+  local is_headless = utils.is_headless()
+  
+  if not is_headless then
+    notify('MCP server should typically run in headless mode for stdin/stdout communication', vim.log.levels.WARN)
+  end
+  
   local stdin = uv.new_pipe(false)
   local stdout = uv.new_pipe(false)
 
@@ -236,9 +277,34 @@ function M.start()
     return false
   end
 
-  -- Open stdin and stdout
-  stdin:open(0) -- stdin file descriptor
-  stdout:open(1) -- stdout file descriptor
+  -- Validate file descriptor availability before opening
+  local stdin_fd = 0
+  local stdout_fd = 1
+  
+  -- In headless mode, validate that standard file descriptors are available
+  if is_headless then
+    -- Additional validation for headless environments
+    local stdin_ok = stdin:open(stdin_fd)
+    local stdout_ok = stdout:open(stdout_fd)
+    
+    if not stdin_ok then
+      notify('Failed to open stdin file descriptor in headless mode', vim.log.levels.ERROR)
+      stdin:close()
+      stdout:close()
+      return false
+    end
+    
+    if not stdout_ok then
+      notify('Failed to open stdout file descriptor in headless mode', vim.log.levels.ERROR)
+      stdin:close()
+      stdout:close()
+      return false
+    end
+  else
+    -- In UI mode, still try to open but with less strict validation
+    stdin:open(stdin_fd)
+    stdout:open(stdout_fd)
+  end
 
   local buffer = ''
 
@@ -298,10 +364,16 @@ function M.get_server_info()
   return {
     name = server.name,
     version = server.version,
+    protocol_version = server.protocol_version,
     initialized = server.initialized,
     tool_count = vim.tbl_count(server.tools),
     resource_count = vim.tbl_count(server.resources),
   }
 end
+
+-- Expose internal functions for testing
+M._internal = {
+  handle_initialize = handle_initialize
+}
 
 return M

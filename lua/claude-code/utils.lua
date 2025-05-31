@@ -73,12 +73,65 @@ end
 -- @param paths table Array of paths to check
 -- @return string|nil First executable path found, or nil
 function M.find_executable(paths)
+  -- Add path validation
+  if type(paths) ~= 'table' then
+    return nil
+  end
+  
   for _, path in ipairs(paths) do
-    local expanded = vim.fn.expand(path)
-    if vim.fn.executable(expanded) == 1 then
-      return expanded
+    if type(path) == 'string' then
+      local expanded = vim.fn.expand(path)
+      if vim.fn.executable(expanded) == 1 then
+        return expanded
+      end
     end
   end
+  return nil
+end
+
+-- Find executable by name using system which/where command
+-- @param name string Name of the executable to find (e.g., 'git')
+-- @return string|nil Full path to executable, or nil if not found
+function M.find_executable_by_name(name)
+  -- Validate input
+  if type(name) ~= 'string' or name == '' then
+    return nil
+  end
+  
+  -- Use 'where' on Windows, 'which' on Unix-like systems
+  local cmd
+  if vim.fn.has('win32') == 1 or vim.fn.has('win64') == 1 then
+    cmd = 'where ' .. vim.fn.shellescape(name) .. ' 2>NUL'
+  else
+    cmd = 'which ' .. vim.fn.shellescape(name) .. ' 2>/dev/null'
+  end
+  
+  local handle = io.popen(cmd)
+  if not handle then
+    return nil
+  end
+  
+  local result = handle:read('*l') -- Read first line only
+  local close_result = handle:close()
+  
+  -- Handle different return formats from close()
+  local exit_code
+  if type(close_result) == 'number' then
+    exit_code = close_result
+  elseif type(close_result) == 'boolean' then
+    exit_code = close_result and 0 or 1
+  else
+    exit_code = 1
+  end
+  
+  if exit_code == 0 and result and result ~= '' then
+    -- Trim whitespace and validate the path exists
+    result = result:gsub('^%s+', ''):gsub('%s+$', '')
+    if vim.fn.executable(result) == 1 then
+      return result
+    end
+  end
+  
   return nil
 end
 
@@ -92,10 +145,24 @@ end
 -- Create directory if it doesn't exist
 -- @param path string Directory path
 -- @return boolean Success
+-- @return string|nil Error message if failed
 function M.ensure_directory(path)
-  if vim.fn.isdirectory(path) == 0 then
-    return vim.fn.mkdir(path, 'p') == 1
+  -- Validate input
+  if type(path) ~= 'string' or path == '' then
+    return false, 'Invalid directory path'
   end
+  
+  -- Check if already exists
+  if vim.fn.isdirectory(path) == 1 then
+    return true
+  end
+  
+  -- Try to create directory
+  local success = vim.fn.mkdir(path, 'p')
+  if success ~= 1 then
+    return false, 'Failed to create directory: ' .. path
+  end
+  
   return true
 end
 

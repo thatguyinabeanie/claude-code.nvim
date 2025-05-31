@@ -19,6 +19,15 @@ This document outlines the planned development path for the Claude Code Neovim p
   - Add per-filetype settings
   - Implement project-specific configurations
   - Create toggle options for different features
+  - Make startup notification configurable in init.lua
+
+- **Code Quality & Testing Improvements** (Remaining from PR #30 Review)
+  - Replace hardcoded tool/resource counts in tests with configurable values
+  - Make CI tests more flexible (avoid hardcoded expectations)
+  - Make protocol version configurable in mcp/server.lua
+  - Add headless mode check for file descriptor usage in mcp/server.lua
+  - Make server path configurable in test_mcp.sh
+  - Fix markdown formatting issues in documentation files
 
 ## Medium-term Goals (3-12 months)
 
@@ -58,11 +67,38 @@ This document outlines the planned development path for the Claude Code Neovim p
 
 ## Completed Goals
 
-- Basic Claude Code integration in Neovim
-- Terminal-based interaction
-- Configurable keybindings
-- Terminal toggle functionality
-- Git directory detection
+### Core Plugin Features
+- Basic Claude Code integration in Neovim ✅
+- Terminal-based interaction ✅
+- Configurable keybindings ✅
+- Terminal toggle functionality ✅
+- Git directory detection ✅
+- Safe window toggle (prevents process interruption) ✅
+- Context-aware commands (`ClaudeCodeWithFile`, `ClaudeCodeWithSelection`, etc.) ✅
+- File reference shortcuts (`@File#L1-99` insertion) ✅
+- Project tree context integration ✅
+
+### Code Quality & Security (PR #30 Review Implementation)
+- **Security & Validation** ✅
+  - Path validation for plugin directory in MCP server binary ✅
+  - Input validation for command line arguments ✅
+  - Git executable path validation in MCP resources ✅
+  - Enhanced path validation in utils.find_executable function ✅
+  - Error handling for directory creation in utils.lua ✅
+
+- **API Modernization** ✅
+  - Replaced deprecated `nvim_buf_get_option` with `nvim_get_option_value` ✅
+  - Hidden internal module exposure in init.lua (improved encapsulation) ✅
+
+- **Documentation Cleanup** ✅
+  - Removed stray chat transcript from README.md ✅
+
+### MCP Integration
+- Native Lua MCP server implementation ✅
+- MCP resource handlers (buffers, git status, project structure, etc.) ✅
+- MCP tool handlers (read buffer, edit buffer, run command, etc.) ✅
+- MCP configuration generation ✅
+- MCP Hub integration for server discovery ✅
 
 ## Feature Requests and Contributions
 

@@ -30,7 +30,13 @@ describe('command registration', function()
     -- Create mock claude_code module
     local claude_code = {
       toggle = function() return true end,
-      version = function() return '0.3.0' end
+      version = function() return '0.3.0' end,
+      config = {
+        command_variants = {
+          continue = '--continue',
+          verbose = '--verbose'
+        }
+      }
     }
     
     -- Run the register_commands function

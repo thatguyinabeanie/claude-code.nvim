@@ -28,26 +28,29 @@ local file_reference = require('claude-code.file_reference')
 
 local M = {}
 
--- Make imported modules available
-M._config = config
-M.commands = commands
-M.keymaps = keymaps
-M.file_refresh = file_refresh
-M.terminal = terminal
-M.git = git
-M.version = version
+-- Private module storage (not exposed to users)
+local _internal = {
+  config = config,
+  commands = commands,
+  keymaps = keymaps,
+  file_refresh = file_refresh,
+  terminal = terminal,
+  git = git,
+  version = version,
+  file_reference = file_reference
+}
 
 --- Plugin configuration (merged from defaults and user input)
 M.config = {}
 
 -- Terminal buffer and window management
 --- @type table
-M.claude_code = terminal.terminal
+M.claude_code = _internal.terminal.terminal
 
 --- Force insert mode when entering the Claude Code window
 --- This is a public function used in keymaps
 function M.force_insert_mode()
-  terminal.force_insert_mode(M, M.config)
+  _internal.terminal.force_insert_mode(M, M.config)
 end
 
 --- Check if a buffer is a valid Claude Code terminal buffer
@@ -71,12 +74,12 @@ end
 --- Toggle the Claude Code terminal window
 --- This is a public function used by commands
 function M.toggle()
-  terminal.toggle(M, M.config, git)
+  _internal.terminal.toggle(M, M.config, _internal.git)
 
   -- Set up terminal navigation keymaps after toggling
   local bufnr = get_current_buffer_number()
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-    keymaps.setup_terminal_navigation(M, M.config)
+    _internal.keymaps.setup_terminal_navigation(M, M.config)
   end
 end
 
@@ -88,35 +91,35 @@ function M.toggle_with_variant(variant_name)
     return
   end
 
-  terminal.toggle_with_variant(M, M.config, git, variant_name)
+  _internal.terminal.toggle_with_variant(M, M.config, _internal.git, variant_name)
 
   -- Set up terminal navigation keymaps after toggling
   local bufnr = get_current_buffer_number()
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-    keymaps.setup_terminal_navigation(M, M.config)
+    _internal.keymaps.setup_terminal_navigation(M, M.config)
   end
 end
 
 --- Toggle the Claude Code terminal window with context awareness
 --- @param context_type string|nil The context type ("file", "selection", "auto")
 function M.toggle_with_context(context_type)
-  terminal.toggle_with_context(M, M.config, git, context_type)
+  _internal.terminal.toggle_with_context(M, M.config, _internal.git, context_type)
 
   -- Set up terminal navigation keymaps after toggling
   local bufnr = get_current_buffer_number()
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-    keymaps.setup_terminal_navigation(M, M.config)
+    _internal.keymaps.setup_terminal_navigation(M, M.config)
   end
 end
 
 --- Safe toggle that hides/shows Claude Code window without stopping execution
 function M.safe_toggle()
-  terminal.safe_toggle(M, M.config, git)
+  _internal.terminal.safe_toggle(M, M.config, _internal.git)
 
   -- Set up terminal navigation keymaps after toggling (if window is now visible)
   local bufnr = get_current_buffer_number()
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-    keymaps.setup_terminal_navigation(M, M.config)
+    _internal.keymaps.setup_terminal_navigation(M, M.config)
   end
 end
 
@@ -124,20 +127,20 @@ end
 --- @param instance_id string|nil The instance identifier (uses current if nil)
 --- @return table Process status information
 function M.get_process_status(instance_id)
-  return terminal.get_process_status(M, instance_id)
+  return _internal.terminal.get_process_status(M, instance_id)
 end
 
 --- List all Claude Code instances and their states
 --- @return table List of all instance states
 function M.list_instances()
-  return terminal.list_instances(M)
+  return _internal.terminal.list_instances(M)
 end
 
 --- Setup function for the plugin
 --- @param user_config table|nil Optional user configuration
 function M.setup(user_config)
   -- Validate and merge configuration
-  M.config = M._config.parse_config(user_config)
+  M.config = _internal.config.parse_config(user_config)
 
   -- Debug logging
   if not M.config then
@@ -151,11 +154,11 @@ function M.setup(user_config)
   end
 
   -- Set up commands and keymaps
-  commands.register_commands(M)
-  keymaps.register_keymaps(M, M.config)
+  _internal.commands.register_commands(M)
+  _internal.keymaps.register_keymaps(M, M.config)
 
   -- Initialize file refresh functionality
-  file_refresh.setup(M, M.config)
+  _internal.file_refresh.setup(M, M.config)
 
   -- Initialize MCP server if enabled
   if M.config.mcp and M.config.mcp.enabled then
@@ -245,7 +248,7 @@ function M.setup(user_config)
   vim.keymap.set(
     { 'n', 'v' },
     '<leader>cf',
-    file_reference.insert_file_reference,
+    _internal.file_reference.insert_file_reference,
     { desc = 'Insert @File#L1-99 reference for Claude prompt' }
   )
 
@@ -261,13 +264,13 @@ end
 --- Get the current plugin version
 --- @return string The version string
 function M.get_version()
-  return version.string()
+  return _internal.version.string()
 end
 
 --- Get the current plugin version (alias for compatibility)
 --- @return string The version string
 function M.version()
-  return version.string()
+  return _internal.version.string()
 end
 
 --- Get the current prompt input buffer content, or an empty string if not available

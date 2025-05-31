@@ -126,8 +126,8 @@ M.vim_status = {
 
     local buf_name = vim.api.nvim_buf_get_name(bufnr)
     local line_count = vim.api.nvim_buf_line_count(bufnr)
-    local modified = vim.api.nvim_buf_get_option(bufnr, 'modified')
-    local filetype = vim.api.nvim_buf_get_option(bufnr, 'filetype')
+    local modified = vim.api.nvim_get_option_value('modified', {buf = bufnr})
+    local filetype = vim.api.nvim_get_option_value('filetype', {buf = bufnr})
 
     local result = {
       buffer = {

@@ -9,10 +9,39 @@ vim.opt.swapfile = false
 vim.opt.backup = false
 vim.opt.writebackup = false
 
--- Add this plugin to the runtime path
-local script_dir = debug.getinfo(1, "S").source:sub(2):match("(.*/)")
+-- Add this plugin to the runtime path with validation
+local script_source = debug.getinfo(1, "S").source
+if not script_source or script_source == "" then
+  vim.notify("Error: Could not determine script location", vim.log.levels.ERROR)
+  vim.cmd('quit! 1')
+  return
+end
+
+local script_dir = script_source:sub(2):match("(.*/)")
+if not script_dir then
+  vim.notify("Error: Invalid script directory path", vim.log.levels.ERROR)
+  vim.cmd('quit! 1')
+  return
+end
+
 local plugin_dir = script_dir .. "/.."
-vim.opt.runtimepath:prepend(plugin_dir)
+-- Normalize and validate the plugin directory path
+local normalized_plugin_dir = vim.fn.fnamemodify(plugin_dir, ":p")
+if vim.fn.isdirectory(normalized_plugin_dir) == 0 then
+  vim.notify("Error: Plugin directory does not exist: " .. normalized_plugin_dir, vim.log.levels.ERROR)
+  vim.cmd('quit! 1')
+  return
+end
+
+-- Check if the plugin directory contains expected files
+local init_file = normalized_plugin_dir .. "/lua/claude-code/init.lua"
+if vim.fn.filereadable(init_file) == 0 then
+  vim.notify("Error: Invalid plugin directory (missing init.lua): " .. normalized_plugin_dir, vim.log.levels.ERROR)
+  vim.cmd('quit! 1')
+  return
+end
+
+vim.opt.runtimepath:prepend(normalized_plugin_dir)
 
 -- Load the MCP server
 local mcp = require('claude-code.mcp')
@@ -56,6 +85,20 @@ end
 
 -- Connect to existing Neovim instance if socket provided
 if socket_path then
+    -- Validate socket path
+    if type(socket_path) ~= 'string' or socket_path == '' then
+        vim.notify("Error: Invalid socket path provided", vim.log.levels.ERROR)
+        vim.cmd('quit! 1')
+        return
+    end
+    
+    -- Check if socket file exists (for Unix domain sockets)
+    if vim.fn.filereadable(socket_path) == 0 and vim.fn.isdirectory(vim.fn.fnamemodify(socket_path, ':h')) == 0 then
+        vim.notify("Error: Socket path directory does not exist: " .. vim.fn.fnamemodify(socket_path, ':h'), vim.log.levels.ERROR)
+        vim.cmd('quit! 1')
+        return
+    end
+    
     -- TODO: Implement socket connection to existing Neovim instance
     vim.notify("Socket connection not yet implemented", vim.log.levels.WARN)
     vim.cmd('quit')
