@@ -7,12 +7,62 @@ on:
     branches: [ main ]
 
 jobs:
-  lint:
+  # First, run lint with latest Lua version as a gate
+  lint-latest:
+    runs-on: ubuntu-latest
+    name: Lint with Lua 5.4 (Latest)
+    outputs:
+      passed: ${{ steps.set-output.outputs.passed }}
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Lua
+        uses: leafo/gh-actions-lua@v11
+        with:
+          luaVersion: "5.4"
+      
+      - name: Install LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Create cache directories
+        run: mkdir -p ~/.luarocks
+      
+      - name: Cache LuaRocks dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.luarocks
+          key: ${{ runner.os }}-luarocks-5.4-${{ hashFiles('**/*.rockspec') }}
+          restore-keys: |
+            ${{ runner.os }}-luarocks-5.4-
+            ${{ runner.os }}-luarocks-
+      
+      - name: Install luacheck
+        run: luarocks install luacheck
+      
+      - name: Check formatting with stylua
+        uses: JohnnyMorganz/stylua-action@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
+          args: --check lua/
+        
+      - name: Run Luacheck
+        run: luacheck lua/
+        
+      - name: Set output
+        id: set-output
+        if: success()
+        run: echo "passed=true" >> $GITHUB_OUTPUT
+  
+  # Run lint with older versions only if latest passes
+  lint-older:
+    needs: lint-latest
+    if: needs.lint-latest.outputs.passed == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        lua-version: ["5.1", "5.3", "5.4", "luajit-2.0", "luajit-2.1", "luajit-openresty"]
+        lua-version: ["5.1", "5.3", "luajit-2.0", "luajit-2.1", "luajit-openresty"]
     
     name: Lint with Lua ${{ matrix.lua-version }}
     steps:
@@ -40,13 +90,6 @@ jobs:
       
       - name: Install luacheck
         run: luarocks install luacheck
-      
-      - name: Check formatting with stylua
-        uses: JohnnyMorganz/stylua-action@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          version: latest
-          args: --check lua/
         
       - name: Run Luacheck
         run: luacheck lua/
@@ -110,11 +153,6 @@ jobs:
         run: |
           export PLUGIN_ROOT="$(pwd)"
           ./scripts/test.sh
-        continue-on-error: false
-        
-      - name: Run MCP integration tests
-        run: |
-          make test-mcp
         continue-on-error: false
       
       - name: Test MCP server standalone

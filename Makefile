@@ -177,103 +177,96 @@ check-dependencies:
 install-dependencies:
 	@echo "Installing development dependencies..."
 	@echo "====================================="
-	@echo "Note: This will attempt to install dependencies using available package managers."
-	@echo "You may be prompted for your password for system package installations."
+	@echo "Detecting package manager and installing dependencies..."
 	@echo
 	@if command -v brew > /dev/null 2>&1; then \
-		echo "📦 Using Homebrew (macOS)..."; \
-		echo "Installing system dependencies..."; \
-		brew install neovim lua luarocks shellcheck || true; \
-		brew install stylua || echo "stylua not available via brew, will try cargo"; \
-		echo "Installing Node.js dependencies..."; \
-		npm install -g markdownlint-cli2 || echo "npm not available or failed"; \
-		echo "Installing Lua dependencies..."; \
-		luarocks install luacheck || echo "luacheck installation failed"; \
-		luarocks install ldoc || echo "ldoc installation failed (optional)"; \
-	elif command -v apt-get > /dev/null 2>&1; then \
-		echo "📦 Using APT (Ubuntu/Debian)..."; \
-		echo "Updating package list..."; \
-		sudo apt-get update; \
-		echo "Installing system dependencies..."; \
-		sudo apt-get install -y neovim lua5.3 luarocks shellcheck || true; \
-		echo "Installing Node.js dependencies..."; \
-		if command -v npm > /dev/null 2>&1; then \
-			npm install -g markdownlint-cli2 || echo "markdownlint-cli2 installation failed"; \
-		else \
-			echo "npm not found. Please install Node.js first."; \
+		echo "🍺 Detected Homebrew - Installing macOS dependencies"; \
+		brew install neovim lua luarocks shellcheck stylua; \
+		if ! command -v npm > /dev/null 2>&1; then \
+			echo "Installing Node.js for markdownlint..."; \
+			brew install node; \
 		fi; \
-		echo "Installing Lua dependencies..."; \
-		luarocks install luacheck || echo "luacheck installation failed"; \
-		luarocks install ldoc || echo "ldoc installation failed (optional)"; \
-		echo "Installing stylua..."; \
+		npm install -g markdownlint-cli2; \
+		luarocks install luacheck; \
+		luarocks install ldoc; \
+	elif command -v apt > /dev/null 2>&1 || command -v apt-get > /dev/null 2>&1; then \
+		echo "🐧 Detected APT - Installing Ubuntu/Debian dependencies"; \
+		sudo apt update; \
+		sudo apt install -y neovim lua5.3 luarocks shellcheck; \
+		if ! command -v npm > /dev/null 2>&1; then \
+			echo "Installing Node.js for markdownlint..."; \
+			sudo apt install -y nodejs npm; \
+		fi; \
+		npm install -g markdownlint-cli2; \
+		luarocks install luacheck; \
+		luarocks install ldoc; \
 		if command -v cargo > /dev/null 2>&1; then \
 			cargo install stylua; \
 		else \
-			echo "cargo not found. Installing stylua manually..."; \
-			curl -L -o stylua.zip $$(curl -s https://api.github.com/repos/JohnnyMorganz/StyLua/releases/latest | grep "browser_download_url.*linux.*zip" | cut -d '"' -f 4); \
-			unzip stylua.zip; \
-			chmod +x stylua; \
-			sudo mv stylua /usr/local/bin/; \
-			rm stylua.zip; \
+			echo "Installing Rust for stylua..."; \
+			curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
+			source ~/.cargo/env; \
+			cargo install stylua; \
 		fi; \
 	elif command -v dnf > /dev/null 2>&1; then \
-		echo "📦 Using DNF (Fedora)..."; \
-		echo "Installing system dependencies..."; \
-		sudo dnf install -y neovim lua luarocks ShellCheck || true; \
-		echo "Installing Node.js dependencies..."; \
-		if command -v npm > /dev/null 2>&1; then \
-			npm install -g markdownlint-cli2 || echo "markdownlint-cli2 installation failed"; \
-		else \
-			echo "npm not found. Please install Node.js first."; \
+		echo "🎩 Detected DNF - Installing Fedora dependencies"; \
+		sudo dnf install -y neovim lua luarocks ShellCheck; \
+		if ! command -v npm > /dev/null 2>&1; then \
+			echo "Installing Node.js for markdownlint..."; \
+			sudo dnf install -y nodejs npm; \
 		fi; \
-		echo "Installing Lua dependencies..."; \
-		luarocks install luacheck || echo "luacheck installation failed"; \
-		luarocks install ldoc || echo "ldoc installation failed (optional)"; \
-		echo "Installing stylua..."; \
+		npm install -g markdownlint-cli2; \
+		luarocks install luacheck; \
+		luarocks install ldoc; \
 		if command -v cargo > /dev/null 2>&1; then \
 			cargo install stylua; \
 		else \
-			echo "Please install stylua manually or install Rust/Cargo first."; \
+			echo "Installing Rust for stylua..."; \
+			curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
+			source ~/.cargo/env; \
+			cargo install stylua; \
 		fi; \
 	elif command -v pacman > /dev/null 2>&1; then \
-		echo "📦 Using Pacman (Arch Linux)..."; \
-		echo "Installing system dependencies..."; \
-		sudo pacman -S --noconfirm neovim lua luarocks shellcheck || true; \
-		echo "Installing Node.js dependencies..."; \
-		if command -v npm > /dev/null 2>&1; then \
-			npm install -g markdownlint-cli2 || echo "markdownlint-cli2 installation failed"; \
-		else \
-			echo "npm not found. Please install Node.js first."; \
+		echo "🏹 Detected Pacman - Installing Arch Linux dependencies"; \
+		sudo pacman -S --noconfirm neovim lua luarocks shellcheck; \
+		if ! command -v npm > /dev/null 2>&1; then \
+			echo "Installing Node.js for markdownlint..."; \
+			sudo pacman -S --noconfirm nodejs npm; \
 		fi; \
-		echo "Installing Lua dependencies..."; \
-		luarocks install luacheck || echo "luacheck installation failed"; \
-		luarocks install ldoc || echo "ldoc installation failed (optional)"; \
-		echo "Installing stylua from AUR..."; \
+		npm install -g markdownlint-cli2; \
+		luarocks install luacheck; \
+		luarocks install ldoc; \
 		if command -v yay > /dev/null 2>&1; then \
-			yay -S stylua; \
+			yay -S --noconfirm stylua; \
 		elif command -v paru > /dev/null 2>&1; then \
-			paru -S stylua; \
+			paru -S --noconfirm stylua; \
 		elif command -v cargo > /dev/null 2>&1; then \
 			cargo install stylua; \
 		else \
-			echo "Please install stylua manually or install an AUR helper/Rust."; \
+			echo "Installing Rust for stylua..."; \
+			curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y; \
+			source ~/.cargo/env; \
+			cargo install stylua; \
 		fi; \
 	else \
-		echo "🤔 No recognized package manager found."; \
-		echo "Please install dependencies manually:"; \
-		echo "  - neovim (0.8+)"; \
-		echo "  - lua (5.1, 5.3, or 5.4)"; \
-		echo "  - luarocks"; \
-		echo "  - shellcheck"; \
-		echo "  - stylua (via cargo install stylua)"; \
-		echo "  - markdownlint-cli2 (via npm install -g markdownlint-cli2)"; \
-		echo "  - luacheck (via luarocks install luacheck)"; \
+		echo "❌ No supported package manager found"; \
+		echo "Supported platforms:"; \
+		echo "  🍺 macOS: Homebrew (brew)"; \
+		echo "  🐧 Ubuntu/Debian: APT (apt/apt-get)"; \
+		echo "  🎩 Fedora: DNF (dnf)"; \
+		echo "  🏹 Arch Linux: Pacman (pacman)"; \
 		echo ""; \
-		echo "Or try running parts of this installation manually."; \
+		echo "Manual installation required:"; \
+		echo "  1. neovim (https://neovim.io/)"; \
+		echo "  2. lua + luarocks (https://luarocks.org/)"; \
+		echo "  3. shellcheck (https://shellcheck.net/)"; \
+		echo "  4. stylua: cargo install stylua"; \
+		echo "  5. markdownlint: npm install -g markdownlint-cli2"; \
+		echo "  6. luacheck: luarocks install luacheck"; \
 		exit 1; \
 	fi; \
 	echo; \
-	echo "🔍 Checking installation results..."; \
+	echo "✅ Installation complete! Verifying..."; \
 	$(MAKE) check-dependencies
 
 # Clean generated files
