@@ -132,7 +132,7 @@ jobs:
     name: MCP Integration Tests
     
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Install Neovim
         uses: rhysd/action-setup-vim@v1
