@@ -34,7 +34,7 @@ local M = {}
 -- JSON-RPC message handling
 M.handle_message = function(message)
   local request = vim.json.decode(message)
-  
+
   if request.method == "tools/list" then
     return {
       jsonrpc = "2.0",
@@ -60,7 +60,7 @@ M.handle_message = function(message)
     -- Handle tool execution
     local tool_name = request.params.name
     local args = request.params.arguments
-    
+
     if tool_name == "edit_buffer" then
       -- Direct Neovim API call!
       vim.api.nvim_buf_set_lines(
@@ -70,7 +70,7 @@ M.handle_message = function(message)
         false,
         { args.text }
       )
-      
+
       return {
         jsonrpc = "2.0",
         id = request.id,
@@ -88,23 +88,23 @@ end
 M.start = function()
   local stdin = uv.new_pipe(false)
   local stdout = uv.new_pipe(false)
-  
+
   -- Setup stdin reading
   stdin:open(0)  -- 0 = stdin fd
   stdout:open(1) -- 1 = stdout fd
-  
+
   local buffer = ""
-  
+
   stdin:read_start(function(err, data)
     if err then return end
     if not data then return end
-    
+
     buffer = buffer .. data
-    
+
     -- Parse complete messages (simple length check)
     -- Real implementation needs proper JSON-RPC parsing
     local messages = vim.split(buffer, "\n", { plain = true })
-    
+
     for _, msg in ipairs(messages) do
       if msg ~= "" then
         local response = M.handle_message(msg)
@@ -228,7 +228,7 @@ local function start_mcp_server()
     tools = {},
     resources = {}
   }
-  
+
   -- Register tools
   server.tools["edit_buffer"] = {
     description = "Edit a buffer",
@@ -243,15 +243,15 @@ local function start_mcp_server()
       return { success = true }
     end
   }
-  
+
   -- Main message loop
   local stdin = io.stdin
   stdin:setvbuf("no")  -- Unbuffered
-  
+
   while true do
     local line = stdin:read("*l")
     if not line then break end
-    
+
     -- Parse JSON-RPC
     local ok, request = pcall(vim.json.decode, line)
     if ok and request.method then

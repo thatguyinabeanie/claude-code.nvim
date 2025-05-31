@@ -62,7 +62,7 @@ The tree helper uses sensible defaults but can be customized:
 ```lua
 {
   "%.git",
-  "node_modules", 
+  "node_modules",
   "%.DS_Store",
   "%.vscode",
   "%.idea",

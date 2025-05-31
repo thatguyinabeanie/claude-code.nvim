@@ -252,7 +252,10 @@ function M.setup(user_config)
     { desc = 'Insert @File#L1-99 reference for Claude prompt' }
   )
 
-  vim.notify('Claude Code plugin loaded', vim.log.levels.INFO)
+  -- Show configurable startup notification
+  if M.config.startup_notification and M.config.startup_notification.enabled then
+    vim.notify(M.config.startup_notification.message, M.config.startup_notification.level)
+  end
 end
 
 --- Get the current plugin configuration

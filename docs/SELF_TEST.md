@@ -115,4 +115,4 @@ The test results can be used to:
 
 ---
 
-*This self-test suite was designed and implemented by Claude as a demonstration of the Claude Code Neovim plugin's MCP capabilities.*
+* This self-test suite was designed and implemented by Claude as a demonstration of the Claude Code Neovim plugin's MCP capabilities.*

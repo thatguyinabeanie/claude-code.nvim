@@ -112,11 +112,11 @@ We welcome community contributions to help achieve these goals! See [CONTRIBUTIN
 
 ## Planned Features (from IDE Integration Parity Audit)
 
-- **File Reference Shortcut:**  
+- **File Reference Shortcut:**
   Add a mapping to insert `@File#L1-99` style references into Claude prompts.
 
-- **External `/ide` Command Support:**  
+- **External `/ide` Command Support:**
   Implement a way for external Claude Code CLI sessions to attach to a running Neovim MCP server, mirroring the `/ide` command in GUI IDEs.
 
-- **User-Friendly Config UI:**  
+- **User-Friendly Config UI:**
   Develop a TUI for configuring plugin options, providing a more accessible alternative to Lua config files.

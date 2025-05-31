@@ -55,7 +55,7 @@ M.available = function()
   -- Check for MCP server binary
   local server_path = vim.fn.stdpath('data') .. '/claude-code/mcp-server/dist/index.js'
   local has_server = vim.fn.filereadable(server_path) == 1
-  
+
   return has_node and has_server
 end
 
@@ -64,11 +64,11 @@ M.start = function(config)
   if not M.available() then
     return false, "MCP dependencies not available"
   end
-  
+
   -- Start server with Neovim socket
   local socket = vim.fn.serverstart()
   -- ... server startup logic
-  
+
   return true
 end
 
@@ -139,16 +139,16 @@ local M = {}
 
 M.check = function()
   local health = vim.health or require('health')
-  
+
   health.report_start('Claude Code MCP')
-  
+
   -- Check Node.js
   if vim.fn.executable('node') == 1 then
     health.report_ok('Node.js found')
   else
     health.report_error('Node.js not found', 'Install Node.js for MCP support')
   end
-  
+
   -- Check MCP server
   local server_path = vim.fn.stdpath('data') .. '/claude-code/mcp-server'
   if vim.fn.isdirectory(server_path) == 1 then
@@ -168,18 +168,18 @@ Add post-install script or command:
 ```lua
 vim.api.nvim_create_user_command('ClaudeCodeMCPInstall', function()
   local install_path = vim.fn.stdpath('data') .. '/claude-code/mcp-server'
-  
+
   vim.notify('Installing Claude Code MCP server...')
-  
+
   -- Clone and build MCP server
   local cmd = string.format([[
-    mkdir -p %s && 
-    cd %s && 
-    npm init -y && 
+    mkdir -p %s &&
+    cd %s &&
+    npm init -y &&
     npm install @modelcontextprotocol/sdk neovim &&
     cp -r %s/mcp-server/* .
   ]], install_path, install_path, vim.fn.stdpath('config') .. '/claude-code.nvim')
-  
+
   vim.fn.jobstart(cmd, {
     on_exit = function(_, code)
       if code == 0 then

@@ -199,7 +199,7 @@ The context analysis uses sophisticated regex patterns for each language:
 -- Lua example
 "require%s*%(?['\"]([^'\"]+)['\"]%)?",
 
--- JavaScript/TypeScript example  
+-- JavaScript/TypeScript example
 "import%s+.-from%s+['\"]([^'\"]+)['\"]",
 
 -- Python example
@@ -273,7 +273,7 @@ Context-aware features use secure temporary file handling:
 :ClaudeCodeWithFile
 
 " Send visual selection (use in visual mode)
-:ClaudeCodeWithSelection  
+:ClaudeCodeWithSelection
 
 " Smart detection - file or selection
 :ClaudeCodeWithContext
@@ -288,7 +288,7 @@ Context-aware features use secure temporary file handling:
 // Read related files through MCP
 const relatedFiles = await client.readResource("neovim://related-files");
 
-// Analyze dependencies programmatically  
+// Analyze dependencies programmatically
 const analysis = await client.callTool("analyze_related", { max_depth: 3 });
 
 // Search workspace symbols
@@ -375,7 +375,7 @@ require('claude-code').setup({
 The implementation provides a solid foundation for additional features:
 
 1. **Tree-sitter Integration** - Use AST parsing for more accurate import analysis
-2. **Cache System** - Cache related file analysis for better performance  
+2. **Cache System** - Cache related file analysis for better performance
 3. **Custom Language Support** - User-configurable import patterns
 4. **Context Filtering** - User preferences for context inclusion/exclusion
 5. **Visual Context Selection** - UI for choosing specific context elements

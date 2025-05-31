@@ -44,7 +44,7 @@ require('claude-code').setup({
 
   -- Standard Claude CLI command (auto-detected if not provided)
   command = "claude",  -- Default: auto-detected
-  
+
   -- Other configuration options...
 })
 ```
@@ -207,18 +207,18 @@ local function detect_claude_cli(custom_path)
       return custom_path
     end
   end
-  
+
   -- Check local installation
   local local_claude = vim.fn.expand("~/.claude/local/claude")
   if vim.fn.filereadable(local_claude) == 1 and vim.fn.executable(local_claude) == 1 then
     return local_claude
   end
-  
+
   -- Fall back to PATH
   if vim.fn.executable("claude") == 1 then
     return "claude"
   end
-  
+
   -- Nothing found
   return nil
 end

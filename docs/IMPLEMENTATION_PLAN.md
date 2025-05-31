@@ -109,7 +109,7 @@ claude-code.nvim/                  # THIS REPOSITORY
 2. **Core Tools** ✅
    - `vim_buffer`: View/edit buffer content
    - `vim_command`: Execute Vim commands
-   - `vim_status`: Get editor status  
+   - `vim_status`: Get editor status
    - `vim_edit`: Advanced buffer editing
    - `vim_window`: Window management
    - `vim_mark`: Set marks
@@ -141,7 +141,7 @@ claude-code.nvim/                  # THIS REPOSITORY
 
 2. **Rich Resources** ✅
    - `related_files`: Files connected through imports
-   - `recent_files`: Recently accessed project files  
+   - `recent_files`: Recently accessed project files
    - `workspace_context`: Enhanced context aggregation
    - `search_results`: Quickfix and search results
 
@@ -184,7 +184,7 @@ claude-code.nvim/                  # THIS REPOSITORY
 
 2. **Optimization** ✅
    - Zero Node.js dependency (pure Lua solution)
-   - High performance through native Neovim integration  
+   - High performance through native Neovim integration
    - Minimal memory usage with efficient resource management
 
 ### Phase 5: Advanced CLI Configuration ✅ COMPLETED

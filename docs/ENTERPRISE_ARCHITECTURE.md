@@ -173,19 +173,19 @@ require('claude-code').setup({
     transport = "unix_socket",
     socket_path = "/var/run/claude-code/nvim.sock",
     permissions = "0600",
-    
+
     security = {
       require_confirmation = true,
       allowed_operations = {"read", "edit", "analyze"},
       blocked_operations = {"execute", "delete"},
-      
+
       context_filters = {
         exclude_patterns = {"**/node_modules/**", "**/.env*"},
         max_file_size = 1048576,  -- 1MB
         allowed_languages = {"lua", "python", "javascript"}
       }
     },
-    
+
     audit = {
       enabled = true,
       path = "/var/log/claude-code/audit.jsonl",

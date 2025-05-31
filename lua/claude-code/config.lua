@@ -148,6 +148,12 @@ M.default_config = {
     },
     session_timeout_minutes = 30, -- Session timeout in minutes
   },
+  -- Startup notification settings
+  startup_notification = {
+    enabled = true, -- Show startup notification when plugin loads
+    message = 'Claude Code plugin loaded', -- Custom startup message
+    level = vim.log.levels.INFO, -- Log level for startup notification
+  },
 }
 
 --- Validate the configuration
@@ -317,6 +323,44 @@ local function validate_config(config)
 
   if type(config.mcp.session_timeout_minutes) ~= 'number' then
     return false, 'mcp.session_timeout_minutes must be a number'
+  end
+
+  -- Validate startup_notification configuration
+  if config.startup_notification ~= nil then
+    if type(config.startup_notification) == 'boolean' then
+      -- Allow simple boolean to enable/disable
+      config.startup_notification = {
+        enabled = config.startup_notification,
+        message = 'Claude Code plugin loaded',
+        level = vim.log.levels.INFO
+      }
+    elseif type(config.startup_notification) == 'table' then
+      -- Validate table structure
+      if config.startup_notification.enabled ~= nil and type(config.startup_notification.enabled) ~= 'boolean' then
+        return false, 'startup_notification.enabled must be a boolean'
+      end
+      
+      if config.startup_notification.message ~= nil and type(config.startup_notification.message) ~= 'string' then
+        return false, 'startup_notification.message must be a string'
+      end
+      
+      if config.startup_notification.level ~= nil and type(config.startup_notification.level) ~= 'number' then
+        return false, 'startup_notification.level must be a number'
+      end
+      
+      -- Set defaults for missing values
+      if config.startup_notification.enabled == nil then
+        config.startup_notification.enabled = true
+      end
+      if config.startup_notification.message == nil then
+        config.startup_notification.message = 'Claude Code plugin loaded'
+      end
+      if config.startup_notification.level == nil then
+        config.startup_notification.level = vim.log.levels.INFO
+      end
+    else
+      return false, 'startup_notification must be a boolean or table'
+    end
   end
 
   return true, nil

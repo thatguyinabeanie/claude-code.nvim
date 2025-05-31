@@ -19,7 +19,7 @@ server.tool(
   "edit_buffer",
   {
     buffer: z.number(),
-    line: z.number(), 
+    line: z.number(),
     text: z.string()
   },
   async ({ buffer, line, text }) => {
@@ -147,7 +147,7 @@ class NeovimMCPServer {
 
   private async handleEditBuffer(args: any) {
     const { buffer, line, text } = args;
-    
+
     try {
       await this.nvimClient.setBufferLine(buffer, line - 1, text);
       return {
@@ -173,7 +173,7 @@ class NeovimMCPServer {
 
   private async handleReadBuffer(args: any) {
     const { buffer } = args;
-    
+
     try {
       const content = await this.nvimClient.getBufferContent(buffer);
       return {
@@ -394,7 +394,7 @@ async handleFileOperation(args) {
 // Mock Neovim client for testing
 class MockNeovimClient {
   buffers = new Map();
-  
+
   async setBufferLine(bufNum: number, line: number, text: string) {
     const buffer = this.buffers.get(bufNum) || [];
     buffer[line] = text;
@@ -407,13 +407,13 @@ describe("NeovimMCPServer", () => {
   it("should edit buffer line", async () => {
     const server = new NeovimMCPServer();
     server.nvimClient = new MockNeovimClient();
-    
+
     const result = await server.handleEditBuffer({
       buffer: 1,
       line: 1,
       text: "Hello, world!"
     });
-    
+
     expect(result.content[0].text).toContain("Successfully edited");
   });
 });

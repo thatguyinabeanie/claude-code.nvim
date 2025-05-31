@@ -176,7 +176,7 @@ claude "Refactor this function to use async/await"
 By building on top of mcp-hub, we get:
 
 - Proven infrastructure
-- Better user experience  
+- Better user experience
 - Ecosystem compatibility
 - Faster time to market
 

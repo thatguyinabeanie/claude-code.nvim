@@ -61,17 +61,17 @@ Enable Claude to directly interact with the editor environment.
   - Insert, delete, and replace text operations
   - Multi-cursor support
   - Snippet expansion
-  
+
 - **Diff Preview System**:
   - Visual diff display before applying changes
   - Accept/reject individual hunks
   - Side-by-side comparison view
-  
+
 - **Refactoring Operations**:
   - Rename symbols across project
   - Extract functions/variables
   - Move code between files
-  
+
 - **File System Operations**:
   - Create/delete/rename files
   - Directory structure modifications
@@ -87,17 +87,17 @@ User-facing features that leverage the deep integration.
   - Ghost text for code completions
   - Multi-line suggestions with tab acceptance
   - Context-aware parameter hints
-  
+
 - **Code Actions Integration**:
   - Quick fixes for diagnostics
   - Automated imports
   - Code generation commands
-  
+
 - **Chat Interface**:
   - Floating window for conversations
   - Markdown rendering with syntax highlighting
   - Code block execution
-  
+
 - **Visual Indicators**:
   - Gutter icons for Claude suggestions
   - Highlight regions being analyzed

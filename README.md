@@ -435,7 +435,7 @@ The context-aware commands automatically include relevant information:
 #### MCP Integration Commands
 
 - `:ClaudeCodeMCPStart` - Start MCP server
-- `:ClaudeCodeMCPStop` - Stop MCP server  
+- `:ClaudeCodeMCPStop` - Stop MCP server
 - `:ClaudeCodeMCPStatus` - Show MCP server status
 - `:ClaudeCodeMCPConfig` - Generate MCP configuration
 - `:ClaudeCodeSetup` - Setup MCP integration
