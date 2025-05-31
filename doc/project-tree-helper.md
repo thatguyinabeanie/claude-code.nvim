@@ -1,5 +1,5 @@
 
-# Project Tree Helper
+# Project tree helper
 
 ## Overview
 
@@ -24,11 +24,11 @@ The Project Tree Helper provides utilities for generating comprehensive file tre
 
 This command generates a project file tree and passes it to Claude Code as context.
 
-### Example Output
+### Example output
 
 ```text
 
-# Project Structure
+# Project structure
 
 **Project:** claude-code.nvim
 **Root:** ./
@@ -54,14 +54,14 @@ claude-code.nvim/
 
 The tree helper uses sensible defaults but can be customized:
 
-### Default Settings
+### Default settings
 
 - **Max Depth:** 3 levels
 - **Max Files:** 50 files
 - **Show Size:** false
 - **Ignore Patterns:** Common development artifacts
 
-### Default Ignore Patterns
+### Default ignore patterns
 
 ```lua
 {
@@ -80,9 +80,9 @@ The tree helper uses sensible defaults but can be customized:
 
 ```text
 
-## API Reference
+## Api reference
 
-### Core Functions
+### Core functions
 
 #### `generate_tree(root_dir, options)`
 
@@ -119,7 +119,7 @@ Create a temporary file with project tree content.
 
 **Returns:** string - Path to temporary file
 
-### Utility Functions
+### Utility functions
 
 #### `get_default_ignore_patterns()`
 
@@ -137,15 +137,15 @@ Add a new ignore pattern to the default list.
 
 ## Integration
 
-### With Claude Code CLI
+### With claude code cli
 
 The project tree helper integrates seamlessly with Claude Code:
 
 1. **Automatic Detection** - Uses git root or current directory
 2. **Temporary Files** - Creates markdown files that are auto-cleaned
-3. **CLI Integration** - Passes files using `--file` parameter
+3. **command-line tool Integration** - Passes files using `--file` parameter
 
-### With MCP Server
+### With mcp server
 
 The tree functionality is also available through MCP resources:
 
@@ -155,7 +155,7 @@ The tree functionality is also available through MCP resources:
 
 ## Examples
 
-### Basic Usage
+### Basic usage
 
 ```lua
 local tree_helper = require('claude-code.tree_helper')
@@ -173,7 +173,7 @@ local tree = tree_helper.generate_tree("/path/to/project", {
 
 ```text
 
-### Custom Ignore Patterns
+### Custom ignore patterns
 
 ```lua
 local tree_helper = require('claude-code.tree_helper')
@@ -188,7 +188,7 @@ local tree = tree_helper.generate_tree("/path/to/project", {
 
 ```text
 
-### Markdown Context
+### Markdown context
 
 ```lua
 local tree_helper = require('claude-code.tree_helper')
@@ -205,9 +205,9 @@ local temp_file = tree_helper.create_tree_file()
 
 ```text
 
-## Implementation Details
+## Implementation details
 
-### File System Traversal
+### File system traversal
 
 The tree helper uses Neovim's built-in file system functions:
 
@@ -216,7 +216,7 @@ The tree helper uses Neovim's built-in file system functions:
 - **`vim.fn.filereadable()`** - File accessibility
 - **`vim.fn.getfsize()`** - File size information
 
-### Pattern Matching
+### Pattern matching
 
 Ignore patterns use Lua pattern matching:
 
@@ -224,23 +224,23 @@ Ignore patterns use Lua pattern matching:
 - **`%.%w+$`** - Files ending with extension
 - **`^node_modules$`** - Exact directory name match
 
-### Performance Considerations
+### Performance considerations
 
 - **Depth Limiting** - Prevents excessive directory traversal
 - **File Count Limiting** - Avoids overwhelming output
 - **Efficient Sorting** - Directories first, then files alphabetically
 - **Lazy Evaluation** - Only processes needed files
 
-## Best Practices
+## Best practices
 
-### When to Use
+### When to use
 
 - **Project Overview** - Give Claude context about codebase structure
 - **Architecture Discussions** - Show how project is organized
 - **Code Navigation** - Help Claude understand file relationships
 - **Refactoring Planning** - Provide context for large changes
 
-### Recommended Settings
+### Recommended settings
 
 ```lua
 -- For small projects
@@ -266,7 +266,7 @@ local options = {
 
 ```text
 
-### Custom Workflows
+### Custom workflows
 
 Combine with other context types:
 
@@ -284,7 +284,7 @@ Combine with other context types:
 
 ## Troubleshooting
 
-### Empty Output
+### Empty output
 
 If tree generation returns empty results:
 
@@ -292,7 +292,7 @@ If tree generation returns empty results:
 2. **Verify Path** - Confirm directory exists
 3. **Review Patterns** - Check if ignore patterns are too restrictive
 
-### Performance Issues
+### Performance issues
 
 For large projects:
 
@@ -300,7 +300,7 @@ For large projects:
 2. **Lower max_files** - Reduce file count
 3. **Add Ignore Patterns** - Exclude large directories
 
-### Integration Problems
+### Integration problems
 
 If command doesn't work:
 

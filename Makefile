@@ -78,16 +78,11 @@ lint-shell:
 lint-markdown:
 	@echo "Linting markdown files..."
 	@if command -v vale > /dev/null 2>&1; then \
-		if [ ! -d ".vale/styles/Google" ] || [ ! -d ".vale/styles/Microsoft" ] || [ ! -d ".vale/styles/Hugo" ]; then \
+		if [ ! -d ".vale/styles/Google" ]; then \
 			echo "Downloading Vale style packages..."; \
 			vale sync; \
 		fi; \
-		if [ ! -f ".vale/styles/config/vocabularies/Base/accept.txt" ]; then \
-			echo "Creating project vocabulary..."; \
-			mkdir -p .vale/styles/config/vocabularies/Base; \
-			printf "Neovim\\nneovim\\nNeovim's\\nnvim\\nclaude\\nClaude\\nclaude-code\\nvim\\n" > .vale/styles/config/vocabularies/Base/accept.txt; \
-		fi; \
-		vale *.md docs/*.md doc/*.md .github/**/*.md || true; \
+		vale *.md docs/*.md doc/*.md .github/**/*.md; \
 	else \
 		echo "vale not found. Install with: make install-dependencies"; \
 		exit 1; \

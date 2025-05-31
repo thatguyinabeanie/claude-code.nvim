@@ -1,9 +1,9 @@
 
-# Claude Code Neovim Plugin Self-Test Suite
+# Claude code neovim plugin self-test suite
 
 This document describes the self-test functionality included with the Claude Code Neovim plugin. These tests are designed to verify that the plugin is working correctly and to demonstrate its capabilities.
 
-## Quick Start
+## Quick start
 
 Run all tests with:
 
@@ -14,7 +14,7 @@ Run all tests with:
 
 This will execute all tests and provide a comprehensive report on plugin functionality.
 
-## Available Commands
+## Available commands
 
 | Command | Description |
 |---------|-------------|
@@ -23,9 +23,9 @@ This will execute all tests and provide a comprehensive report on plugin functio
 | `:ClaudeCodeTestAll` | Run all tests and show summary |
 | `:ClaudeCodeDemo` | Show interactive demo instructions |
 
-## What's Being Tested
+## What's being tested
 
-### General Functionality
+### General functionality
 
 The `:ClaudeCodeSelfTest` command tests:
 
@@ -37,7 +37,7 @@ The `:ClaudeCodeSelfTest` command tests:
 - Mark setting functionality
 - Vim options access
 
-### MCP Server Functionality
+### Mcp server functionality
 
 The `:ClaudeCodeMCPTest` command tests:
 
@@ -47,11 +47,11 @@ The `:ClaudeCodeMCPTest` command tests:
 - Available MCP tools
 - Configuration file generation
 
-## Live Tests with Claude
+## Live tests with claude
 
 The self-test suite is particularly useful when used with Claude via the MCP interface, as it allows Claude to verify its own connectivity and capabilities within Neovim.
 
-### Example Usage Scenarios
+### Example usage scenarios
 
 1. **Verify Installation**:
    Ask Claude to run the tests to verify that the plugin was installed correctly.
@@ -65,14 +65,14 @@ The self-test suite is particularly useful when used with Claude via the MCP int
 4. **Tutorial Mode**:
    Ask Claude to explain each test and what it's checking, as an educational tool.
 
-### Example Prompts for Claude
+### Example prompts for claude
 
 - "Please run the self-test and explain what each test is checking."
 - "Can you verify if the MCP server is working correctly?"
 - "Show me a demonstration of how you can interact with Neovim through the MCP interface."
 - "What features of this plugin are working properly and which ones need attention?"
 
-## Interactive Demo
+## Interactive demo
 
 The `:ClaudeCodeDemo` command displays instructions for an interactive demonstration of plugin features. This is useful for:
 
@@ -81,7 +81,7 @@ The `:ClaudeCodeDemo` command displays instructions for an interactive demonstra
 3. Demonstrating the plugin to others
 4. Testing specific features in isolation
 
-## Extending the Tests
+## Extending the tests
 
 The test suite is designed to be extensible. You can add your own tests by:
 
@@ -105,7 +105,7 @@ For MCP-specific issues:
 2. Verify network ports are available
 3. Check Neovim has permissions to bind to network ports
 
-## Using Test Results
+## Using test results
 
 The test results can be used to:
 

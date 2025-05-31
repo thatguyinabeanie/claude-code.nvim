@@ -1,31 +1,31 @@
 
-# Pure Lua MCP Server Implementation Analysis
+# Pure lua mcp server implementation analysis
 
-## Is It Feasible? YES
+## Is it feasible? YES
 
 MCP is just JSON-RPC 2.0 over stdio, which Neovim's Lua can handle natively.
 
-## What We Need
+## What we need
 
-### 1. JSON-RPC 2.0 Protocol ✅
+### 1. json-rpc 2.0 protocol ✅
 
 - Neovim has `vim.json` for JSON encoding/decoding
 - Simple request/response pattern over stdio
 - Can use `vim.loop` (libuv) for async I/O
 
-### 2. stdio Communication ✅
+### 2. stdio communication ✅
 
 - Read from stdin: `vim.loop.new_pipe(false)`
 - Write to stdout: `io.stdout:write()` or `vim.loop.write()`
 - Neovim's event loop handles async naturally
 
-### 3. MCP Protocol Implementation ✅
+### 3. MCP protocol implementation ✅
 
 - Just need to implement the message patterns
 - Tools, resources, and prompts are simple JSON structures
 - No complex dependencies required
 
-## Pure Lua Architecture
+## Pure lua architecture
 
 ```lua
 -- lua/claude-code/mcp/server.lua
@@ -122,7 +122,7 @@ return M
 
 ```text
 
-## Advantages of Pure Lua
+## Advantages of pure lua
 
 1. **No Dependencies**
    - No Node.js required
@@ -149,9 +149,9 @@ return M
    - Use Neovim's built-in debugging
    - Single process to monitor
 
-## Implementation Approach
+## Implementation approach
 
-### Phase 1: Basic Server
+### Phase 1: basic server
 
 ```lua
 -- Minimal MCP server that can:
@@ -161,7 +161,7 @@ return M
 
 ```text
 
-### Phase 2: Full Protocol
+### Phase 2: full protocol
 
 ```lua
 -- Add:
@@ -172,7 +172,7 @@ return M
 
 ```text
 
-### Phase 3: Advanced Features
+### Phase 3: advanced features
 
 ```lua
 -- Add:
@@ -183,9 +183,9 @@ return M
 
 ```text
 
-## Key Components Needed
+## Key components needed
 
-### 1. JSON-RPC Parser
+### 1. json-rpc parser
 
 ```lua
 -- Parse incoming messages
@@ -194,7 +194,7 @@ return M
 
 ```text
 
-### 2. Message Router
+### 2. message router
 
 ```lua
 -- Route methods to handlers
@@ -203,7 +203,7 @@ return M
 
 ```text
 
-### 3. Tool Implementations
+### 3. tool implementations
 
 ```lua
 -- Buffer operations
@@ -213,7 +213,7 @@ return M
 
 ```text
 
-### 4. Resource Providers
+### 4. resource providers
 
 ```lua
 -- Buffer list
@@ -223,7 +223,7 @@ return M
 
 ```text
 
-## Example: Complete Mini Server
+## Example: complete mini server
 
 ```lua
 #!/usr/bin/env -S nvim -l

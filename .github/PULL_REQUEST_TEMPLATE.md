@@ -26,7 +26,7 @@ Please check all that apply:
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation
 - [ ] My changes generate no new warnings
-- [ ] I have tested with the actual Claude Code CLI tool
+- [ ] I have tested with the actual Claude Code command-line tool tool
 - [ ] I have tested in different environments (if applicable)
 
 ## Screenshots (if applicable)

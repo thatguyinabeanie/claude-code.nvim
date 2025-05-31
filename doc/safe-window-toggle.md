@@ -1,13 +1,13 @@
 
-# Safe Window Toggle
+# Safe window toggle
 
 ## Overview
 
 The Safe Window Toggle feature prevents accidental interruption of Claude Code processes when toggling window visibility. This addresses a common UX issue where users would close the Claude Code window and unintentionally stop ongoing tasks.
 
-## Problem Solved
+## Problem solved
 
-Previously, using `:ClaudeCode` to hide a visible Claude Code window would forcefully close the terminal and terminate any running process. This was problematic when:
+Previously, using `:ClaudeCode` to hide a visible Claude Code window would forcefully close the terminal and stop any running process. This was problematic when:
 
 - Claude Code was processing a long-running task
 - Users wanted to temporarily hide the window to see other content
@@ -15,20 +15,20 @@ Previously, using `:ClaudeCode` to hide a visible Claude Code window would force
 
 ## Features
 
-### Safe Window Management
+### Safe window management
 
 - **Hide without termination** - Close the window but keep the process running in background
 - **Show hidden windows** - Restore previously hidden Claude Code windows
 - **Process state tracking** - Monitor whether Claude Code is running, finished, or hidden
 - **User notifications** - Inform users about process state changes
 
-### Multi-Instance Support
+### Multi-instance support
 
 - Works with both single instance and multi-instance modes
 - Each git repository can have its own Claude Code process state
 - Independent state tracking for multiple projects
 
-### Status Monitoring
+### Status monitoring
 
 - Check current process status
 - List all running instances across projects
@@ -36,20 +36,20 @@ Previously, using `:ClaudeCode` to hide a visible Claude Code window would force
 
 ## Commands
 
-### Core Commands
+### Core commands
 
 - `:ClaudeCodeSafeToggle` - Main safe toggle command
 - `:ClaudeCodeHide` - Alias for hiding (calls safe toggle)
 - `:ClaudeCodeShow` - Alias for showing (calls safe toggle)
 
-### Status Commands
+### Status commands
 
 - `:ClaudeCodeStatus` - Show current instance status
 - `:ClaudeCodeInstances` - List all instances and their states
 
-## Usage Examples
+## Usage examples
 
-### Basic Safe Toggle
+### Basic safe toggle
 
 ```vim
 " Hide Claude Code window but keep process running
@@ -63,7 +63,7 @@ Previously, using `:ClaudeCode` to hide a visible Claude Code window would force
 
 ```text
 
-### Status Checking
+### Status checking
 
 ```vim
 " Check current process status
@@ -76,7 +76,7 @@ Previously, using `:ClaudeCode` to hide a visible Claude Code window would force
 
 ```text
 
-### Multi-Project Workflow
+### Multi-project workflow
 
 ```vim
 " Project A - start Claude Code
@@ -95,9 +95,9 @@ Previously, using `:ClaudeCode` to hide a visible Claude Code window would force
 
 ```text
 
-## Implementation Details
+## Implementation details
 
-### Process State Tracking
+### Process state tracking
 
 The plugin maintains state for each Claude Code instance:
 
@@ -112,7 +112,7 @@ process_states = {
 
 ```text
 
-### Window Detection
+### Window detection
 
 - Uses `vim.fn.win_findbuf()` to check window visibility
 - Distinguishes between "buffer exists" and "window visible"
@@ -124,9 +124,9 @@ process_states = {
 - **Show**: "Claude Code window restored"
 - **Completion**: "Claude Code task completed while hidden"
 
-## Technical Implementation
+## Technical implementation
 
-### Core Functions
+### Core functions
 
 #### `safe_toggle(claude_code, config, git)`
 Main function that handles safe window toggling logic.
@@ -137,7 +137,7 @@ Returns detailed status information for a Claude Code instance.
 #### `list_instances(claude_code)`
 Returns array of all active instances with their states.
 
-### Helper Functions
+### Helper functions
 
 #### `is_process_running(job_id)`
 Uses `vim.fn.jobwait()` with zero timeout to check if process is active.
@@ -173,7 +173,7 @@ No additional configuration is required. The safe window toggle uses existing co
 - `git.use_git_root` - Determines instance identifier strategy
 - `window.*` - Window creation and positioning settings
 
-## Migration from Regular Toggle
+## Migration from regular toggle
 
 The regular `:ClaudeCode` command continues to work as before. Users who want the safer behavior can:
 
@@ -181,15 +181,15 @@ The regular `:ClaudeCode` command continues to work as before. Users who want th
 2. **Remap existing keybindings**: Update keymaps to use `safe_toggle` instead of `toggle`
 3. **Create custom keybindings**: Add specific mappings for hide/show operations
 
-## Best Practices
+## Best practices
 
-### When to Use Safe Toggle
+### When to use safe toggle
 
 - **Long-running tasks** - When Claude Code is processing large requests
 - **Multi-window workflows** - Switching focus between windows frequently
 - **Project switching** - Working on multiple codebases simultaneously
 
-### When Regular Toggle is Fine
+### When regular toggle is fine
 
 - **Starting new sessions** - No existing process to preserve
 - **Intentional termination** - When you want to stop Claude Code completely
@@ -197,21 +197,21 @@ The regular `:ClaudeCode` command continues to work as before. Users who want th
 
 ## Troubleshooting
 
-### Window Won't Show
+### Window won't show
 If `:ClaudeCodeShow` doesn't work:
 
 1. Check status with `:ClaudeCodeStatus`
 2. Verify buffer still exists
 3. Try `:ClaudeCodeSafeToggle` instead
 
-### Process State Issues
+### Process state issues
 If state tracking seems incorrect:
 
 1. Use `:ClaudeCodeInstances` to see all tracked instances
 2. Invalid buffers are automatically cleaned up
 3. Restart Neovim to reset all state if needed
 
-### Multiple Instances Confusion
+### Multiple instances confusion
 When working with multiple projects:
 
 1. Use `:ClaudeCodeInstances` to see all running instances

@@ -1,9 +1,9 @@
 
-# MCP Server Code Examples
+# Mcp server code examples
 
-## Basic Server Structure (TypeScript)
+## Basic server structure (typescript)
 
-### Minimal Server Setup
+### Minimal server setup
 
 ```typescript
 import { McpServer, StdioServerTransport } from "@modelcontextprotocol/sdk/server/index.js";
@@ -40,7 +40,7 @@ await server.connect(transport);
 
 ```text
 
-### Complete Server Pattern
+### Complete server pattern
 
 Based on MCP example servers structure:
 
@@ -212,9 +212,9 @@ server.run().catch(console.error);
 
 ```text
 
-## Neovim Client Integration
+## Neovim client integration
 
-### Using node-client (JavaScript)
+### Using node-client (javascript)
 
 ```javascript
 import { attach } from 'neovim';
@@ -251,9 +251,9 @@ class NeovimClient {
 
 ```text
 
-## Tool Patterns
+## Tool patterns
 
-### Search Tool
+### Search tool
 
 ```typescript
 {
@@ -280,7 +280,7 @@ async handleSearchProject(args) {
 
 ```text
 
-### LSP Integration Tool
+### Lsp integration tool
 
 ```typescript
 {
@@ -307,9 +307,9 @@ async handleGoToDefinition(args) {
 
 ```text
 
-## Resource Patterns
+## Resource patterns
 
-### Dynamic Resource Provider
+### Dynamic resource provider
 
 ```typescript
 // Provide LSP diagnostics as a resource
@@ -336,7 +336,7 @@ async handleDiagnosticsResource() {
 
 ```text
 
-## Error Handling Pattern
+## Error handling pattern
 
 ```typescript
 class MCPError extends Error {
@@ -367,7 +367,7 @@ try {
 
 ```text
 
-## Security Pattern
+## Security pattern
 
 ```typescript
 class SecurityManager {
@@ -397,7 +397,7 @@ async handleFileOperation(args) {
 
 ```text
 
-## Testing Pattern
+## Testing pattern
 
 ```typescript
 // Mock Neovim client for testing

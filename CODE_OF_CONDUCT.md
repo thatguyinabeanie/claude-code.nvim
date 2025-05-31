@@ -1,11 +1,11 @@
 
-# Code of Conduct
+# Code of conduct
 
-## Our Pledge
+## Our pledge
 
 We are committed to making participation in our project a positive and respectful experience for everyone.
 
-## Our Standards
+## Our standards
 
 Examples of behavior that contributes to creating a positive environment include:
 
@@ -22,7 +22,7 @@ Examples of unacceptable behavior include:
 * Publishing others' private information without explicit permission
 * Other conduct which could reasonably be considered inappropriate
 
-## Our Responsibilities
+## Our responsibilities
 
 Project maintainers are responsible for clarifying the standards of acceptable behavior and are expected to take appropriate and fair corrective action in response to any instances of unacceptable behavior.
 

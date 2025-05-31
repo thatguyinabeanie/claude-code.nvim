@@ -1,18 +1,18 @@
 
-# IDE Integration Implementation Details
+# Ide integration implementation details
 
-## Architecture Clarification
+## Architecture clarification
 
-This document describes how to implement an **MCP server** within claude-code.nvim that exposes Neovim's editing capabilities. Claude Code CLI (which has MCP client support) will connect to our server to perform IDE operations. This is the opposite of creating an MCP client - we are making Neovim accessible to AI assistants, not connecting Neovim to external services.
+This document describes how to implement an **MCP server** within claude-code.nvim that exposes Neovim's editing capabilities. Claude Code command-line tool (which has MCP client support) will connect to our server to perform IDE operations. This is the opposite of creating an MCP client - we are making Neovim accessible to AI assistants, not connecting Neovim to external services.
 
 **Flow:**
 
 1. claude-code.nvim starts an MCP server (either embedded or as subprocess)
 2. The MCP server exposes Neovim operations as tools/resources
-3. Claude Code CLI connects to our MCP server
+3. Claude Code command-line tool connects to our MCP server
 4. Claude can then read buffers, edit files, and perform IDE operations
 
-## Table of Contents
+## Table of contents
 
 1. [Model Context Protocol (MCP) Implementation](#model-context-protocol-mcp-implementation)
 2. [Connection Architecture](#connection-architecture)
@@ -22,15 +22,15 @@ This document describes how to implement an **MCP server** within claude-code.nv
 6. [Technical Requirements](#technical-requirements)
 7. [Implementation Roadmap](#implementation-roadmap)
 
-## Model Context Protocol (MCP) Implementation
+## Model context protocol (mcp) implementation
 
-### Protocol Overview
+### Protocol overview
 
 The Model Context Protocol is an open standard for connecting AI assistants to data sources and tools. According to the official specification¹, MCP uses JSON-RPC 2.0 over WebSocket or HTTP transport layers.
 
-### Core Protocol Components
+### Core protocol components
 
-#### 1. Transport Layer
+#### 1. transport layer
 
 MCP supports two transport mechanisms²:
 
@@ -54,7 +54,7 @@ For our MCP server, stdio is the standard transport (following MCP conventions):
 
 ```text
 
-#### 2. Message Format
+#### 2. message format
 
 All MCP messages follow JSON-RPC 2.0 specification³:
 
@@ -62,7 +62,7 @@ All MCP messages follow JSON-RPC 2.0 specification³:
 - Response messages include `result` or `error` with matching `id`
 - Notification messages have no `id` field
 
-#### 3. Authentication
+#### 3. authentication
 
 MCP uses OAuth 2.1 for authentication⁴:
 
@@ -70,7 +70,7 @@ MCP uses OAuth 2.1 for authentication⁴:
 - Token refresh mechanism for long-lived sessions
 - Capability negotiation during authentication
 
-### Reference Implementations
+### Reference implementations
 
 Several VSCode extensions demonstrate MCP integration patterns:
 
@@ -78,9 +78,9 @@ Several VSCode extensions demonstrate MCP integration patterns:
 - **acomagu/vscode-as-mcp-server**⁶: Full VSCode API exposure
 - **SDGLBL/mcp-claude-code**⁷: Claude-specific capabilities
 
-## Connection Architecture
+## Connection architecture
 
-### 1. Server Process Manager
+### 1. server process manager
 
 The server manager handles MCP server lifecycle:
 
@@ -101,7 +101,7 @@ STOPPED → STARTING → INITIALIZING → READY → SERVING
 
 ```text
 
-### 2. Message Router
+### 2. message router
 
 Routes messages between Neovim components and MCP server:
 
@@ -112,7 +112,7 @@ Routes messages between Neovim components and MCP server:
 - **Handler Registry**: Maps message types to Lua callbacks
 - **Priority System**: Ensures time-sensitive messages (cursor updates) process first
 
-### 3. Session Management
+### 3. session management
 
 Maintains per-repository Claude instances as specified in CLAUDE.md⁸:
 
@@ -123,9 +123,9 @@ Maintains per-repository Claude instances as specified in CLAUDE.md⁸:
 - Context preservation when switching buffers
 - Configurable via `git.multi_instance` option
 
-## Context Synchronization Protocol
+## Context synchronization protocol
 
-### 1. Buffer Context
+### 1. buffer context
 
 Real-time synchronization of editor state to Claude:
 
@@ -142,7 +142,7 @@ Real-time synchronization of editor state to Claude:
 - Send deltas using operational transformation
 - Include surrounding context for partial updates
 
-### 2. Project Context
+### 2. project context
 
 Provides Claude with understanding of project structure:
 
@@ -159,7 +159,7 @@ Provides Claude with understanding of project structure:
 - Cache directory listings with inotify watches
 - Compress large file trees before transmission
 
-### 3. Runtime Context
+### 3. runtime context
 
 Dynamic information about code execution state:
 
@@ -170,7 +170,7 @@ Dynamic information about code execution state:
 - Terminal output from recent commands
 - Git status and recent commits
 
-### 4. Semantic Context
+### 4. semantic context
 
 Higher-level code understanding:
 
@@ -181,9 +181,9 @@ Higher-level code understanding:
 - Test coverage information
 - Documentation strings and comments
 
-## Editor Operations API
+## Editor operations api
 
-### 1. Text Manipulation
+### 1. text manipulation
 
 Claude can perform various text operations:
 
@@ -199,7 +199,7 @@ Claude can perform various text operations:
 - Snippet expansion with placeholders
 - Format-preserving transformations
 
-### 2. Diff Preview System
+### 2. diff preview system
 
 Shows proposed changes before application:
 
@@ -210,7 +210,7 @@ Shows proposed changes before application:
 - Hunk-level accept/reject controls
 - Integration with native diff mode
 
-### 3. Refactoring Operations
+### 3. refactoring operations
 
 Support for project-wide code transformations:
 
@@ -221,7 +221,7 @@ Support for project-wide code transformations:
 - Move definitions between files
 - Safe delete with reference checking
 
-### 4. File System Operations
+### 4. file system operations
 
 Controlled file manipulation:
 
@@ -238,9 +238,9 @@ Controlled file manipulation:
 - Sandbox to project directory
 - Prevent system file modifications
 
-## Security & Sandboxing
+## Security & sandboxing
 
-### 1. Permission Model
+### 1. permission model
 
 Fine-grained control over Claude's capabilities:
 
@@ -251,7 +251,7 @@ Fine-grained control over Claude's capabilities:
 - **Edit**: Modify current buffer only
 - **Full**: All operations with confirmation
 
-### 2. Operation Validation
+### 2. operation validation
 
 All Claude operations undergo validation:
 
@@ -262,7 +262,7 @@ All Claude operations undergo validation:
 - Rate limiting for expensive operations
 - Syntax validation before application
 
-### 3. Audit Trail
+### 3. audit trail
 
 Comprehensive logging of all operations:
 
@@ -273,9 +273,9 @@ Comprehensive logging of all operations:
 - User confirmation status
 - Revert information for undo
 
-## Technical Requirements
+## Technical requirements
 
-### 1. Lua Libraries
+### 1. Lua libraries
 
 Required dependencies for implementation:
 
@@ -290,7 +290,7 @@ Required dependencies for implementation:
 - **lua-resty-websocket**: Alternative WebSocket client¹²
 - **luaossl**: TLS support for secure connections¹³
 
-### 2. Neovim APIs
+### 2. Neovim apis
 
 Leveraging Neovim's built-in capabilities:
 
@@ -302,7 +302,7 @@ Leveraging Neovim's built-in capabilities:
 - `vim.api.nvim_buf_*`: Buffer manipulation
 - `vim.notify`: User notifications
 
-### 3. Performance Targets
+### 3. performance targets
 
 Ensuring responsive user experience:
 
@@ -313,9 +313,9 @@ Ensuring responsive user experience:
 - Memory overhead: <100MB
 - CPU usage: <5% idle
 
-## Implementation Roadmap
+## Implementation roadmap
 
-### Phase 1: Foundation (Weeks 1-2)
+### Phase 1: foundation (weeks 1-2)
 
 **Deliverables:**
 
@@ -330,7 +330,7 @@ Ensuring responsive user experience:
 - Complete authentication handshake
 - Send/receive basic messages
 
-### Phase 2: Context System (Weeks 3-4)
+### Phase 2: context system (weeks 3-4)
 
 **Deliverables:**
 
@@ -345,7 +345,7 @@ Ensuring responsive user experience:
 - Accurate project representation
 - Efficient bandwidth usage
 
-### Phase 3: Editor Integration (Weeks 5-6)
+### Phase 3: editor integration (weeks 5-6)
 
 **Deliverables:**
 
@@ -360,7 +360,7 @@ Ensuring responsive user experience:
 - Preview accurately shows changes
 - Undo reliably reverts operations
 
-### Phase 4: Advanced Features (Weeks 7-8)
+### Phase 4: advanced features (weeks 7-8)
 
 **Deliverables:**
 
@@ -375,7 +375,7 @@ Ensuring responsive user experience:
 - UI responsive during operations
 - Feature parity with VSCode
 
-### Phase 5: Polish & Release (Weeks 9-10)
+### Phase 5: polish & release (weeks 9-10)
 
 **Deliverables:**
 
@@ -390,11 +390,11 @@ Ensuring responsive user experience:
 - Pass security review
 - 80%+ test coverage
 
-## Open Questions and Research Needs
+## Open questions and research needs
 
-### Critical Implementation Blockers
+### Critical implementation blockers
 
-#### 1. MCP Server Implementation Details
+#### 1. MCP server implementation details
 
 **Questions:**
 
@@ -406,11 +406,11 @@ Ensuring responsive user experience:
   - Embedded in Neovim process or separate process?
   - How to handle server lifecycle (start/stop/restart)?
 - What port should we listen on for network transports?
-- How do we advertise our server to Claude Code CLI?
+- How do we advertise our server to Claude Code command-line tool?
   - Configuration file location?
   - Discovery mechanism?
 
-#### 2. MCP Tools and Resources to Expose
+#### 2. MCP tools and resources to expose
 
 **Questions:**
 
@@ -429,7 +429,7 @@ Ensuring responsive user experience:
   - Destructive operation safeguards?
   - User confirmation flows?
 
-#### 3. Integration with claude-code.nvim
+#### 3. integration with claude-code.nvim
 
 **Questions:**
 
@@ -446,7 +446,7 @@ Ensuring responsive user experience:
   - Migration path if we start with one?
   - Compatibility requirements?
 
-#### 4. Message Flow and Sequencing
+#### 4. message flow and sequencing
 
 **Questions:**
 
@@ -460,7 +460,7 @@ Ensuring responsive user experience:
 - Are there batch message capabilities?
 - How do we handle concurrent operations?
 
-#### 5. Context Synchronization Protocol
+#### 5. context synchronization protocol
 
 **Questions:**
 
@@ -482,7 +482,7 @@ Ensuring responsive user experience:
   - Maximum message size?
   - Context window limitations?
 
-#### 6. Editor Operations Format
+#### 6. editor operations format
 
 **Questions:**
 
@@ -499,7 +499,7 @@ Ensuring responsive user experience:
   - Is there a diff format?
   - Approval/rejection protocol?
 
-#### 7. WebSocket Implementation Details
+#### 7. websocket implementation details
 
 **Questions:**
 
@@ -516,7 +516,7 @@ Ensuring responsive user experience:
   - Compression support (permessage-deflate)?
   - Multiplexing capabilities?
 
-#### 8. Error Handling and Recovery
+#### 8. error handling and recovery
 
 **Questions:**
 
@@ -531,9 +531,9 @@ Ensuring responsive user experience:
   - Maximum retry attempts?
   - State recovery after reconnection?
 - How do we notify users of errors?
-- Can we fall back to CLI mode gracefully?
+- Can we fall back to command-line tool mode gracefully?
 
-#### 9. Security and Privacy
+#### 9. security and privacy
 
 **Questions:**
 
@@ -548,7 +548,7 @@ Ensuring responsive user experience:
   - GDPR/privacy compliance?
 - How do we validate server certificates?
 
-#### 10. Claude Code CLI MCP Client Configuration
+#### 10. Claude code cli mcp client configuration
 
 **Questions:**
 
@@ -564,7 +564,7 @@ Ensuring responsive user experience:
 - What's the handshake process when Claude connects?
 - Can we pass context about the current project?
 
-#### 11. Performance and Resource Management
+#### 11. performance and resource management
 
 **Questions:**
 
@@ -580,7 +580,7 @@ Ensuring responsive user experience:
   - Slow network connections?
 - Are there server-side quotas or limits?
 
-#### 12. Testing and Validation
+#### 12. testing and validation
 
 **Questions:**
 
@@ -594,7 +594,7 @@ Ensuring responsive user experience:
   - Message logging format?
   - Debug mode in server?
 
-### Research Tasks Priority
+### Research tasks priority
 
 1. **Immediate Priority:**
    - Find Claude Code MCP server endpoint documentation
@@ -611,7 +611,7 @@ Ensuring responsive user experience:
    - Implement authentication flow
    - Create minimal proof of concept
 
-### Potential Information Sources
+### Potential information sources
 
 1. **Documentation:**
    - Claude Code official docs (deeper dive needed)
@@ -620,7 +620,7 @@ Ensuring responsive user experience:
 
 2. **Code Analysis:**
    - VSCode extension source (if available)
-   - Claude Code CLI source (as last resort)
+   - Claude Code command-line tool source (as last resort)
    - Other MCP client implementations
 
 3. **Experimentation:**

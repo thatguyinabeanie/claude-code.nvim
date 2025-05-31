@@ -1,5 +1,5 @@
 
-# Claude Code Testing
+# Claude code testing
 
 This directory contains resources for testing the Claude Code plugin.
 
@@ -10,7 +10,7 @@ There are two main components:
 1. **Automated Tests**: Unit and integration tests using the Plenary test framework.
 2. **Manual Testing**: A minimal configuration for reproducing issues and testing features.
 
-## Test Coverage
+## Test coverage
 
 The automated test suite covers the following components of the Claude Code plugin:
 
@@ -45,7 +45,7 @@ The automated test suite covers the following components of the Claude Code plug
 
 The test suite currently contains 44 tests covering all major components of the plugin.
 
-## Minimal Test Configuration
+## Minimal test configuration
 
 The `minimal-init.lua` file provides a minimal Neovim configuration for testing the Claude Code plugin in isolation. This standardized initialization file (recently renamed from `minimal_init.lua` to match conventions used across related Neovim projects) is useful for:
 
@@ -55,7 +55,7 @@ The `minimal-init.lua` file provides a minimal Neovim configuration for testing 
 
 ## Usage
 
-### Option 1: Run directly from the plugin directory
+### Option 1: run directly from the plugin directory
 
 ```bash
 
@@ -64,7 +64,7 @@ nvim --clean -u tests/minimal-init.lua
 
 ```text
 
-### Option 2: Copy to a separate directory for testing
+### Option 2: copy to a separate directory for testing
 
 ```bash
 

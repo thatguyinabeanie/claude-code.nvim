@@ -5,7 +5,7 @@
 
 This guide provides step-by-step tutorials for common workflows with Claude Code in Neovim. Each tutorial includes clear instructions, example commands, and best practices to help you get the most from Claude Code.
 
-## Table of Contents
+## Table of contents
 
 * [Resume Previous Conversations](#resume-previous-conversations)
 * [Understand New Codebases](#understand-new-codebases)
@@ -22,11 +22,11 @@ This guide provides step-by-step tutorials for common workflows with Claude Code
 * [Create Custom Slash Commands](#create-custom-slash-commands)
 * [Run Parallel Claude Code Sessions](#run-parallel-claude-code-sessions)
 
-## Resume Previous Conversations
+## Resume previous conversations
 
-### Continue Your Work Seamlessly
+### Continue your work seamlessly
 
-**When to use:** You've been working on a task with Claude Code and need to continue where you left off in a later session.
+**When to use:** you've been working on a task with Claude Code and need to continue where you left off in a later session.
 
 Claude Code in Neovim provides several options for resuming previous conversations:
 
@@ -81,11 +81,11 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 
 ```text
 
-## Understand New Codebases
+## Understand new codebases
 
-### Get a Quick Codebase Overview
+### Get a quick codebase overview
 
-**When to use:** You've just joined a new project and need to understand its structure quickly.
+**When to use:** you've just joined a new project and need to understand its structure quickly.
 
 #### Steps
 
@@ -120,9 +120,9 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - Start with broad questions, then narrow down to specific areas
 - Ask about coding conventions and patterns used in the project
 
-### Find Relevant Code
+### Find relevant code
 
-**When to use:** You need to locate code related to a specific feature or functionality.
+**When to use:** you need to locate code related to a specific feature or functionality.
 
 #### Steps
 
@@ -149,11 +149,11 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - The `search_files` tool helps locate specific patterns
 - Be specific about what you're looking for
 
-## Fix Bugs Efficiently
+## Fix bugs efficiently
 
-### Diagnose Error Messages
+### Diagnose error messages
 
-**When to use:** You've encountered an error and need to find and fix its source.
+**When to use:** you've encountered an error and need to find and fix its source.
 
 #### Steps
 
@@ -185,11 +185,11 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - The `vim_edit` tool can apply fixes directly
 - Let Claude know about any compilation commands
 
-## Refactor Code
+## Refactor code
 
-### Modernize Legacy Code
+### Modernize legacy code
 
-**When to use:** You need to update old code to use modern patterns and practices.
+**When to use:** you need to update old code to use modern patterns and practices.
 
 #### Steps
 
@@ -217,13 +217,13 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - Use visual mode to precisely select code for refactoring
 - Claude can maintain git history awareness with multi-instance mode
 - Request incremental refactoring for large changes
-- Use the `vim_edit` tool's different modes (insert, replace, replaceAll)
+- Use the `vim_edit` tool's different modes (insert, replace, replace_all)
 
-## Work with Tests
+## Work with tests
 
-### Add Test Coverage
+### Add test coverage
 
-**When to use:** You need to add tests for uncovered code.
+**When to use:** you need to add tests for uncovered code.
 
 #### Steps
 
@@ -254,11 +254,11 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - Use `:ClaudeCodeToggle file` to include entire test files
 - Ask for tests that cover edge cases and error conditions
 
-## Create Pull Requests
+## Create pull requests
 
-### Generate Comprehensive PRs
+### Generate comprehensive prs
 
-**When to use:** You need to create a well-documented pull request for your changes.
+**When to use:** you need to create a well-documented pull request for your changes.
 
 #### Steps
 
@@ -287,13 +287,13 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - Claude has access to git status through MCP resources
 - Use `git.multi_instance` to work on multiple PRs simultaneously
 - Ask Claude to follow your project's PR template
-- Request specific sections like "Testing", "Breaking Changes", etc.
+- Request specific sections like "Testing," "Breaking Changes," etc.
 
-## Handle Documentation
+## Handle documentation
 
-### Generate Code Documentation
+### Generate code documentation
 
-**When to use:** You need to add or update documentation for your code.
+**When to use:** you need to add or update documentation for your code.
 
 #### Steps
 
@@ -324,11 +324,11 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - Request examples in the documentation
 - Ask Claude to follow your project's documentation standards
 
-## Work with Images
+## Work with images
 
-### Analyze Images and Screenshots
+### Analyze images and screenshots
 
-**When to use:** You need to work with UI mockups, error screenshots, or diagrams.
+**When to use:** you need to work with UI mockups, error screenshots, or diagrams.
 
 #### Steps
 
@@ -353,14 +353,14 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 
 - Claude can analyze UI mockups and suggest implementations
 - Use screenshots to show visual bugs or desired outcomes
-- Share terminal screenshots for debugging CLI issues
+- Share terminal screenshots for debugging command-line tool issues
 - Include multiple images for complex comparisons
 
-## Use Extended Thinking
+## Use extended thinking
 
-### Leverage Claude's Extended Thinking for Complex Tasks
+### Leverage claude's extended thinking for complex tasks
 
-**When to use:** Working on complex architectural decisions, challenging bugs, or multi-step implementations.
+**When to use:** working on complex architectural decisions, challenging bugs, or multi-step implementations.
 
 #### Steps
 
@@ -375,7 +375,7 @@ Claude Code in Neovim provides several options for resuming previous conversatio
    ```
 
 3. **Review the thinking process**
-   Claude will display its thinking in italic gray text above the response
+   Claude displays its thinking in italic gray text above the response
 
 **Best use cases:**
 
@@ -392,11 +392,11 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - Extended thinking is shown as italic gray text
 - Best for problems requiring deep analysis
 
-## Set up Project Memory
+## Set up project memory
 
-### Create an Effective CLAUDE.md File
+### Create an effective claude.md file
 
-**When to use:** You want to store project-specific information and conventions for Claude.
+**When to use:** you want to store project-specific information and conventions for Claude.
 
 #### Steps
 
@@ -407,21 +407,21 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 
 2. **Add project-specific information**
    ```markdown
-   # Project: My Neovim Plugin
+# Project: my Neovim plugin
 
-   ## Essential Commands
+## Essential commands
 
    - Run tests: `make test`
    - Lint code: `make lint`
    - Generate docs: `make docs`
 
-   ## Code Conventions
+## Code conventions
 
-   - Use snake_case for Lua functions
+   - Use snake case for Lua functions
    - Prefix private functions with underscore
    - Always use plenary.nvim for testing
 
-   ## Architecture Notes
+## Architecture notes
 
    - Main entry point: lua/myplugin/init.lua
    - Configuration: lua/myplugin/config.lua
@@ -436,9 +436,9 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - List important file locations
 - Include debugging commands
 
-## Set up Model Context Protocol (MCP)
+## Set up model context protocol (mcp)
 
-### Configure MCP for Neovim Development
+### Configure mcp for neovim development
 
 **When to use:** You want to enhance Claude's capabilities with Neovim-specific tools and resources.
 
@@ -497,20 +497,20 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - Resources update automatically
 - The MCP server is native Lua (no external dependencies)
 
-## Use Claude as a Unix-Style Utility
+## Use claude as a unix-style utility
 
-### Integrate with Shell Commands
+### Integrate with shell commands
 
-**When to use:** You want to use Claude in your development workflow scripts.
+**When to use:** you want to use Claude in your development workflow scripts.
 
 #### Steps
 
 1. **Use from the command line**
    ```bash
-   # Get help with an error
+# Get help with an error
    cat error.log | claude --print "explain this error"
 
-   # Generate documentation
+# Generate documentation
    claude --print "document this module" < mymodule.lua > docs.md
    ```
 
@@ -532,11 +532,11 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - Integrate with quickfix for error analysis
 - Create Neovim commands for common tasks
 
-## Create Custom Slash Commands
+## Create custom slash commands
 
-### Neovim-Specific Commands
+### Neovim-specific commands
 
-**When to use:** You want to create reusable commands for common Neovim development tasks.
+**When to use:** you want to create reusable commands for common Neovim development tasks.
 
 #### Steps
 
@@ -547,7 +547,7 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 
 2. **Add Neovim-specific commands**
    ```bash
-   # Command for plugin development
+# Command for plugin development
    echo "Review this Neovim plugin code for best practices. Check for:
 
    - Proper use of vim.api vs vim.fn
@@ -555,7 +555,7 @@ Claude Code in Neovim provides several options for resuming previous conversatio
    - Memory leak prevention
    - Performance considerations" > .claude/commands/plugin-review.md
 
-   # Command for configuration review
+# Command for configuration review
    echo "Review this Neovim configuration for:
 
    - Deprecated options
@@ -577,13 +577,13 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - Use $ARGUMENTS for flexible commands
 - Share useful commands with your team
 
-## Run Parallel Claude Code Sessions
+## Run parallel claude code sessions
 
-### Multi-Instance Development
+### Multi-instance development
 
 **When to use:** You need to work on multiple features or bugs simultaneously.
 
-#### With Git Multi-Instance Mode
+#### With git multi-instance mode
 
 1. **Enable multi-instance mode** (default)
    ```lua
@@ -596,18 +596,18 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 
 2. **Work in different git repositories**
    ```bash
-   # Terminal 1
+# Terminal 1
    cd ~/projects/frontend
    nvim
    :ClaudeCode  # Instance for frontend
 
-   # Terminal 2
+# Terminal 2
    cd ~/projects/backend
    nvim
    :ClaudeCode  # Separate instance for backend
    ```
 
-#### With Neovim Tabs
+#### With neovim tabs
 
 1. **Use different tabs for different contexts**
    ```vim
@@ -630,7 +630,7 @@ Claude Code in Neovim provides several options for resuming previous conversatio
 - Buffer names include git root for identification
 - Safe toggle allows hiding without stopping
 
-## Next Steps
+## Next steps
 
 - Review the [Configuration Guide](CLI_CONFIGURATION.md) for customization options
 - Explore [MCP Integration](MCP_INTEGRATION.md) for advanced features
