@@ -2,7 +2,7 @@
 -- Written BEFORE implementation to define expected behavior
 
 describe("CLI detection", function()
-  local config = require("claude-code.config")
+  local config
   
   -- Mock vim functions for testing
   local original_expand
@@ -12,6 +12,10 @@ describe("CLI detection", function()
   local notifications = {}
   
   before_each(function()
+    -- Clear module cache and reload config
+    package.loaded["claude-code.config"] = nil
+    config = require("claude-code.config")
+    
     -- Save original functions
     original_expand = vim.fn.expand
     original_executable = vim.fn.executable
@@ -33,6 +37,9 @@ describe("CLI detection", function()
     vim.fn.executable = original_executable
     vim.fn.filereadable = original_filereadable
     vim.notify = original_notify
+    
+    -- Clear module cache to prevent pollution
+    package.loaded["claude-code.config"] = nil
   end)
   
   describe("detect_claude_cli", function()
@@ -369,7 +376,7 @@ describe("CLI detection", function()
       end
       
       -- Parse config with custom CLI path
-      local result = config.parse_config({cli_path = "/custom/path/claude"})
+      local result = config.parse_config({cli_path = "/custom/path/claude"}, false)
       
       -- Should use custom CLI path
       assert.equals("/custom/path/claude", result.command)
@@ -395,7 +402,7 @@ describe("CLI detection", function()
       end
       
       -- Parse config with invalid custom CLI path
-      local result = config.parse_config({cli_path = "/invalid/path/claude"})
+      local result = config.parse_config({cli_path = "/invalid/path/claude"}, false)
       
       -- Should fall back to default command
       assert.equals("claude", result.command)
@@ -426,7 +433,7 @@ describe("CLI detection", function()
       end
       
       -- Parse config with explicit command
-      local result = config.parse_config({command = "/explicit/path/claude"})
+      local result = config.parse_config({command = "/explicit/path/claude"}, false)
       
       -- Should use user's command
       assert.equals("/explicit/path/claude", result.command)

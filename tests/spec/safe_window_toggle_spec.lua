@@ -106,13 +106,13 @@ describe("Safe Window Toggle", function()
                 })
             end
 
-            -- Test: Toggle should hide window
-            terminal.toggle(claude_code, config, git)
+            -- Test: Safe toggle should hide window
+            terminal.safe_toggle(claude_code, config, git)
 
             -- Verify: Window was closed but buffer still exists
             assert.is_true(#closed_windows > 0)
             assert.equals(win_id, closed_windows[1].win)
-            assert.equals(true, closed_windows[1].force)
+            assert.equals(false, closed_windows[1].force) -- safe_toggle uses force=false
 
             -- Verify: Buffer still tracked (process still running)
             assert.equals(bufnr, claude_code.claude_code.instances[instance_id])
@@ -195,10 +195,17 @@ describe("Safe Window Toggle", function()
             local claude_code = {
                 claude_code = {
                     instances = {
-                        [instance_id] = bufnr
+                        [instance_id] = bufnr,
+                        ["/test/project"] = bufnr
                     },
+                    current_instance = "/test/project",
                     process_states = {
                         [instance_id] = {
+                            job_id = job_id,
+                            status = "running",
+                            hidden = false
+                        },
+                        ["/test/project"] = {
                             job_id = job_id,
                             status = "running",
                             hidden = false
@@ -209,7 +216,8 @@ describe("Safe Window Toggle", function()
 
             local config = {
                 git = {
-                    multi_instance = true
+                    multi_instance = true,
+                    use_git_root = true
                 },
                 window = {
                     position = "botright",
@@ -237,20 +245,15 @@ describe("Safe Window Toggle", function()
             end
 
             -- Test: Toggle (hide window)
-            terminal.safe_toggle(claude_code, {
-                git = {
-                    multi_instance = true
-                },
-                window = {
-                    position = "botright",
-                    split_ratio = 0.3
-                },
-                command = "echo test"
-            }, {})
+            terminal.safe_toggle(claude_code, config, {
+                get_git_root = function()
+                    return "/test/project"
+                end
+            })
 
             -- Verify: Process state marked as hidden but still running
-            assert.equals("running", claude_code.claude_code.process_states[instance_id].status)
-            assert.equals(true, claude_code.claude_code.process_states[instance_id].hidden)
+            assert.equals("running", claude_code.claude_code.process_states["/test/project"].status)
+            assert.equals(true, claude_code.claude_code.process_states["/test/project"].hidden)
         end)
 
         it("should detect when hidden process has finished", function()
@@ -262,10 +265,17 @@ describe("Safe Window Toggle", function()
             local claude_code = {
                 claude_code = {
                     instances = {
-                        [instance_id] = bufnr
+                        [instance_id] = bufnr,
+                        ["/test/project"] = bufnr
                     },
+                    current_instance = "/test/project",
                     process_states = {
                         [instance_id] = {
+                            job_id = job_id,
+                            status = "running",
+                            hidden = true
+                        },
+                        ["/test/project"] = {
                             job_id = job_id,
                             status = "running",
                             hidden = true
@@ -289,17 +299,22 @@ describe("Safe Window Toggle", function()
             -- Test: Show window of finished process
             terminal.safe_toggle(claude_code, {
                 git = {
-                    multi_instance = true
+                    multi_instance = true,
+                    use_git_root = true
                 },
                 window = {
                     position = "botright",
                     split_ratio = 0.3
                 },
                 command = "echo test"
-            }, {})
+            }, {
+                get_git_root = function()
+                    return "/test/project"
+                end
+            })
 
             -- Verify: Process state updated to finished
-            assert.equals("finished", claude_code.claude_code.process_states[instance_id].status)
+            assert.equals("finished", claude_code.claude_code.process_states["/test/project"].status)
         end)
     end)
 
@@ -310,10 +325,11 @@ describe("Safe Window Toggle", function()
             local claude_code = {
                 claude_code = {
                     instances = {
-                        test = bufnr
+                        global = bufnr
                     },
+                    current_instance = "global",
                     process_states = {
-                        test = {
+                        global = {
                             status = "running",
                             hidden = false,
                             job_id = 123
@@ -362,10 +378,11 @@ describe("Safe Window Toggle", function()
             local claude_code = {
                 claude_code = {
                     instances = {
-                        test = bufnr
+                        global = bufnr
                     },
+                    current_instance = "global",
                     process_states = {
-                        test = {
+                        global = {
                             status = "finished",
                             hidden = true,
                             job_id = job_id

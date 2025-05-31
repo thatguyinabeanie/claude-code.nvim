@@ -1,7 +1,9 @@
-local test = require("tests.run_tests")
+local describe = require('plenary.busted').describe
+local it = require('plenary.busted').it
+local assert = require('luassert')
 
-test.describe("Plugin Contract: claude-code.nvim (call version functions)", function()
-    test.it("plugin.version and plugin.get_version should be functions and callable", function()
+describe("Plugin Contract: claude-code.nvim (call version functions)", function()
+    it("plugin.version and plugin.get_version should be functions and callable", function()
         package.loaded['claude-code'] = nil -- Clear cache to force fresh load
         local plugin = require("claude-code")
         print("DEBUG: plugin table keys:")
@@ -22,7 +24,7 @@ test.describe("Plugin Contract: claude-code.nvim (call version functions)", func
         if type(plugin.get_version) ~= "function" then
             error("plugin.get_version is not a function, got: " .. tostring(plugin.get_version) .. " (type: " .. type(plugin.get_version) .. ")")
         end
-        test.expect(ok1).to_be(true)
-        test.expect(ok2).to_be(true)
+        assert.is_true(ok1)
+        assert.is_true(ok2)
     end)
 end)
