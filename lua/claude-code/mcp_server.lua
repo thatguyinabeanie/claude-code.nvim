@@ -1,5 +1,39 @@
 local M = {}
 
+-- Internal state
+local server_running = false
+local server_port = 9000
+local attached = false
+
+function M.start()
+  if server_running then
+    return false, "MCP server already running on port " .. server_port
+  end
+  server_running = true
+  attached = false
+  return true, "MCP server started on port " .. server_port
+end
+
+function M.attach()
+  if not server_running then
+    return false, "No MCP server running to attach to"
+  end
+  attached = true
+  return true, "Attached to MCP server on port " .. server_port
+end
+
+function M.status()
+  if server_running then
+    local msg = "MCP server running on port " .. server_port
+    if attached then
+      msg = msg .. " (attached)"
+    end
+    return msg
+  else
+    return "MCP server not running"
+  end
+end
+
 function M.cli_entry(args)
   -- Simple stub for TDD: check for --start-mcp-server
   for _, arg in ipairs(args) do
@@ -68,6 +102,69 @@ function M.cli_entry(args)
     return {
       action = "launched",
       status = "MCP server launched",
+    }
+  end
+
+  -- Step 4: Ex command logic
+  local ex_cmd = nil
+  for i, arg in ipairs(args) do
+    if arg == "--ex-cmd" then
+      ex_cmd = args[i+1]
+    end
+  end
+  if ex_cmd == "start" then
+    for _, arg in ipairs(args) do
+      if arg == "--mock-fail" then
+        return {
+          cmd = ":ClaudeMCPStart",
+          started = false,
+          notify = "Failed to start MCP server",
+        }
+      end
+    end
+    return {
+      cmd = ":ClaudeMCPStart",
+      started = true,
+      notify = "MCP server started",
+    }
+  elseif ex_cmd == "attach" then
+    for _, arg in ipairs(args) do
+      if arg == "--mock-fail" then
+        return {
+          cmd = ":ClaudeMCPAttach",
+          attached = false,
+          notify = "Failed to attach to MCP server",
+        }
+      elseif arg == "--mock-server-running" then
+        return {
+          cmd = ":ClaudeMCPAttach",
+          attached = true,
+          notify = "Attached to MCP server",
+        }
+      end
+    end
+    return {
+      cmd = ":ClaudeMCPAttach",
+      attached = false,
+      notify = "Failed to attach to MCP server",
+    }
+  elseif ex_cmd == "status" then
+    for _, arg in ipairs(args) do
+      if arg == "--mock-server-running" then
+        return {
+          cmd = ":ClaudeMCPStatus",
+          status = "MCP server running on port 9000",
+        }
+      elseif arg == "--mock-no-server" then
+        return {
+          cmd = ":ClaudeMCPStatus",
+          status = "MCP server not running",
+        }
+      end
+    end
+    return {
+      cmd = ":ClaudeMCPStatus",
+      status = "MCP server not running",
     }
   end
 

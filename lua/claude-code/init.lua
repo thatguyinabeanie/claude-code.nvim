@@ -267,9 +267,4 @@ function M.get_prompt_input()
   return vim.fn.getcmdline() or ""
 end
 
--- (Optional) Export for tests
-return {
-  -- ... existing exports ...
-  insert_file_reference = file_reference.insert_file_reference,
-  -- ...
-}
+return M

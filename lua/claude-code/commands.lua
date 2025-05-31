@@ -9,6 +9,8 @@ local M = {}
 --- @type table<string, function> List of available commands and their handlers
 M.commands = {}
 
+local mcp_server = require('claude-code.mcp_server')
+
 --- Register commands for the claude-code plugin
 --- @param claude_code table The main plugin module
 function M.register_commands(claude_code)
@@ -90,6 +92,30 @@ function M.register_commands(claude_code)
       vim.notify(msg, vim.log.levels.INFO)
     end
   end, { desc = 'List all Claude Code instances and their states' })
+
+  -- MCP server Ex commands
+  vim.api.nvim_create_user_command('ClaudeMCPStart', function()
+    local ok, msg = mcp_server.start()
+    if ok then
+      vim.notify(msg or 'MCP server started', vim.log.levels.INFO)
+    else
+      vim.notify(msg or 'Failed to start MCP server', vim.log.levels.ERROR)
+    end
+  end, { desc = 'Start Claude MCP server' })
+
+  vim.api.nvim_create_user_command('ClaudeMCPAttach', function()
+    local ok, msg = mcp_server.attach()
+    if ok then
+      vim.notify(msg or 'Attached to MCP server', vim.log.levels.INFO)
+    else
+      vim.notify(msg or 'Failed to attach to MCP server', vim.log.levels.ERROR)
+    end
+  end, { desc = 'Attach to running Claude MCP server' })
+
+  vim.api.nvim_create_user_command('ClaudeMCPStatus', function()
+    local status = mcp_server.status()
+    vim.notify(status, vim.log.levels.INFO)
+  end, { desc = 'Show Claude MCP server status' })
 end
 
 return M
