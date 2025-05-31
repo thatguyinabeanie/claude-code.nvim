@@ -49,15 +49,14 @@ jobs:
   generate-api-docs:
     name: Generate API Documentation
     runs-on: ubuntu-latest
-    container: nickblah/lua:5.1-luarocks
+    container: nickblah/lua:5.1-luarocks-alpine
     steps:
       - uses: actions/checkout@v4
 
       - name: Install dependencies for ldoc
         run: |
-          # Install dependencies required by ldoc
-          apt-get update
-          apt-get install -y lua-discount
+          # Install dependencies required by ldoc on Alpine
+          apk add --no-cache build-base lua-discount git
 
       - name: Install ldoc
         run: luarocks install ldoc
