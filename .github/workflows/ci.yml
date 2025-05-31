@@ -194,42 +194,32 @@ jobs:
 
       - name: Install luacheck
         run: |
-          # For LuaJIT, install dependencies first then luacheck
+          # For LuaJIT, install from git to avoid manifest parsing issues
           if [ "${{ matrix.lua-version }}" = "luajit" ]; then
-            # Install dependencies manually for LuaJIT
-            luarocks install luafilesystem --tree=/usr/local || true
-            luarocks install argparse --tree=/usr/local || true
-            # Try to install luacheck from rockspec to avoid manifest issues
             git clone https://github.com/lunarmodules/luacheck.git /tmp/luacheck
             cd /tmp/luacheck
-            luarocks make --tree=/usr/local || {
-              echo "Failed to install luacheck for LuaJIT, trying alternative method..."
-              # Fallback: try installing from luarocks with specific flags
-              luarocks install luacheck --tree=/usr/local --deps-mode=none || {
-                echo "Skipping luacheck for LuaJIT due to compatibility issues"
-                exit 0
-              }
-            }
+            luarocks make --tree=/usr/local
+            # Ensure luacheck is accessible
+            if [ ! -x "/usr/local/bin/luacheck" ]; then
+              # Find and link luacheck binary
+              find /usr/local -name "luacheck" -type f -executable 2>/dev/null | head -1 | xargs -I {} ln -sf {} /usr/local/bin/luacheck
+            fi
           else
             luarocks install luacheck
           fi
 
       - name: Run Luacheck
         run: |
-          # Check if luacheck is available before running
-          if command -v luacheck >/dev/null 2>&1; then
-            echo "Running luacheck..."
-            luacheck lua/
-          else
-            echo "Luacheck not available, checking PATH and trying alternative locations..."
-            echo "PATH: $PATH"
-            ls -la /usr/local/bin/ | grep luacheck || true
-            ls -la /usr/local/lib/luarocks/rocks-*/ | grep luacheck || true
-            # Try running luacheck from luarocks tree
-            /usr/local/bin/luacheck lua/ || {
-              echo "Warning: Luacheck could not be executed for ${{ matrix.lua-version }}"
+          # Verify luacheck is available
+          if ! command -v luacheck >/dev/null 2>&1; then
+            echo "luacheck not found in PATH, checking /usr/local/bin..."
+            if [ -x "/usr/local/bin/luacheck" ]; then
+              export PATH="/usr/local/bin:$PATH"
+            else
+              echo "WARNING: luacheck not found for ${{ matrix.lua-version }}, skipping..."
               exit 0
-            }
+            fi
           fi
+          luacheck lua/
 
 # Documentation validation has been moved to the dedicated docs.yml workflow
