@@ -77,12 +77,14 @@ lint-shell:
 # Lint markdown files
 lint-markdown:
 	@echo "Linting markdown files..."
-	@if command -v markdownlint-cli2 > /dev/null 2>&1; then \
-		markdownlint-cli2 '*.md' 'doc/**/*.md' 'docs/**/*.md' 'tests/**/*.md' 'mcp-server/**/*.md' --config .markdownlint.json; \
-	elif command -v markdownlint > /dev/null 2>&1; then \
-		markdownlint '*.md' 'doc/**/*.md' 'docs/**/*.md' 'tests/**/*.md' 'mcp-server/**/*.md' --config .markdownlint.json; \
+	@if command -v vale > /dev/null 2>&1; then \
+		if [ ! -d ".vale/styles/proselint" ] || [ ! -d ".vale/styles/write-good" ] || [ ! -d ".vale/styles/alex" ]; then \
+			echo "Downloading Vale style packages..."; \
+			vale sync; \
+		fi; \
+		vale --glob='*.md' .; \
 	else \
-		echo "markdownlint not found. Install with: npm install -g markdownlint-cli2"; \
+		echo "vale not found. Install with: make install-dependencies"; \
 		exit 1; \
 	fi
 
@@ -145,12 +147,10 @@ check-dependencies:
 		echo "  ✗ shellcheck: not found"; \
 		failed=1; \
 	fi; \
-	if command -v markdownlint-cli2 > /dev/null 2>&1; then \
-		echo "  ✓ markdownlint-cli2: $$(markdownlint-cli2 --version)"; \
-	elif command -v markdownlint > /dev/null 2>&1; then \
-		echo "  ✓ markdownlint: $$(markdownlint --version)"; \
+	if command -v vale > /dev/null 2>&1; then \
+		echo "  ✓ vale: $$(vale --version | head -1)"; \
 	else \
-		echo "  ✗ markdownlint: not found"; \
+		echo "  ✗ vale: not found"; \
 		failed=1; \
 	fi; \
 	echo; \
@@ -181,23 +181,20 @@ install-dependencies:
 	@echo
 	@if command -v brew > /dev/null 2>&1; then \
 		echo "🍺 Detected Homebrew - Installing macOS dependencies"; \
-		brew install neovim lua luarocks shellcheck stylua; \
-		if ! command -v npm > /dev/null 2>&1; then \
-			echo "Installing Node.js for markdownlint..."; \
-			brew install node; \
-		fi; \
-		npm install -g markdownlint-cli2; \
+		brew install neovim lua luarocks shellcheck stylua vale; \
 		luarocks install luacheck; \
 		luarocks install ldoc; \
 	elif command -v apt > /dev/null 2>&1 || command -v apt-get > /dev/null 2>&1; then \
 		echo "🐧 Detected APT - Installing Ubuntu/Debian dependencies"; \
 		sudo apt update; \
 		sudo apt install -y neovim lua5.3 luarocks shellcheck; \
-		if ! command -v npm > /dev/null 2>&1; then \
-			echo "Installing Node.js for markdownlint..."; \
-			sudo apt install -y nodejs npm; \
+		if ! command -v vale > /dev/null 2>&1; then \
+			echo "Installing vale..."; \
+			wget https://github.com/errata-ai/vale/releases/download/v3.0.3/vale_3.0.3_Linux_64-bit.tar.gz && \
+			tar -xzf vale_3.0.3_Linux_64-bit.tar.gz && \
+			sudo mv vale /usr/local/bin/ && \
+			rm vale_3.0.3_Linux_64-bit.tar.gz; \
 		fi; \
-		npm install -g markdownlint-cli2; \
 		luarocks install luacheck; \
 		luarocks install ldoc; \
 		if command -v cargo > /dev/null 2>&1; then \
@@ -211,11 +208,13 @@ install-dependencies:
 	elif command -v dnf > /dev/null 2>&1; then \
 		echo "🎩 Detected DNF - Installing Fedora dependencies"; \
 		sudo dnf install -y neovim lua luarocks ShellCheck; \
-		if ! command -v npm > /dev/null 2>&1; then \
-			echo "Installing Node.js for markdownlint..."; \
-			sudo dnf install -y nodejs npm; \
+		if ! command -v vale > /dev/null 2>&1; then \
+			echo "Installing vale..."; \
+			wget https://github.com/errata-ai/vale/releases/download/v3.0.3/vale_3.0.3_Linux_64-bit.tar.gz && \
+			tar -xzf vale_3.0.3_Linux_64-bit.tar.gz && \
+			sudo mv vale /usr/local/bin/ && \
+			rm vale_3.0.3_Linux_64-bit.tar.gz; \
 		fi; \
-		npm install -g markdownlint-cli2; \
 		luarocks install luacheck; \
 		luarocks install ldoc; \
 		if command -v cargo > /dev/null 2>&1; then \
@@ -229,11 +228,17 @@ install-dependencies:
 	elif command -v pacman > /dev/null 2>&1; then \
 		echo "🏹 Detected Pacman - Installing Arch Linux dependencies"; \
 		sudo pacman -S --noconfirm neovim lua luarocks shellcheck; \
-		if ! command -v npm > /dev/null 2>&1; then \
-			echo "Installing Node.js for markdownlint..."; \
-			sudo pacman -S --noconfirm nodejs npm; \
+		if command -v yay > /dev/null 2>&1; then \
+			yay -S --noconfirm vale; \
+		elif command -v paru > /dev/null 2>&1; then \
+			paru -S --noconfirm vale; \
+		else \
+			echo "Installing vale from binary..."; \
+			wget https://github.com/errata-ai/vale/releases/download/v3.0.3/vale_3.0.3_Linux_64-bit.tar.gz && \
+			tar -xzf vale_3.0.3_Linux_64-bit.tar.gz && \
+			sudo mv vale /usr/local/bin/ && \
+			rm vale_3.0.3_Linux_64-bit.tar.gz; \
 		fi; \
-		npm install -g markdownlint-cli2; \
 		luarocks install luacheck; \
 		luarocks install ldoc; \
 		if command -v yay > /dev/null 2>&1; then \
@@ -261,7 +266,7 @@ install-dependencies:
 		echo "  2. lua + luarocks (https://luarocks.org/)"; \
 		echo "  3. shellcheck (https://shellcheck.net/)"; \
 		echo "  4. stylua: cargo install stylua"; \
-		echo "  5. markdownlint: npm install -g markdownlint-cli2"; \
+		echo "  5. vale: https://github.com/errata-ai/vale/releases"; \
 		echo "  6. luacheck: luarocks install luacheck"; \
 		exit 1; \
 	fi; \
@@ -289,7 +294,7 @@ help:
 	@echo "  make lint-lua     - Lint only Lua files with luacheck"
 	@echo "  make lint-stylua  - Check Lua formatting with stylua"
 	@echo "  make lint-shell   - Lint shell scripts with shellcheck"
-	@echo "  make lint-markdown - Lint markdown files with markdownlint"
+	@echo "  make lint-markdown - Lint markdown files with vale"
 	@echo "  make format       - Format Lua files with stylua"
 	@echo "  make docs         - Generate documentation"
 	@echo "  make clean        - Remove generated files"

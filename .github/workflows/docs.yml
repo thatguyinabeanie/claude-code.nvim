@@ -22,11 +22,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install markdownlint-cli2
-        run: npm install -g markdownlint-cli2
+      - name: Install Vale
+        run: |
+          wget https://github.com/errata-ai/vale/releases/download/v3.0.3/vale_3.0.3_Linux_64-bit.tar.gz
+          tar -xzf vale_3.0.3_Linux_64-bit.tar.gz
+          sudo mv vale /usr/local/bin/
+          vale --version
       
-      - name: Run markdownlint
-        run: markdownlint-cli2 '**/*.md' --config .markdownlint.json
+      - name: Run Vale
+        run: vale --glob='*.md' .
         
   check-links:
     name: Check Links
