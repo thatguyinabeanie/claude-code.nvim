@@ -100,6 +100,182 @@ docs:
 		echo "ldoc not installed. Skipping documentation generation."; \
 	fi
 
+# Check if development dependencies are installed
+check-dependencies:
+	@echo "Checking development dependencies..."
+	@echo "=================================="
+	@failed=0; \
+	echo "Essential tools:"; \
+	if command -v nvim > /dev/null 2>&1; then \
+		echo "  ✓ neovim: $$(nvim --version | head -1)"; \
+	else \
+		echo "  ✗ neovim: not found"; \
+		failed=1; \
+	fi; \
+	if command -v lua > /dev/null 2>&1 || command -v lua5.1 > /dev/null 2>&1 || command -v lua5.3 > /dev/null 2>&1; then \
+		lua_ver=$$(lua -v 2>/dev/null || lua5.1 -v 2>/dev/null || lua5.3 -v 2>/dev/null || echo "unknown version"); \
+		echo "  ✓ lua: $$lua_ver"; \
+	else \
+		echo "  ✗ lua: not found"; \
+		failed=1; \
+	fi; \
+	if command -v luarocks > /dev/null 2>&1; then \
+		echo "  ✓ luarocks: $$(luarocks --version | head -1)"; \
+	else \
+		echo "  ✗ luarocks: not found"; \
+		failed=1; \
+	fi; \
+	echo; \
+	echo "Linting tools:"; \
+	if command -v luacheck > /dev/null 2>&1; then \
+		echo "  ✓ luacheck: $$(luacheck --version)"; \
+	else \
+		echo "  ✗ luacheck: not found"; \
+		failed=1; \
+	fi; \
+	if command -v stylua > /dev/null 2>&1; then \
+		echo "  ✓ stylua: $$(stylua --version)"; \
+	else \
+		echo "  ✗ stylua: not found"; \
+		failed=1; \
+	fi; \
+	if command -v shellcheck > /dev/null 2>&1; then \
+		echo "  ✓ shellcheck: $$(shellcheck --version | grep version:)"; \
+	else \
+		echo "  ✗ shellcheck: not found"; \
+		failed=1; \
+	fi; \
+	if command -v markdownlint-cli2 > /dev/null 2>&1; then \
+		echo "  ✓ markdownlint-cli2: $$(markdownlint-cli2 --version)"; \
+	elif command -v markdownlint > /dev/null 2>&1; then \
+		echo "  ✓ markdownlint: $$(markdownlint --version)"; \
+	else \
+		echo "  ✗ markdownlint: not found"; \
+		failed=1; \
+	fi; \
+	echo; \
+	echo "Optional tools:"; \
+	if command -v ldoc > /dev/null 2>&1; then \
+		echo "  ✓ ldoc: available"; \
+	else \
+		echo "  ○ ldoc: not found (optional for documentation)"; \
+	fi; \
+	if command -v git > /dev/null 2>&1; then \
+		echo "  ✓ git: $$(git --version)"; \
+	else \
+		echo "  ○ git: not found (recommended)"; \
+	fi; \
+	echo; \
+	if [ $$failed -eq 0 ]; then \
+		echo "✅ All required dependencies are installed!"; \
+	else \
+		echo "❌ Some dependencies are missing. Run 'make install-dependencies' to install them."; \
+		exit 1; \
+	fi
+
+# Install development dependencies
+install-dependencies:
+	@echo "Installing development dependencies..."
+	@echo "====================================="
+	@echo "Note: This will attempt to install dependencies using available package managers."
+	@echo "You may be prompted for your password for system package installations."
+	@echo
+	@if command -v brew > /dev/null 2>&1; then \
+		echo "📦 Using Homebrew (macOS)..."; \
+		echo "Installing system dependencies..."; \
+		brew install neovim lua luarocks shellcheck || true; \
+		brew install stylua || echo "stylua not available via brew, will try cargo"; \
+		echo "Installing Node.js dependencies..."; \
+		npm install -g markdownlint-cli2 || echo "npm not available or failed"; \
+		echo "Installing Lua dependencies..."; \
+		luarocks install luacheck || echo "luacheck installation failed"; \
+		luarocks install ldoc || echo "ldoc installation failed (optional)"; \
+	elif command -v apt-get > /dev/null 2>&1; then \
+		echo "📦 Using APT (Ubuntu/Debian)..."; \
+		echo "Updating package list..."; \
+		sudo apt-get update; \
+		echo "Installing system dependencies..."; \
+		sudo apt-get install -y neovim lua5.3 luarocks shellcheck || true; \
+		echo "Installing Node.js dependencies..."; \
+		if command -v npm > /dev/null 2>&1; then \
+			npm install -g markdownlint-cli2 || echo "markdownlint-cli2 installation failed"; \
+		else \
+			echo "npm not found. Please install Node.js first."; \
+		fi; \
+		echo "Installing Lua dependencies..."; \
+		luarocks install luacheck || echo "luacheck installation failed"; \
+		luarocks install ldoc || echo "ldoc installation failed (optional)"; \
+		echo "Installing stylua..."; \
+		if command -v cargo > /dev/null 2>&1; then \
+			cargo install stylua; \
+		else \
+			echo "cargo not found. Installing stylua manually..."; \
+			curl -L -o stylua.zip $$(curl -s https://api.github.com/repos/JohnnyMorganz/StyLua/releases/latest | grep "browser_download_url.*linux.*zip" | cut -d '"' -f 4); \
+			unzip stylua.zip; \
+			chmod +x stylua; \
+			sudo mv stylua /usr/local/bin/; \
+			rm stylua.zip; \
+		fi; \
+	elif command -v dnf > /dev/null 2>&1; then \
+		echo "📦 Using DNF (Fedora)..."; \
+		echo "Installing system dependencies..."; \
+		sudo dnf install -y neovim lua luarocks ShellCheck || true; \
+		echo "Installing Node.js dependencies..."; \
+		if command -v npm > /dev/null 2>&1; then \
+			npm install -g markdownlint-cli2 || echo "markdownlint-cli2 installation failed"; \
+		else \
+			echo "npm not found. Please install Node.js first."; \
+		fi; \
+		echo "Installing Lua dependencies..."; \
+		luarocks install luacheck || echo "luacheck installation failed"; \
+		luarocks install ldoc || echo "ldoc installation failed (optional)"; \
+		echo "Installing stylua..."; \
+		if command -v cargo > /dev/null 2>&1; then \
+			cargo install stylua; \
+		else \
+			echo "Please install stylua manually or install Rust/Cargo first."; \
+		fi; \
+	elif command -v pacman > /dev/null 2>&1; then \
+		echo "📦 Using Pacman (Arch Linux)..."; \
+		echo "Installing system dependencies..."; \
+		sudo pacman -S --noconfirm neovim lua luarocks shellcheck || true; \
+		echo "Installing Node.js dependencies..."; \
+		if command -v npm > /dev/null 2>&1; then \
+			npm install -g markdownlint-cli2 || echo "markdownlint-cli2 installation failed"; \
+		else \
+			echo "npm not found. Please install Node.js first."; \
+		fi; \
+		echo "Installing Lua dependencies..."; \
+		luarocks install luacheck || echo "luacheck installation failed"; \
+		luarocks install ldoc || echo "ldoc installation failed (optional)"; \
+		echo "Installing stylua from AUR..."; \
+		if command -v yay > /dev/null 2>&1; then \
+			yay -S stylua; \
+		elif command -v paru > /dev/null 2>&1; then \
+			paru -S stylua; \
+		elif command -v cargo > /dev/null 2>&1; then \
+			cargo install stylua; \
+		else \
+			echo "Please install stylua manually or install an AUR helper/Rust."; \
+		fi; \
+	else \
+		echo "🤔 No recognized package manager found."; \
+		echo "Please install dependencies manually:"; \
+		echo "  - neovim (0.8+)"; \
+		echo "  - lua (5.1, 5.3, or 5.4)"; \
+		echo "  - luarocks"; \
+		echo "  - shellcheck"; \
+		echo "  - stylua (via cargo install stylua)"; \
+		echo "  - markdownlint-cli2 (via npm install -g markdownlint-cli2)"; \
+		echo "  - luacheck (via luarocks install luacheck)"; \
+		echo ""; \
+		echo "Or try running parts of this installation manually."; \
+		exit 1; \
+	fi; \
+	echo; \
+	echo "🔍 Checking installation results..."; \
+	$(MAKE) check-dependencies
+
 # Clean generated files
 clean:
 	@echo "Cleaning generated files..."
@@ -125,3 +301,7 @@ help:
 	@echo "  make docs         - Generate documentation"
 	@echo "  make clean        - Remove generated files"
 	@echo "  make all          - Run lint, format, test, and docs"
+	@echo ""
+	@echo "Development setup:"
+	@echo "  make check-dependencies   - Check if dev dependencies are installed"
+	@echo "  make install-dependencies - Install missing dev dependencies"
