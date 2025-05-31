@@ -115,7 +115,6 @@ jobs:
           # Test that MCP server can start without errors
           timeout 5s ./bin/claude-code-mcp-server --help || test $? -eq 124
         continue-on-error: false
-        
       - name: Test config generation
         run: |
           # Test config generation in headless mode
