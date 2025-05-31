@@ -61,6 +61,16 @@ jobs:
             cd ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim && git pull origin master
           fi
 
+      - name: Install LuaCov for coverage
+        run: |
+          # Install luarocks if not available
+          if ! command -v luarocks &> /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y luarocks
+          fi
+          # Install luacov
+          sudo luarocks install luacov
+
       - name: Verify test directory structure
         run: |
           echo "Main tests directory:"
@@ -75,11 +85,26 @@ jobs:
       - name: Display Neovim version
         run: nvim --version
 
-      - name: Run unit tests
+      - name: Run unit tests with coverage
         run: |
           export PLUGIN_ROOT="$(pwd)"
-          ./scripts/test.sh
+          # Run tests with coverage
+          ./scripts/test-coverage.sh
         continue-on-error: false
+
+      - name: Check coverage thresholds
+        run: |
+          python3 ./scripts/check-coverage.py
+        continue-on-error: false
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report-${{ matrix.neovim-version }}
+          path: |
+            luacov.report.out
+            luacov.stats.out
 
       - name: Test MCP server standalone
         run: |

@@ -16,10 +16,10 @@ function M.get_git_root()
 
   -- Use vim.fn.system to run commands in Neovim's working directory
   local result = vim.fn.system('git rev-parse --is-inside-work-tree 2>/dev/null')
-  
+
   -- Strip trailing whitespace and newlines for reliable matching
   result = result:gsub('[\n\r%s]*$', '')
-  
+
   -- Check if git command failed (exit code > 0)
   if vim.v.shell_error ~= 0 then
     return nil
@@ -28,7 +28,7 @@ function M.get_git_root()
   if result == 'true' then
     -- Get the git root path using Neovim's working directory
     local git_root = vim.fn.system('git rev-parse --show-toplevel 2>/dev/null')
-    
+
     -- Check if git command failed
     if vim.v.shell_error ~= 0 then
       return nil

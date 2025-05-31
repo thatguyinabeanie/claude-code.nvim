@@ -120,3 +120,7 @@ luac.out
 *.tar.gz
 .claude
 !.vale/styles/config/
+
+# Coverage files
+luacov.stats.out
+luacov.report.out

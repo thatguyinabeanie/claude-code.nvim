@@ -68,9 +68,9 @@ M.project_structure = {
       .. vim.fn.shellescape(cwd)
       .. " -type f -name '*.lua' -o -name '*.vim' -o -name '*.js'"
       .. " -o -name '*.ts' -o -name '*.py' -o -name '*.md' | head -50"
-    
+
     local result = vim.fn.system(cmd)
-    
+
     if vim.v.shell_error ~= 0 then
       return 'Error: Could not list project files'
     end
@@ -100,7 +100,7 @@ M.git_status = {
 
     local cmd = vim.fn.shellescape(git_path) .. ' status --porcelain 2>/dev/null'
     local status = vim.fn.system(cmd)
-    
+
     -- Check if git command failed
     if vim.v.shell_error ~= 0 then
       return 'Not a git repository or git not available'
