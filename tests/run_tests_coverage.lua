@@ -16,6 +16,23 @@ if has_luacov then
   end
 else
   print('Warning: LuaCov not found - coverage will not be collected')
+  -- Try alternative loading methods
+  local alt_paths = {
+    '/usr/local/share/lua/5.1/luacov.lua',
+    '/usr/share/lua/5.1/luacov.lua'
+  }
+  for _, path in ipairs(alt_paths) do
+    local f = io.open(path, 'r')
+    if f then
+      f:close()
+      package.path = package.path .. ';' .. path:gsub('/[^/]*$', '/?.lua')
+      local success = pcall(require, 'luacov')
+      if success then
+        print('LuaCov loaded from alternative path: ' .. path)
+        break
+      end
+    end
+  end
 end
 
 -- Function to ensure proper exit after tests

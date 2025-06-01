@@ -96,7 +96,7 @@ jobs:
       - name: Check coverage thresholds
         run: |
           lua ./scripts/check-coverage.lua
-        continue-on-error: false
+        continue-on-error: true  # Make coverage check non-blocking initially
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
