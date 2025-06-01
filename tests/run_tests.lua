@@ -6,23 +6,6 @@ if not ok then
   return
 end
 
--- Track test completion
-local test_completed = false
-local exit_code = 0
-
--- Function to force exit after tests
-local function force_exit()
-  if not test_completed then
-    test_completed = true
-    print('Tests completed - forcing exit with code ' .. exit_code)
-    if exit_code == 0 then
-      vim.cmd('qa!')
-    else
-      vim.cmd('cquit ' .. exit_code)
-    end
-  end
-end
-
 -- Run tests
 print('Starting test run...')
 require('plenary.test_harness').test_directory('tests/spec/', {
@@ -30,17 +13,18 @@ require('plenary.test_harness').test_directory('tests/spec/', {
   sequential = false
 })
 
--- The test harness should have printed results by now
--- Parse the output to determine exit code
-vim.schedule(function()
-  vim.defer_fn(function()
-    -- Look for test results in messages
-    local messages = vim.api.nvim_exec('messages', true)
-    if messages:match('Failed%s*:%s*[1-9]') or messages:match('Errors%s*:%s*[1-9]') then
-      exit_code = 1
-    end
-    
-    -- Force exit
-    force_exit()
-  end, 1000) -- Give 1 second for results to be printed
-end)
+-- Force exit after a very short delay to allow output to be flushed
+vim.defer_fn(function()
+  -- Check if any tests failed by looking at the output
+  local messages = vim.api.nvim_exec('messages', true)
+  local exit_code = 0
+  
+  if messages:match('Failed%s*:%s*[1-9]') or messages:match('Errors%s*:%s*[1-9]') then
+    exit_code = 1
+    print('Tests failed - exiting with code 1')
+    vim.cmd('cquit 1')
+  else
+    print('All tests passed - exiting with code 0')
+    vim.cmd('qa!')
+  end
+end, 100) -- 100ms delay should be enough for output to flush
