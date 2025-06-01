@@ -63,11 +63,9 @@ jobs:
 
       - name: Install LuaCov for coverage
         run: |
-          # Install luarocks if not available
-          if ! command -v luarocks &> /dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y luarocks
-          fi
+          # Install lua and luarocks
+          sudo apt-get update
+          sudo apt-get install -y lua5.1 liblua5.1-0-dev luarocks
           # Install luacov
           sudo luarocks install luacov
 
@@ -94,7 +92,7 @@ jobs:
 
       - name: Check coverage thresholds
         run: |
-          python3 ./scripts/check-coverage.py
+          lua ./scripts/check-coverage.lua
         continue-on-error: false
 
       - name: Upload coverage report

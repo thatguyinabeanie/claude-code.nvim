@@ -58,7 +58,20 @@ fi
 # Generate coverage report if luacov stats were created
 if [ -f "luacov.stats.out" ]; then
   echo "Generating coverage report..."
-  luacov
+  
+  # Try to find luacov command
+  if command -v luacov &> /dev/null; then
+    luacov
+  elif [ -f "/usr/local/bin/luacov" ]; then
+    /usr/local/bin/luacov
+  else
+    # Try to run luacov as a lua script
+    if command -v lua &> /dev/null; then
+      lua -e "require('luacov.runner').run()"
+    else
+      echo "Warning: luacov command not found, skipping report generation"
+    fi
+  fi
   
   # Display summary
   if [ -f "luacov.report.out" ]; then
