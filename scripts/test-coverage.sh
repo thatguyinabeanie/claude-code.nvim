@@ -40,6 +40,11 @@ echo "Running tests with coverage (120 second timeout)..."
 export LUA_PATH=";;/usr/local/share/lua/5.1/?.lua;/usr/share/lua/5.1/?.lua"
 export LUA_CPATH=";;/usr/local/lib/lua/5.1/?.so;/usr/lib/lua/5.1/?.so"
 
+# Check if luacov is available before running
+if command -v lua &> /dev/null; then
+  lua -e "require('luacov')" 2>/dev/null || echo "Warning: LuaCov not available in lua environment"
+fi
+
 timeout --foreground 120 "$NVIM" --headless --noplugin -u tests/minimal-init.lua \
   -c "luafile tests/run_tests_coverage.lua"
 
