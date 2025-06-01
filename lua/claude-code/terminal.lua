@@ -353,7 +353,11 @@ local function create_new_instance(claude_code, config, git, instance_id, varian
   end
 
   if _TEST or os.getenv('NVIM_TEST') then
-    buffer_name = buffer_name .. '-' .. tostring(os.time()) .. '-' .. tostring(math.random(10000, 99999))
+    buffer_name = buffer_name
+      .. '-'
+      .. tostring(os.time())
+      .. '-'
+      .. tostring(math.random(10000, 99999))
   end
 
   vim.cmd('file ' .. buffer_name)
