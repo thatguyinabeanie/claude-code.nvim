@@ -11,11 +11,13 @@ local M = {}
 -- @field instances table Key-value store of git root to buffer number
 -- @field saved_updatetime number|nil Original updatetime before Claude Code was opened
 -- @field current_instance string|nil Current git root path for active instance
+-- @field floating_windows table Key-value store of instance to floating window ID
 M.terminal = {
   instances = {},
   saved_updatetime = nil,
   current_instance = nil,
   process_states = {}, -- Track process states for safe window management
+  floating_windows = {}, -- Track floating windows per instance
 }
 
 --- Check if a process is still running
@@ -97,12 +99,71 @@ local function get_instance_identifier(git)
   end
 end
 
+--- Create a floating window with the specified configuration
+--- @param config table Plugin configuration containing floating window settings
+--- @param existing_bufnr number|nil Buffer number to display in the floating window
+--- @return number|nil Window ID of the created floating window
+--- @private
+local function create_floating_window(config, existing_bufnr)
+  local float_config = config.window.float
+  
+  -- Calculate window dimensions based on percentages
+  local width = math.floor(vim.o.columns * float_config.width)
+  local height = math.floor(vim.o.lines * float_config.height)
+  local row = math.floor(vim.o.lines * float_config.row)
+  local col = math.floor(vim.o.columns * float_config.col)
+  
+  -- Create buffer if not provided
+  local bufnr = existing_bufnr
+  if not bufnr then
+    bufnr = vim.api.nvim_create_buf(false, true)
+  end
+  
+  -- Window configuration
+  local win_config = {
+    relative = float_config.relative,
+    width = width,
+    height = height,
+    row = row,
+    col = col,
+    style = 'minimal',
+    border = float_config.border,
+    title = float_config.title,
+    title_pos = float_config.title_pos,
+  }
+  
+  -- Create the floating window
+  local win_id = vim.api.nvim_open_win(bufnr, true, win_config)
+  
+  -- Set window options
+  vim.api.nvim_win_set_option(win_id, 'winblend', 0)
+  vim.api.nvim_win_set_option(win_id, 'cursorline', true)
+  
+  -- Apply terminal window options if configured
+  if config.window.hide_numbers then
+    vim.api.nvim_win_set_option(win_id, 'number', false)
+    vim.api.nvim_win_set_option(win_id, 'relativenumber', false)
+  end
+  
+  if config.window.hide_signcolumn then
+    vim.api.nvim_win_set_option(win_id, 'signcolumn', 'no')
+  end
+  
+  return win_id
+end
+
 --- Create a split window according to the specified position configuration
 --- @param position string Window position configuration
 --- @param config table Plugin configuration containing window settings
 --- @param existing_bufnr number|nil Buffer number of existing buffer to show in the split (optional)
+--- @return number|nil Window ID if floating window was created
 --- @private
 local function create_split(position, config, existing_bufnr)
+  -- Special handling for 'float' - create a floating window
+  if position == 'float' then
+    return create_floating_window(config, existing_bufnr)
+  end
+  
   -- Special handling for 'current' - use the current window instead of creating a split
   if position == 'current' then
     -- If we have an existing buffer to display, switch to it
@@ -110,7 +171,7 @@ local function create_split(position, config, existing_bufnr)
       vim.cmd('buffer ' .. existing_bufnr)
     end
     -- No resizing needed for current window
-    return
+    return nil
   end
 
   local is_vertical = position:match('vsplit') or position:match('vertical')
@@ -135,6 +196,8 @@ local function create_split(position, config, existing_bufnr)
   else
     vim.cmd('resize ' .. math.floor(vim.o.lines * config.window.split_ratio))
   end
+  
+  return nil
 end
 
 --- Set up function to force insert mode when entering the Claude Code window
@@ -195,7 +258,30 @@ local function toggle_common(claude_code, config, git, variant_name)
   -- This enables "safe toggle" - hiding windows without killing the Claude process
   local bufnr = claude_code.claude_code.instances[instance_id]
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-    -- Find all windows currently displaying this Claude buffer
+    -- Special handling for floating windows
+    if config.window.position == 'float' then
+      local float_win_id = claude_code.claude_code.floating_windows[instance_id]
+      if float_win_id and vim.api.nvim_win_is_valid(float_win_id) then
+        -- Floating window exists and is visible: close it
+        vim.api.nvim_win_close(float_win_id, true)
+        claude_code.claude_code.floating_windows[instance_id] = nil
+        update_process_state(claude_code, instance_id, 'running', true)
+      else
+        -- Create or restore floating window
+        local win_id = create_floating_window(config, bufnr)
+        claude_code.claude_code.floating_windows[instance_id] = win_id
+        
+        -- Terminal mode setup
+        if not config.window.start_in_normal_mode then
+          vim.schedule(function()
+            vim.cmd 'stopinsert | startinsert'
+          end)
+        end
+      end
+      return true
+    end
+    
+    -- Regular window handling (non-floating)
     local win_ids = vim.fn.win_findbuf(bufnr)
     if #win_ids > 0 then
       -- Claude is visible: Hide the window(s) but preserve the process
@@ -224,8 +310,13 @@ local function toggle_common(claude_code, config, git, variant_name)
       claude_code.claude_code.instances[instance_id] = nil
     end
 
-    -- This Claude Code instance is not running, start it in a new split
-    create_split(config.window.position, config)
+    -- This Claude Code instance is not running, start it in a new window
+    local win_id = create_split(config.window.position, config)
+    
+    -- Store floating window ID if created
+    if config.window.position == 'float' and win_id then
+      claude_code.claude_code.floating_windows[instance_id] = win_id
+    end
 
     -- Build command with optional variant
     local cmd_suffix = ''
@@ -251,8 +342,8 @@ local function toggle_common(claude_code, config, git, variant_name)
       end
     end
 
-    -- For 'current' position, use enew to replace current buffer content
-    if config.window.position == 'current' then
+    -- For 'current' or 'float' position, use enew to replace current buffer content
+    if config.window.position == 'current' or config.window.position == 'float' then
       vim.cmd('enew')  -- Create a new empty buffer in current window
       vim.cmd('terminal ' .. terminal_cmd)
     else

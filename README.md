@@ -257,10 +257,21 @@ require("claude-code").setup({
   -- Terminal window settings
   window = {
     split_ratio = 0.3,      -- Percentage of screen for the terminal window (height for horizontal, width for vertical splits)
-    position = "current",   -- Position of the window: "current" (use current window), "botright", "topleft", "vertical", "rightbelow vsplit", etc.
+    position = "current",   -- Position of the window: "current" (use current window), "float" (floating overlay), "botright", "topleft", "vertical", etc.
     enter_insert = true,    -- Whether to enter insert mode when opening Claude Code
     hide_numbers = true,    -- Hide line numbers in the terminal window
     hide_signcolumn = true, -- Hide the sign column in the terminal window
+    -- Floating window specific settings (when position = "float")
+    float = {
+      relative = "editor",  -- Window position relative to: "editor" or "cursor"
+      width = 0.8,         -- Width as percentage of editor width (0.0-1.0)
+      height = 0.8,        -- Height as percentage of editor height (0.0-1.0)
+      row = 0.1,           -- Row position as percentage (0.0-1.0), 0.1 = 10% from top
+      col = 0.1,           -- Column position as percentage (0.0-1.0), 0.1 = 10% from left
+      border = "rounded",  -- Border style: "none", "single", "double", "rounded", "solid", "shadow"
+      title = " Claude Code ", -- Window title
+      title_pos = "center",    -- Title position: "left", "center", "right"
+    },
   },
   -- File refresh settings
   refresh = {

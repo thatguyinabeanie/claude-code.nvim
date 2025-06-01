@@ -320,6 +320,78 @@ describe('terminal module', function()
     end)
   end)
 
+  describe('floating window support', function()
+    before_each(function()
+      -- Mock nvim_open_win
+      local float_win_id = 1001
+      _G.vim.api.nvim_open_win = function(bufnr, enter, win_config)
+        return float_win_id
+      end
+      
+      -- Mock nvim_win_is_valid
+      _G.vim.api.nvim_win_is_valid = function(win_id)
+        return win_id == float_win_id
+      end
+      
+      -- Mock nvim_win_set_option
+      _G.vim.api.nvim_win_set_option = function(win_id, option, value)
+        -- Just track the calls, don't do anything
+      end
+    end)
+
+    it('should create floating window when position is set to float', function()
+      -- Set window position to float
+      config.window.position = 'float'
+      config.window.float = {
+        relative = 'editor',
+        width = 0.8,
+        height = 0.8,
+        row = 0.1,
+        col = 0.1,
+        border = 'rounded',
+        title = ' Claude Code ',
+        title_pos = 'center',
+      }
+
+      -- Call toggle
+      terminal.toggle(claude_code, config, git)
+
+      -- Check that floating window was created
+      local instance_id = '/test/git/root'
+      assert.is_not_nil(claude_code.claude_code.floating_windows[instance_id], 'Floating window should be tracked')
+      assert.equals(1001, claude_code.claude_code.floating_windows[instance_id], 'Floating window ID should be stored')
+    end)
+
+    it('should toggle floating window visibility', function()
+      -- Set window position to float
+      config.window.position = 'float'
+      config.window.float = {
+        relative = 'editor',
+        width = 0.8,
+        height = 0.8,
+        row = 0.1,
+        col = 0.1,
+        border = 'rounded',
+      }
+
+      -- First toggle - create window
+      terminal.toggle(claude_code, config, git)
+      local instance_id = '/test/git/root'
+      assert.is_not_nil(claude_code.claude_code.floating_windows[instance_id])
+
+      -- Mock window close
+      local close_called = false
+      _G.vim.api.nvim_win_close = function(win_id, force)
+        close_called = true
+      end
+
+      -- Second toggle - close window
+      terminal.toggle(claude_code, config, git)
+      assert.is_true(close_called, 'Window close should be called')
+      assert.is_nil(claude_code.claude_code.floating_windows[instance_id], 'Floating window should be removed from tracking')
+    end)
+  end)
+
   describe('git root usage', function()
     it('should use git root when configured', function()
       -- Set git config to use root
