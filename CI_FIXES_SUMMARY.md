@@ -172,7 +172,7 @@ window = {
 - ✅ New floating window feature
 - ✅ 44 passing tests with coverage
 
-## 🔍 Key Learnings
+## 🔍 Key Lessons
 
 1. **Test Configuration:** Always provide explicit configuration to avoid auto-detection in CI
 2. **Error Handling:** Wrap all potentially failing operations in `pcall` for better debugging
