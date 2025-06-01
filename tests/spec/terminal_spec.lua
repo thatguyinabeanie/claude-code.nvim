@@ -233,12 +233,18 @@ describe('terminal module', function()
           file_cmd_found = true
           -- Extract the buffer name from the command
           local buffer_name = cmd:match('file (.+)')
-          -- In test mode, the name includes timestamp and random number, so extract just the base part
-          local base_name = buffer_name:match('^(claude%-code%-[^%-]+)')
-          if base_name then
-            -- Check that the instance ID part was properly sanitized
-            local instance_part = base_name:match('claude%-code%-(.+)')
+          -- In test mode, the name includes timestamp and random number
+          -- Extract the part between claude-code- and the first timestamp
+          local instance_part = buffer_name:match('claude%-code%-(.-)%-%d+%-%d+')
+          if instance_part then
+            -- Check that the instance ID part was properly sanitized (no spaces or special chars)
             assert.is_nil(instance_part:match('[^%w%-_]'), 'Buffer name should not contain special characters')
+          else
+            -- If no timestamp, just check the whole instance part
+            instance_part = buffer_name:match('claude%-code%-(.+)')
+            if instance_part then
+              assert.is_nil(instance_part:match('[^%w%-_]'), 'Buffer name should not contain special characters')
+            end
           end
           break
         end
@@ -252,9 +258,9 @@ describe('terminal module', function()
       local instance_id = '/test/git/root'
       claude_code.claude_code.instances[instance_id] = 999 -- Invalid buffer number
 
-      -- Mock nvim_buf_is_valid to return false for this buffer
+      -- Mock nvim_buf_is_valid to return false for buffer 999 but true for others
       _G.vim.api.nvim_buf_is_valid = function(bufnr)
-        return bufnr ~= 999
+        return bufnr ~= 999 and bufnr ~= nil
       end
 
       -- Call toggle

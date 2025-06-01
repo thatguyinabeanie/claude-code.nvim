@@ -257,7 +257,9 @@ local function toggle_common(claude_code, config, git, variant_name)
       if variant_name then
         buffer_name = buffer_name .. '-' .. variant_name
       end
-      buffer_name = buffer_name .. '-' .. instance_id:gsub('[^%w%-_]', '-')
+      -- Sanitize instance_id: replace sequences of non-alphanumeric chars with single hyphen
+      local sanitized_id = instance_id:gsub('[^%w%-_]+', '-'):gsub('^%-+', ''):gsub('%-+$', '')
+      buffer_name = buffer_name .. '-' .. sanitized_id
     else
       -- Single instance mode uses predictable name for easier identification
       buffer_name = 'claude-code'
