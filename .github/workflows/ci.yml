@@ -61,22 +61,44 @@ jobs:
             cd ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim && git pull origin master
           fi
 
-      - name: Install LuaCov for coverage
+      - name: Cache LuaCov installation
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.luarocks
+            /usr/local/lib/luarocks
+            /usr/local/share/lua
+          key: ${{ runner.os }}-luacov-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-luacov-
+
+      - name: Install LuaCov for coverage (with timeout)
+        timeout-minutes: 3
         run: |
-          # Install lua and luarocks
-          sudo apt-get update
-          sudo apt-get install -y lua5.1 liblua5.1-0-dev luarocks
-          # Install luacov with retry and better error handling
-          sudo luarocks install luacov || {
-            echo "First attempt failed, trying alternative installation..."
-            sudo luarocks install --server=https://luarocks.org/dev luacov
+          # Check if LuaCov is already available
+          if lua -e "require('luacov')" 2>/dev/null; then
+            echo "✅ LuaCov already available, skipping installation"
+            exit 0
+          fi
+          
+          echo "Installing LuaCov with timeout..."
+          # Install lua and luarocks quickly
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.1 liblua5.1-0-dev luarocks
+          
+          # Try to install LuaCov with timeout and fallback
+          timeout 120s sudo luarocks install luacov || {
+            echo "⚠️  LuaCov installation timed out or failed - tests will run without coverage"
+            exit 0
           }
-          # Verify installation and show paths
-          echo "LuaCov installation check:"
-          lua -e "print('LUA_PATH:', package.path)" || true
-          lua -e "require('luacov'); print('LuaCov loaded successfully')" || echo "LuaCov not accessible from lua"
-          # Also install in user directory for Neovim
-          luarocks install --local luacov || true
+          
+          # Verify installation
+          if lua -e "require('luacov')" 2>/dev/null; then
+            echo "✅ LuaCov installed successfully"
+          else
+            echo "⚠️  LuaCov installation verification failed - tests will run without coverage"
+          fi
+        continue-on-error: true
 
       - name: Verify test directory structure
         run: |
@@ -96,22 +118,30 @@ jobs:
         run: |
           export PLUGIN_ROOT="$(pwd)"
           export CLAUDE_CODE_TEST_MODE="true"
-          # Try to run tests with coverage, fall back to regular tests if that fails
-          ./scripts/test-coverage.sh || {
-            echo "Coverage tests failed, falling back to regular tests..."
+          # Check if LuaCov is available, run coverage tests if possible
+          if lua -e "require('luacov')" 2>/dev/null; then
+            echo "Running tests with coverage..."
+            ./scripts/test-coverage.sh || {
+              echo "Coverage tests failed, falling back to regular tests..."
+              ./scripts/test.sh
+            }
+          else
+            echo "LuaCov not available, running regular tests..."
             ./scripts/test.sh
-          }
+          fi
         continue-on-error: false
 
       - name: Check coverage thresholds
         run: |
           # Only run coverage check if the report exists
           if [ -f "luacov.report.out" ]; then
+            echo "📊 Coverage report found, checking thresholds..."
             lua ./scripts/check-coverage.lua
           else
-            echo "Coverage report not found, skipping threshold check"
+            echo "📊 Coverage report not found - tests ran without coverage collection"
+            echo "This is expected if LuaCov installation failed or timed out"
           fi
-        continue-on-error: true  # Make coverage check non-blocking initially
+        continue-on-error: true
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
