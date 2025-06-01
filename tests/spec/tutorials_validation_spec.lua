@@ -16,7 +16,11 @@ describe("Tutorials Validation", function()
     -- Reload modules with proper initialization
     claude_code = require('claude-code')
     -- Initialize the plugin to ensure all functions are available
-    claude_code.setup({})
+    claude_code.setup({
+      command = 'echo', -- Use echo as mock command for tests to avoid CLI detection
+      mcp = { enabled = false }, -- Disable MCP in tests
+      startup_notification = { enabled = false }, -- Disable notifications
+    })
     
     config = require('claude-code.config')
     terminal = require('claude-code.terminal')

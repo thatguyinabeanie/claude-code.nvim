@@ -58,6 +58,8 @@ if status_ok then
 
   -- Setup the plugin with a minimal config for testing
   claude_code.setup({
+    -- Explicitly set command to avoid CLI detection in CI
+    command = 'echo', -- Use echo as a safe mock command for tests
     window = {
       split_ratio = 0.3,
       position = 'botright',

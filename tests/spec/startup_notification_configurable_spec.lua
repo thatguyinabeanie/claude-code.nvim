@@ -30,7 +30,9 @@ describe('Startup Notification Configuration', function()
     it('should hide startup notification by default', function()
       -- Load plugin with default configuration (notifications disabled by default)
       claude_code = require('claude-code')
-      claude_code.setup()
+      claude_code.setup({
+        command = 'echo' -- Use echo as mock command for tests to avoid CLI detection
+      })
       
       -- Should NOT have startup notification by default
       local found_startup = false
@@ -48,6 +50,7 @@ describe('Startup Notification Configuration', function()
       -- Load plugin with startup notification explicitly enabled
       claude_code = require('claude-code')
       claude_code.setup({
+        command = 'echo', -- Use echo as mock command for tests to avoid CLI detection
         startup_notification = {
           enabled = true
         }
