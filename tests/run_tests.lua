@@ -29,38 +29,22 @@ local function run_tests_and_exit()
     timeout_timer:stop()
     timeout_timer:close()
     
-    -- Debug: Print test result structure
-    print('Test result structure:')
-    if test_result then
-      for k, v in pairs(test_result) do
-        print('  ' .. tostring(k) .. ': ' .. tostring(v))
-      end
-    else
-      print('  test_result is nil')
-    end
-    
-    -- Exit with appropriate code based on test results
+    -- Exit immediately with appropriate code based on test results
     local exit_code = 0
     if test_result and test_result.errors and test_result.errors > 0 then
-      print('Exiting with code 1 due to errors: ' .. test_result.errors)
       exit_code = 1
     elseif test_result and test_result.fail and test_result.fail > 0 then
-      print('Exiting with code 1 due to failures: ' .. test_result.fail)
       exit_code = 1
-    else
-      print('No errors or failures detected, exiting with code 0')
     end
     
-    -- Force exit after a short delay to ensure output is flushed
-    vim.defer_fn(function()
-      if exit_code == 0 then
-        print('All tests passed - exiting successfully')
-        vim.cmd('qa!')
-      else
-        print('Some tests failed - exiting with error code')
-        vim.cmd('cquit ' .. exit_code)
-      end
-    end, 50)
+    -- Force immediate exit to prevent hanging
+    if exit_code == 0 then
+      print('All tests passed - exiting successfully')
+      vim.cmd('qa!')
+    else
+      print('Some tests failed - exiting with error code')
+      vim.cmd('cquit ' .. exit_code)
+    end
     
     return test_result
   end)
