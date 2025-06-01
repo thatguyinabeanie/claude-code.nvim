@@ -72,33 +72,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-luacov-
 
-      - name: Install LuaCov for coverage (with timeout)
-        timeout-minutes: 3
+      - name: Install LuaCov for coverage
         run: |
           # Check if LuaCov is already available
           if lua -e "require('luacov')" 2>/dev/null; then
             echo "✅ LuaCov already available, skipping installation"
-            exit 0
-          fi
-          
-          echo "Installing LuaCov with timeout..."
-          # Install lua and luarocks quickly
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq lua5.1 liblua5.1-0-dev luarocks
-          
-          # Try to install LuaCov with timeout and fallback
-          timeout 120s sudo luarocks install luacov || {
-            echo "⚠️  LuaCov installation timed out or failed - tests will run without coverage"
-            exit 0
-          }
-          
-          # Verify installation
-          if lua -e "require('luacov')" 2>/dev/null; then
-            echo "✅ LuaCov installed successfully"
           else
-            echo "⚠️  LuaCov installation verification failed - tests will run without coverage"
+            echo "Installing LuaCov..."
+            # Install lua and luarocks
+            sudo apt-get update
+            sudo apt-get install -y lua5.1 liblua5.1-0-dev luarocks
+            # Install luacov with faster mirror
+            sudo luarocks install --server=https://luarocks.org luacov || {
+              echo "Trying alternative server..."
+              sudo luarocks install luacov
+            }
+            # Verify installation
+            lua -e "require('luacov'); print('LuaCov loaded successfully')" || echo "LuaCov installation failed"
           fi
-        continue-on-error: true
 
       - name: Verify test directory structure
         run: |
