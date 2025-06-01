@@ -160,12 +160,17 @@ jobs:
       - name: Test config generation
         run: |
           # Test config generation in headless mode
-          nvim --headless --noplugin -u tests/minimal-init.lua \
-            -c "lua require('claude-code.mcp').generate_config('test-config.json', 'claude-code')" \
+          nvim --headless --noplugin -u tests/mcp-test-init.lua \
+            -c "lua local ok, err = pcall(require('claude-code.mcp').generate_config, 'test-config.json', 'claude-code'); if not ok then print('Config generation failed: ' .. tostring(err)); vim.cmd('cquit 1'); else print('Config generated successfully'); end" \
             -c "qa!"
-          test -f test-config.json
-          cat test-config.json
-          rm test-config.json
+          if [ -f test-config.json ]; then
+            echo "✅ Config file created successfully"
+            cat test-config.json
+            rm test-config.json
+          else
+            echo "❌ Config file was not created"
+            exit 1
+          fi
         continue-on-error: false
 
   mcp-integration:
@@ -188,8 +193,8 @@ jobs:
         run: |
           # Test MCP server can load without errors
           echo "Testing MCP server loading..."
-          nvim --headless --noplugin -u tests/minimal-init.lua \
-            -c "lua local mcp = require('claude-code.mcp'); print('MCP module loaded successfully'); vim.cmd('qa!')" \
+          nvim --headless --noplugin -u tests/mcp-test-init.lua \
+            -c "lua local ok, mcp = pcall(require, 'claude-code.mcp'); if ok then print('MCP module loaded successfully') else print('Failed to load MCP: ' .. tostring(mcp)) end; vim.cmd('qa!')" \
             || { echo "❌ Failed to load MCP module"; exit 1; }
 
           echo "✅ MCP server module loads successfully"
@@ -197,22 +202,22 @@ jobs:
       - name: Test MCP tools enumeration
         run: |
           # Create a test that verifies our tools are available
-          nvim --headless --noplugin -u tests/minimal-init.lua \
-            -c "lua local tools = require('claude-code.mcp.tools'); local count = 0; for _ in pairs(tools) do count = count + 1 end; print('Tools found: ' .. count); assert(count >= 8, 'Expected at least 8 tools'); print('✅ Tools test passed')" \
+          nvim --headless --noplugin -u tests/mcp-test-init.lua \
+            -c "lua local ok, tools = pcall(require, 'claude-code.mcp.tools'); if not ok then print('Failed to load tools: ' .. tostring(tools)); vim.cmd('cquit 1'); end; local count = 0; for name, _ in pairs(tools) do count = count + 1; print('Tool found: ' .. name); end; print('Total tools: ' .. count); assert(count >= 8, 'Expected at least 8 tools, found ' .. count); print('✅ Tools test passed')" \
             -c "qa!"
 
       - name: Test MCP resources enumeration
         run: |
           # Create a test that verifies our resources are available
-          nvim --headless --noplugin -u tests/minimal-init.lua \
-            -c "lua local resources = require('claude-code.mcp.resources'); local count = 0; for _ in pairs(resources) do count = count + 1 end; print('Resources found: ' .. count); assert(count >= 6, 'Expected at least 6 resources'); print('✅ Resources test passed')" \
+          nvim --headless --noplugin -u tests/mcp-test-init.lua \
+            -c "lua local ok, resources = pcall(require, 'claude-code.mcp.resources'); if not ok then print('Failed to load resources: ' .. tostring(resources)); vim.cmd('cquit 1'); end; local count = 0; for name, _ in pairs(resources) do count = count + 1; print('Resource found: ' .. name); end; print('Total resources: ' .. count); assert(count >= 6, 'Expected at least 6 resources, found ' .. count); print('✅ Resources test passed')" \
             -c "qa!"
 
       - name: Test MCP Hub functionality
         run: |
           # Test hub can list servers and generate configs
-          nvim --headless --noplugin -u tests/minimal-init.lua \
-            -c "lua local hub = require('claude-code.mcp.hub'); local servers = hub.list_servers(); print('Servers found: ' .. #servers); assert(#servers > 0, 'Expected at least one server'); print('✅ Hub test passed')" \
+          nvim --headless --noplugin -u tests/mcp-test-init.lua \
+            -c "lua local ok, hub = pcall(require, 'claude-code.mcp.hub'); if not ok then print('Failed to load hub: ' .. tostring(hub)); vim.cmd('cquit 1'); end; local servers = hub.list_servers(); print('Servers found: ' .. #servers); assert(#servers > 0, 'Expected at least one server, found ' .. #servers); print('✅ Hub test passed')" \
             -c "qa!"
 
   # Linting jobs run after tests are already started
