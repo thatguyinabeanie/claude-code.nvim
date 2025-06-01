@@ -294,6 +294,32 @@ describe('terminal module', function()
     end)
   end)
 
+  describe('window position current', function()
+    it('should use current window when position is set to current', function()
+      -- Set window position to current
+      config.window.position = 'current'
+
+      -- Call toggle
+      terminal.toggle(claude_code, config, git)
+
+      -- Check that no split command was issued
+      local split_cmd_found = false
+      local enew_cmd_found = false
+
+      for _, cmd in ipairs(vim_cmd_calls) do
+        if cmd:match('split') then
+          split_cmd_found = true
+        end
+        if cmd == 'enew' then
+          enew_cmd_found = true
+        end
+      end
+
+      assert.is_false(split_cmd_found, 'No split command should be issued for current position')
+      assert.is_true(enew_cmd_found, 'enew command should be issued for current position')
+    end)
+  end)
+
   describe('git root usage', function()
     it('should use git root when configured', function()
       -- Set git config to use root

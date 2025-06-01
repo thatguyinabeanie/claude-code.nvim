@@ -103,6 +103,16 @@ end
 --- @param existing_bufnr number|nil Buffer number of existing buffer to show in the split (optional)
 --- @private
 local function create_split(position, config, existing_bufnr)
+  -- Special handling for 'current' - use the current window instead of creating a split
+  if position == 'current' then
+    -- If we have an existing buffer to display, switch to it
+    if existing_bufnr then
+      vim.cmd('buffer ' .. existing_bufnr)
+    end
+    -- No resizing needed for current window
+    return
+  end
+
   local is_vertical = position:match('vsplit') or position:match('vertical')
 
   -- Create the window with the user's specified command
@@ -230,18 +240,24 @@ local function toggle_common(claude_code, config, git, variant_name)
     end
 
     -- Determine if we should use the git root directory
-    local cmd = 'terminal ' .. config.command .. cmd_suffix
+    local terminal_cmd = config.command .. cmd_suffix
     if config.git and config.git.use_git_root then
       local git_root = git.get_git_root()
       if git_root then
         -- Shell command pattern: pushd <dir> && <command> && popd
         -- This ensures Claude runs in the git root context while preserving
         -- the user's current working directory in other windows
-        cmd = 'terminal pushd ' .. git_root .. ' && ' .. config.command .. cmd_suffix .. ' && popd'
+        terminal_cmd = 'pushd ' .. git_root .. ' && ' .. config.command .. cmd_suffix .. ' && popd'
       end
     end
 
-    vim.cmd(cmd)
+    -- For 'current' position, use enew to replace current buffer content
+    if config.window.position == 'current' then
+      vim.cmd('enew')  -- Create a new empty buffer in current window
+      vim.cmd('terminal ' .. terminal_cmd)
+    else
+      vim.cmd('terminal ' .. terminal_cmd)
+    end
     vim.cmd 'setlocal bufhidden=hide'
 
     -- Generate unique buffer names to avoid conflicts between instances
