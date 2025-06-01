@@ -265,6 +265,12 @@ end
 
 -- Start the MCP server
 function M.start()
+  -- Check if we're in test mode to avoid actual pipe creation in CI
+  if os.getenv('CLAUDE_CODE_TEST_MODE') == 'true' then
+    notify('MCP server start skipped in CI test mode', vim.log.levels.INFO)
+    return true
+  end
+
   -- Check if we're in headless mode for appropriate file descriptor usage
   local is_headless = utils.is_headless()
 

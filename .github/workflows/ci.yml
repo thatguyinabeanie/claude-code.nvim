@@ -89,6 +89,7 @@ jobs:
       - name: Run unit tests with coverage
         run: |
           export PLUGIN_ROOT="$(pwd)"
+          export CLAUDE_CODE_TEST_MODE="true"
           # Try to run tests with coverage, fall back to regular tests if that fails
           ./scripts/test-coverage.sh || {
             echo "Coverage tests failed, falling back to regular tests..."
