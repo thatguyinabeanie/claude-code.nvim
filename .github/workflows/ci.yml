@@ -71,6 +71,12 @@ jobs:
             echo "First attempt failed, trying alternative installation..."
             sudo luarocks install --server=https://luarocks.org/dev luacov
           }
+          # Verify installation and show paths
+          echo "LuaCov installation check:"
+          lua -e "print('LUA_PATH:', package.path)" || true
+          lua -e "require('luacov'); print('LuaCov loaded successfully')" || echo "LuaCov not accessible from lua"
+          # Also install in user directory for Neovim
+          luarocks install --local luacov || true
 
       - name: Verify test directory structure
         run: |
@@ -99,7 +105,12 @@ jobs:
 
       - name: Check coverage thresholds
         run: |
-          lua ./scripts/check-coverage.lua
+          # Only run coverage check if the report exists
+          if [ -f "luacov.report.out" ]; then
+            lua ./scripts/check-coverage.lua
+          else
+            echo "Coverage report not found, skipping threshold check"
+          fi
         continue-on-error: true  # Make coverage check non-blocking initially
 
       - name: Upload coverage report

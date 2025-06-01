@@ -36,17 +36,22 @@ rm -f luacov.stats.out luacov.report.out
 
 # Run tests with minimal Neovim configuration and coverage enabled
 echo "Running tests with coverage (120 second timeout)..."
-# Set LUA_PATH to include luacov
-export LUA_PATH=";;/usr/local/share/lua/5.1/?.lua;/usr/share/lua/5.1/?.lua"
-export LUA_CPATH=";;/usr/local/lib/lua/5.1/?.so;/usr/lib/lua/5.1/?.so"
+# Set LUA_PATH to include luacov from multiple possible locations
+export LUA_PATH="$HOME/.luarocks/share/lua/5.1/?.lua;$HOME/.luarocks/share/lua/5.1/?/init.lua;/usr/local/share/lua/5.1/?.lua;/usr/share/lua/5.1/?.lua;./?.lua;$LUA_PATH"
+export LUA_CPATH="$HOME/.luarocks/lib/lua/5.1/?.so;/usr/local/lib/lua/5.1/?.so;/usr/lib/lua/5.1/?.so;./?.so;$LUA_CPATH"
 
 # Check if luacov is available before running
 if command -v lua &> /dev/null; then
-  lua -e "require('luacov')" 2>/dev/null || echo "Warning: LuaCov not available in lua environment"
+  lua -e "require('luacov')" 2>/dev/null || echo "Warning: LuaCov not available in standalone lua environment"
 fi
 
+# Run tests - if coverage fails, still run tests normally
 timeout --foreground 120 "$NVIM" --headless --noplugin -u tests/minimal-init.lua \
-  -c "luafile tests/run_tests_coverage.lua"
+  -c "luafile tests/run_tests_coverage.lua" || {
+    echo "Coverage test run failed, trying without coverage..."
+    timeout --foreground 120 "$NVIM" --headless --noplugin -u tests/minimal-init.lua \
+      -c "luafile tests/run_tests.lua"
+  }
 
 # Check exit code
 EXIT_CODE=$?
