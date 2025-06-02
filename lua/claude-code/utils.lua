@@ -48,7 +48,7 @@ M.colors = {
 -- @param color string Color name from M.colors
 -- @param text string Text to print
 function M.cprint(color, text)
-  print(M.colors[color] .. text .. M.colors.reset)
+  vim.print(M.colors[color] .. text .. M.colors.reset)
 end
 
 -- Colorize text without printing
@@ -64,7 +64,18 @@ end
 -- @param git table|nil Git module (optional, will require if not provided)
 -- @return string Git root directory or current working directory
 function M.get_working_directory(git)
-  git = git or require('claude-code.git')
+  -- Handle git module loading with error handling
+  if not git then
+    local ok, git_module = pcall(require, 'claude-code.git')
+    git = ok and git_module or nil
+  end
+
+  -- If git module failed to load or is nil, fall back to cwd
+  if not git then
+    return vim.fn.getcwd()
+  end
+
+  -- Try to get git root, fall back to cwd if it returns nil
   local git_root = git.get_git_root()
   return git_root or vim.fn.getcwd()
 end

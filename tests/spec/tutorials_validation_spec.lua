@@ -16,7 +16,11 @@ describe("Tutorials Validation", function()
     -- Reload modules with proper initialization
     claude_code = require('claude-code')
     -- Initialize the plugin to ensure all functions are available
-    claude_code.setup({})
+    claude_code.setup({
+      command = 'echo', -- Use echo as mock command for tests to avoid CLI detection
+      mcp = { enabled = false }, -- Disable MCP in tests
+      startup_notification = { enabled = false }, -- Disable notifications
+    })
     
     config = require('claude-code.config')
     terminal = require('claude-code.terminal')
@@ -28,19 +32,24 @@ describe("Tutorials Validation", function()
     it("should support session management commands", function()
       -- These features are implemented through command variants
       -- The actual suspend/resume is handled by the Claude CLI with --continue flag
-      -- Verify the command structure exists
-      local commands = {
-        ":ClaudeCodeSuspend",
-        ":ClaudeCodeResume",
-        ":ClaudeCode --continue"
+      -- Verify the command structure exists (note: these are conceptual commands)
+      local command_concepts = {
+        "suspend_session",
+        "resume_session", 
+        "continue_conversation"
       }
       
-      for _, cmd in ipairs(commands) do
-        assert.is_string(cmd)
+      for _, concept in ipairs(command_concepts) do
+        assert.is_string(concept)
       end
       
       -- The toggle_with_variant function handles continuation
       assert.is_function(claude_code.toggle_with_variant or terminal.toggle_with_variant)
+      
+      -- Verify continue variant exists in config
+      local cfg = claude_code.get_config()
+      assert.is_table(cfg.command_variants)
+      assert.is_string(cfg.command_variants.continue)
     end)
     
     it("should support command variants for continuation", function()

@@ -1,13 +1,14 @@
-# MCP Solutions Analysis for Neovim
 
-## Executive Summary
+# Mcp solutions analysis for neovim
+
+## Executive summary
 
 There are existing solutions for MCP integration with Neovim:
 
 - **mcp-neovim-server**: An MCP server that exposes Neovim capabilities (what we need)
 - **mcphub.nvim**: An MCP client for connecting Neovim to other MCP servers (opposite direction)
 
-## Existing Solutions
+## Existing solutions
 
 ### 1. mcp-neovim-server (by bigcodegen)
 
@@ -50,19 +51,20 @@ There are existing solutions for MCP integration with Neovim:
 
 **Note:** This is the opposite of what we need. It allows Neovim to consume MCP servers, not expose Neovim as an MCP server.
 
-## Claude Code MCP Configuration
+## Claude code mcp configuration
 
-Claude Code CLI has built-in MCP support with the following commands:
+Claude Code command-line tool has built-in MCP support with the following commands:
 
 - `claude mcp serve` - Start Claude Code's own MCP server
 - `claude mcp add <name> <command> [args...]` - Add an MCP server
 - `claude mcp remove <name>` - Remove an MCP server
 - `claude mcp list` - List configured servers
 
-### Adding an MCP Server
+### Adding an mcp server
 
 ```bash
-# Add a stdio-based MCP server (default)
+
+# Add a stdio-based mcp server (default)
 claude mcp add neovim-server nvim-mcp-server
 
 # Add with environment variables
@@ -70,7 +72,8 @@ claude mcp add neovim-server nvim-mcp-server -e NVIM_SOCKET=/tmp/nvim
 
 # Add with specific scope
 claude mcp add neovim-server nvim-mcp-server --scope project
-```
+
+```text
 
 Scopes:
 
@@ -78,9 +81,9 @@ Scopes:
 - `user` - User-wide configuration
 - `project` - Project-wide (using .mcp.json)
 
-## Integration Approaches
+## Integration approaches
 
-### Option 1: Use mcp-neovim-server As-Is
+### Option 1: use mcp-neovim-server as-is
 
 **Advantages:**
 
@@ -101,7 +104,7 @@ Scopes:
 3. Auto-start Neovim with socket when needed
 4. Manage server lifecycle from plugin
 
-### Option 2: Fork and Enhance mcp-neovim-server
+### Option 2: fork and enhance mcp-neovim-server
 
 **Advantages:**
 
@@ -115,7 +118,7 @@ Scopes:
 - Maintenance burden
 - Divergence from upstream
 
-### Option 3: Build Native Lua MCP Server
+### Option 3: build native lua mcp server
 
 **Advantages:**
 
@@ -139,7 +142,8 @@ Scopes:
 -- 3. Neovim API wrapper
 -- 4. Tool definitions (edit, read, etc.)
 -- 5. Resource providers (buffers, files)
-```
+
+```text
 
 ## Recommendation
 
@@ -147,7 +151,7 @@ Scopes:
 
 1. Integrate with existing mcp-neovim-server
 2. Document setup and configuration
-3. Test with Claude Code CLI
+3. Test with Claude Code command-line tool
 4. Identify limitations and issues
 
 **Medium-term (1-2 months):**
@@ -162,7 +166,7 @@ Scopes:
 2. If justified, build incrementally while maintaining compatibility
 3. Consider hybrid approach (Lua core with Node.js compatibility layer)
 
-## Technical Comparison
+## Technical comparison
 
 | Feature | mcp-neovim-server | Native Lua (Proposed) |
 |---------|-------------------|----------------------|
@@ -175,14 +179,14 @@ Scopes:
 | Security | Concerns noted | Can be hardened |
 | Customization | Limited | Full control |
 
-## Next Steps
+## Next steps
 
 1. **Immediate Action:** Test mcp-neovim-server with Claude Code
 2. **Documentation:** Create setup guide for users
 3. **Integration:** Add helper commands in claude-code.nvim
 4. **Evaluation:** After 2 weeks of testing, decide on long-term approach
 
-## Security Considerations
+## Security considerations
 
 The MCP ecosystem has known security concerns:
 
@@ -196,3 +200,4 @@ Any solution must address:
 - Sandboxing capabilities
 - Audit logging
 - User consent for operations
+

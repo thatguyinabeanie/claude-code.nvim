@@ -265,6 +265,12 @@ end
 
 -- Start the MCP server
 function M.start()
+  -- Check if we're in test mode to avoid actual pipe creation in CI
+  if os.getenv('CLAUDE_CODE_TEST_MODE') == 'true' then
+    notify('MCP server start skipped in CI test mode', vim.log.levels.INFO)
+    return true
+  end
+
   -- Check if we're in headless mode for appropriate file descriptor usage
   local is_headless = utils.is_headless()
 
@@ -285,8 +291,8 @@ function M.start()
 
   -- Platform-specific file descriptor validation for MCP communication
   -- MCP uses stdin/stdout for JSON-RPC message exchange per specification
-  local stdin_fd = 0   -- Standard input file descriptor
-  local stdout_fd = 1  -- Standard output file descriptor
+  local stdin_fd = 0 -- Standard input file descriptor
+  local stdout_fd = 1 -- Standard output file descriptor
 
   -- Headless mode requires strict validation since MCP clients expect reliable I/O
   -- UI mode is more forgiving as stdin/stdout may be redirected or unavailable

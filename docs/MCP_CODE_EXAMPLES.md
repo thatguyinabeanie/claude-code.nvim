@@ -1,8 +1,9 @@
-# MCP Server Code Examples
 
-## Basic Server Structure (TypeScript)
+# Mcp server code examples
 
-### Minimal Server Setup
+## Basic server structure (typescript)
+
+### Minimal server setup
 
 ```typescript
 import { McpServer, StdioServerTransport } from "@modelcontextprotocol/sdk/server/index.js";
@@ -36,9 +37,10 @@ server.tool(
 // Connect to stdio transport
 const transport = new StdioServerTransport();
 await server.connect(transport);
-```
 
-### Complete Server Pattern
+```text
+
+### Complete server pattern
 
 Based on MCP example servers structure:
 
@@ -207,11 +209,12 @@ class NeovimMCPServer {
 // Entry point
 const server = new NeovimMCPServer();
 server.run().catch(console.error);
-```
 
-## Neovim Client Integration
+```text
 
-### Using node-client (JavaScript)
+## Neovim client integration
+
+### Using node-client (javascript)
 
 ```javascript
 import { attach } from 'neovim';
@@ -245,11 +248,12 @@ class NeovimClient {
     return await buffer.lines;
   }
 }
-```
 
-## Tool Patterns
+```text
 
-### Search Tool
+## Tool patterns
+
+### Search tool
 
 ```typescript
 {
@@ -273,9 +277,10 @@ async handleSearchProject(args) {
   );
   // Parse and return results
 }
-```
 
-### LSP Integration Tool
+```text
+
+### Lsp integration tool
 
 ```typescript
 {
@@ -299,11 +304,12 @@ async handleGoToDefinition(args) {
   );
   // Return new cursor position
 }
-```
 
-## Resource Patterns
+```text
 
-### Dynamic Resource Provider
+## Resource patterns
+
+### Dynamic resource provider
 
 ```typescript
 // Provide LSP diagnostics as a resource
@@ -327,9 +333,10 @@ async handleDiagnosticsResource() {
     }]
   };
 }
-```
 
-## Error Handling Pattern
+```text
+
+## Error handling pattern
 
 ```typescript
 class MCPError extends Error {
@@ -357,9 +364,10 @@ try {
     isError: true
   };
 }
-```
 
-## Security Pattern
+```text
+
+## Security pattern
 
 ```typescript
 class SecurityManager {
@@ -386,9 +394,10 @@ async handleFileOperation(args) {
   const sanitizedPath = this.security.sanitizePath(args.path);
   // Proceed with operation
 }
-```
 
-## Testing Pattern
+```text
+
+## Testing pattern
 
 ```typescript
 // Mock Neovim client for testing
@@ -417,4 +426,6 @@ describe("NeovimMCPServer", () => {
     expect(result.content[0].text).toContain("Successfully edited");
   });
 });
-```
+
+```text
+

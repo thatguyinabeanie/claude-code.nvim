@@ -28,19 +28,24 @@ echo ""
 # Helper function to run commands with timeout and debug
 run_with_timeout() {
     local cmd="$1"
+    # shellcheck disable=SC2034
     local description="$2"
     
     if [ "$DEBUG" = "1" ]; then
         echo "DEBUG: Running: $cmd"
-        echo "$cmd" | timeout "$TIMEOUT" $SERVER
+        echo "$cmd" | timeout "$TIMEOUT" "$SERVER"
     else
-        echo "$cmd" | timeout "$TIMEOUT" $SERVER 2>/dev/null
+        echo "$cmd" | timeout "$TIMEOUT" "$SERVER" 2>/dev/null
     fi
 }
 
 # Test 1: Initialize
 echo "1. Testing initialization..."
-run_with_timeout '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}' "initialization" | head -1
+if ! response=$(run_with_timeout '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}' "initialization" | head -1); then
+    echo "ERROR: Server failed to initialize"
+    exit 1
+fi
+echo "$response"
 
 echo ""
 
@@ -49,7 +54,7 @@ echo "2. Testing tools list..."
 (
 echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}'
 echo '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
-) | timeout "$TIMEOUT" $SERVER 2>/dev/null | tail -1 | jq '.result.tools[] | .name' 2>/dev/null || echo "jq not available - raw output needed"
+) | timeout "$TIMEOUT" "$SERVER" 2>/dev/null | tail -1 | jq '.result.tools[] | .name' 2>/dev/null || echo "jq not available - raw output needed"
 
 echo ""
 
@@ -58,7 +63,7 @@ echo "3. Testing resources list..."
 (
 echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0.0"}}}'
 echo '{"jsonrpc":"2.0","id":3,"method":"resources/list","params":{}}'
-) | timeout "$TIMEOUT" $SERVER 2>/dev/null | tail -1
+) | timeout "$TIMEOUT" "$SERVER" 2>/dev/null | tail -1
 
 echo ""
 

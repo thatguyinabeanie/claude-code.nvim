@@ -1,26 +1,27 @@
-# Claude Code Neovim Plugin - MCP Integration Plan
 
-## Current Plugin Architecture
+# Claude code neovim plugin - mcp integration plan
+
+## Current plugin architecture
 
 The `claude-code.nvim` plugin currently:
 
-- Provides terminal-based integration with Claude Code CLI
+- Provides terminal-based integration with Claude Code command-line tool
 - Manages Claude instances per git repository
 - Handles keymaps and commands for Claude interaction
-- Uses `terminal.lua` to spawn and manage Claude CLI processes
+- Uses `terminal.lua` to spawn and manage Claude command-line tool processes
 
-## MCP Integration Goals
+## Mcp integration goals
 
 Extend the existing plugin to:
 
-1. **Keep existing functionality** - Terminal-based CLI interaction remains
+1. **Keep existing functionality** - Terminal-based command-line tool interaction remains
 2. **Add MCP server** - Expose Neovim capabilities to Claude Code
 3. **Seamless experience** - Users get IDE features automatically
 4. **Optional feature** - MCP can be disabled if not needed
 
-## Integration Architecture
+## Integration architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                   claude-code.nvim                       │
 ├─────────────────────────────────────────────────────────┤
@@ -30,17 +31,18 @@ Extend the existing plugin to:
 │  ├─ keymaps.lua            │   ├─ mcp/config.lua       │
 │  └─ git.lua                │   └─ mcp/health.lua       │
 │                            │                             │
-│  Claude CLI ◄──────────────┼───► MCP Server             │
+│  Claude command-line tool ◄──────────────┼───► MCP Server             │
 │     ▲                      │         ▲                   │
 │     │                      │         │                   │
 │     └──────────────────────┴─────────┘                   │
 │              User Commands/Keymaps                       │
 └─────────────────────────────────────────────────────────┘
-```
 
-## Implementation Steps
+```text
 
-### 1. Add MCP Module to Existing Plugin
+## Implementation steps
+
+### 1. add mcp module to existing plugin
 
 Create `lua/claude-code/mcp/` directory:
 
@@ -73,9 +75,10 @@ M.start = function(config)
 end
 
 return M
-```
 
-### 2. Extend Main Plugin Configuration
+```text
+
+### 2. extend main plugin configuration
 
 Update `lua/claude-code/config.lua`:
 
@@ -92,26 +95,28 @@ mcp = {
     }
   }
 }
-```
 
-### 3. Integrate MCP with Terminal Module
+```text
+
+### 3. integrate mcp with terminal module
 
 Update `lua/claude-code/terminal.lua`:
 
 ```lua
--- In toggle function, after starting Claude CLI
+-- In toggle function, after starting Claude command-line tool
 if config.mcp.enabled and config.mcp.auto_start then
   local mcp = require('claude-code.mcp')
   local ok, err = mcp.start(config.mcp)
   if ok then
-    -- Configure Claude CLI to use MCP server
+    -- Configure Claude command-line tool to use MCP server
     local cmd = string.format('claude mcp add neovim-local stdio:%s', mcp.get_command())
     vim.fn.jobstart(cmd)
   end
 end
-```
 
-### 4. Add MCP Commands
+```text
+
+### 4. add mcp commands
 
 Update `lua/claude-code/commands.lua`:
 
@@ -128,9 +133,10 @@ end, { desc = 'Stop MCP server' })
 vim.api.nvim_create_user_command('ClaudeCodeMCPStatus', function()
   require('claude-code.mcp').status()
 end, { desc = 'Show MCP server status' })
-```
 
-### 5. Health Check Integration
+```text
+
+### 5. health check integration
 
 Create `lua/claude-code/mcp/health.lua`:
 
@@ -159,9 +165,10 @@ M.check = function()
 end
 
 return M
-```
 
-### 6. Installation Helper
+```text
+
+### 6. installation helper
 
 Add post-install script or command:
 
@@ -190,37 +197,40 @@ vim.api.nvim_create_user_command('ClaudeCodeMCPInstall', function()
     end
   })
 end, { desc = 'Install MCP server for Claude Code' })
-```
 
-## User Experience
+```text
 
-### Default Experience (MCP Enabled)
+## User experience
+
+### Default experience (mcp enabled)
 
 1. User runs `:ClaudeCode`
-2. Plugin starts Claude CLI terminal
+2. Plugin starts Claude command-line tool terminal
 3. Plugin automatically starts MCP server
 4. Plugin configures Claude to use the MCP server
 5. User gets full IDE features without any extra steps
 
-### Opt-out Experience
+### Opt-out experience
 
 ```lua
 require('claude-code').setup({
   mcp = {
-    enabled = false  -- Disable MCP, use CLI only
+    enabled = false  -- Disable MCP, use command-line tool only
   }
 })
-```
 
-### Manual Control
+```text
+
+### Manual control
 
 ```vim
 :ClaudeCodeMCPStart    " Start MCP server manually
 :ClaudeCodeMCPStop     " Stop MCP server
 :ClaudeCodeMCPStatus   " Check server status
-```
 
-## Benefits of This Approach
+```text
+
+## Benefits of this approach
 
 1. **Non-breaking** - Existing users keep their workflow
 2. **Progressive enhancement** - MCP adds features on top
@@ -228,10 +238,11 @@ require('claude-code').setup({
 4. **Automatic setup** - MCP "just works" by default
 5. **Flexible** - Can disable or manually control if needed
 
-## Next Steps
+## Next steps
 
 1. Create `lua/claude-code/mcp/` module structure
 2. Build the MCP server in `mcp-server/` directory
 3. Add installation/build scripts
 4. Test integration with existing features
 5. Update documentation
+

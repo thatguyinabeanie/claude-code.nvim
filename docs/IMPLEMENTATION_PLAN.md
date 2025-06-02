@@ -1,8 +1,9 @@
-# Implementation Plan: Neovim MCP Server
 
-## Decision Point: Language Choice
+# Implementation plan: neovim mcp server
 
-### Option A: TypeScript/Node.js
+## Decision point: language choice
+
+### Option a: typescript/node.js
 
 **Pros:**
 
@@ -17,7 +18,7 @@
 - Not native to Neovim ecosystem
 - Extra dependency for users
 
-### Option B: Pure Lua
+### Option b: pure lua
 
 **Pros:**
 
@@ -32,7 +33,7 @@
 - More initial work
 - Less MCP tooling available
 
-### Option C: Hybrid (Recommended)
+### Option c: hybrid (recommended)
 
 **Start with TypeScript for MVP, plan Lua port:**
 
@@ -45,11 +46,11 @@
 
 We're extending the existing plugin with MCP server capabilities:
 
-```
+```text
 claude-code.nvim/                  # THIS REPOSITORY
 ├── lua/claude-code/               # Existing plugin code
 │   ├── init.lua                  # Main plugin entry
-│   ├── terminal.lua              # Current Claude CLI integration
+│   ├── terminal.lua              # Current Claude command-line tool integration
 │   ├── keymaps.lua              # Keybindings
 │   └── mcp/                     # NEW: MCP integration
 │       ├── init.lua             # MCP module entry
@@ -83,21 +84,22 @@ claude-code.nvim/                  # THIS REPOSITORY
 └── doc/                          # Existing + new documentation
     ├── claude-code.txt          # Existing vim help
     └── mcp-integration.txt      # NEW: MCP help docs
-```
 
-## How It Works Together
+```text
+
+## How it works together
 
 1. **User installs claude-code.nvim** (this plugin)
 2. **Plugin provides MCP server** as part of installation
 3. **When user runs `:ClaudeCode`**, plugin:
    - Starts MCP server if needed
-   - Configures Claude Code CLI to use it
-   - Maintains existing CLI integration
+   - Configures Claude Code command-line tool to use it
+   - Maintains existing command-line tool integration
 4. **Claude Code gets IDE features** via MCP server
 
-## Implementation Phases
+## Implementation phases
 
-### Phase 1: MVP ✅ COMPLETED
+### Phase 1: mvp ✅ completed
 
 **Goal:** Basic working MCP server
 
@@ -125,11 +127,11 @@ claude-code.nvim/                  # THIS REPOSITORY
    - `vim_options`: Neovim configuration
 
 4. **Integration** ✅
-   - Full Claude Code CLI integration
+   - Full Claude Code command-line tool integration
    - Standalone MCP server support
    - Comprehensive documentation
 
-### Phase 2: Enhanced Features ✅ COMPLETED
+### Phase 2: enhanced features ✅ completed
 
 **Goal:** Productivity features
 
@@ -148,15 +150,15 @@ claude-code.nvim/                  # THIS REPOSITORY
 3. **UX Improvements** ✅
    - Context-aware commands (`:ClaudeCodeWithFile`, `:ClaudeCodeWithSelection`, etc.)
    - Smart context detection (auto vs manual modes)
-   - Configurable CLI path with robust detection
+   - Configurable command-line tool path with robust detection
    - Comprehensive user notifications
 
-### Phase 3: Enterprise Features ✅ PARTIALLY COMPLETED
+### Phase 3: enterprise features ✅ partially completed
 
 **Goal:** Security and compliance
 
 1. **Security** ✅
-   - CLI path validation and security checks
+   - command-line tool path validation and security checks
    - Robust file operation error handling
    - Safe temporary file management with auto-cleanup
    - Configuration validation
@@ -169,11 +171,11 @@ claude-code.nvim/                  # THIS REPOSITORY
 
 3. **Integration** ✅
    - Complete Neovim plugin integration
-   - Auto-configuration with intelligent CLI detection
+   - Auto-configuration with intelligent command-line tool detection
    - Comprehensive health checks via test suite
    - Multi-instance support for git repositories
 
-### Phase 4: Pure Lua Implementation ✅ COMPLETED
+### Phase 4: pure lua implementation ✅ completed
 
 **Goal:** Native implementation
 
@@ -187,81 +189,86 @@ claude-code.nvim/                  # THIS REPOSITORY
    - High performance through native Neovim integration
    - Minimal memory usage with efficient resource management
 
-### Phase 5: Advanced CLI Configuration ✅ COMPLETED
+### Phase 5: advanced cli configuration ✅ completed
 
-**Goal:** Robust CLI handling
+**Goal:** Robust command-line tool handling
 
 1. **Configuration System** ✅
-   - Configurable CLI path support (`cli_path` option)
+   - Configurable command-line tool path support (`cli_path` option)
    - Intelligent detection order (custom → local → PATH)
    - Comprehensive validation and error handling
 
 2. **Test Coverage** ✅
    - Test-Driven Development approach
-   - 14 comprehensive CLI detection test cases
+   - 14 comprehensive command-line tool detection test cases
    - Complete scenario coverage including edge cases
 
 3. **User Experience** ✅
-   - Clear notifications for CLI detection results
+   - Clear notifications for command-line tool detection results
    - Graceful fallback behavior
    - Enterprise-friendly custom path support
 
-## Next Immediate Steps
+## Next immediate steps
 
-### 1. Validate Approach (Today)
+### 1. validate approach (today)
 
 ```bash
+
 # Test mcp-neovim-server with mcp-hub
 npm install -g @bigcodegen/mcp-neovim-server
 nvim --listen /tmp/nvim
 
 # In another terminal
-# Configure with mcp-hub and test
-```
 
-### 2. Setup Development (Today/Tomorrow)
+# Configure with mcp-hub and test
+
+```text
+
+### 2. setup development (today/tomorrow)
 
 ```bash
-# Create MCP server directory
+
+# Create mcp server directory
 mkdir mcp-server
 cd mcp-server
 npm init -y
 npm install @modelcontextprotocol/sdk
 npm install neovim-client
-```
 
-### 3. Create Minimal Server (This Week)
+```text
+
+### 3. create minimal server (this week)
 
 - Implement basic MCP server
 - Add one tool (edit_buffer)
 - Test with Claude Code
 
-## Success Criteria
+## Success criteria
 
-### MVP Success: ✅ ACHIEVED
+### Mvp success: ✅ achieved
 
 - [x] Server starts and registers with Claude Code
 - [x] Claude Code can connect and list tools
 - [x] Basic edit operations work
 - [x] No crashes or data loss
 
-### Full Success: ✅ ACHIEVED
+### Full success: ✅ achieved
 
 - [x] All planned tools implemented (+ additional context tools)
-- [x] Enterprise features working (CLI configuration, security)
+- [x] Enterprise features working (command-line tool configuration, security)
 - [x] Performance targets met (pure Lua, efficient context analysis)
 - [x] Positive user feedback (comprehensive documentation, test coverage)
 - [x] Pure Lua implementation completed
 
-### Advanced Success: ✅ ACHIEVED
+### Advanced success: ✅ achieved
 
 - [x] Context-aware integration matching IDE built-ins
-- [x] Configurable CLI path support for enterprise environments
+- [x] Configurable command-line tool path support for enterprise environments
 - [x] Test-Driven Development with 97+ passing tests
 - [x] Comprehensive documentation and examples
 - [x] Multi-language support for context analysis
 
-## Questions Resolved ✅
+## Questions resolved ✅
 
 1. **Naming**: ✅ RESOLVED
    - Chose `claude-code-mcp-server` for clarity and branding alignment
@@ -277,24 +284,25 @@ npm install neovim-client
    - Single unified configuration approach
    - MCP settings as part of main plugin config
 
-## Current Status: IMPLEMENTATION COMPLETE ✅
+## Current status: implementation complete ✅
 
-### What Was Accomplished
+### What was accomplished
 
 1. ✅ **Pure Lua MCP Server** - No external dependencies
 2. ✅ **Context-Aware Integration** - IDE-like experience
 3. ✅ **Comprehensive Tool Set** - 11 MCP tools + 3 analysis tools
 4. ✅ **Rich Resource Exposure** - 10 MCP resources
-5. ✅ **Robust CLI Configuration** - Custom path support with TDD
+5. ✅ **Robust command-line tool Configuration** - Custom path support with TDD
 6. ✅ **Test Coverage** - 97+ comprehensive tests
 7. ✅ **Documentation** - Complete user and developer docs
 
-### Beyond Original Goals
+### Beyond original goals
 
 - **Context Analysis Engine** - Multi-language import/require discovery
 - **Enhanced Terminal Interface** - Context-aware command variants
 - **Test-Driven Development** - Comprehensive test suite
-- **Enterprise Features** - Custom CLI paths, validation, security
+- **Enterprise Features** - Custom command-line tool paths, validation, security
 - **Performance Optimization** - Efficient Lua implementation
 
 The implementation has exceeded the original goals and provides a complete, production-ready solution for Claude Code integration with Neovim.
+

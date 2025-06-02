@@ -1,6 +1,7 @@
-# Enterprise Architecture for claude-code.nvim
 
-## Problem Statement
+# Enterprise architecture for claude-code.nvim
+
+## Problem statement
 
 Current MCP integrations (like mcp-neovim-server → Claude Desktop) route code through cloud services, which is unacceptable for:
 
@@ -9,19 +10,20 @@ Current MCP integrations (like mcp-neovim-server → Claude Desktop) route code 
 - Regulated industries (finance, healthcare, defense)
 - Companies with air-gapped development environments
 
-## Solution Architecture
+## Solution architecture
 
-### Local-First Design
+### Local-first design
 
-Instead of connecting to Claude Desktop (cloud), we need to enable **Claude Code CLI** (running locally) to connect to our MCP server:
+Instead of connecting to Claude Desktop (cloud), we need to enable **Claude Code command-line tool** (running locally) to connect to our MCP server:
 
 ```text
 ┌─────────────┐     MCP      ┌──────────────────┐     Neovim RPC     ┌────────────┐
 │ Claude Code │ ◄──────────► │ mcp-server-nvim  │ ◄─────────────────► │   Neovim   │
-│     CLI     │    (stdio)   │   (our server)   │                     │  Instance  │
+│     command-line tool     │    (stdio)   │   (our server)   │                     │  Instance  │
 └─────────────┘              └──────────────────┘                     └────────────┘
      LOCAL                          LOCAL                                   LOCAL
-```
+
+```text
 
 **Key Points:**
 
@@ -30,11 +32,11 @@ Instead of connecting to Claude Desktop (cloud), we need to enable **Claude Code
 - Code never leaves the developer's workstation
 - Works in air-gapped environments
 
-### Privacy-Preserving Features
+### Privacy-preserving features
 
 1. **No Cloud Dependencies**
    - MCP server runs locally as part of Neovim
-   - Claude Code CLI runs locally with local models or private API endpoints
+   - Claude Code command-line tool runs locally with local models or private API endpoints
    - Zero reliance on Anthropic's cloud infrastructure for transport
 
 2. **Data Controls**
@@ -57,11 +59,11 @@ Instead of connecting to Claude Desktop (cloud), we need to enable **Claude Code
    })
    ```
 
-### Integration Options
+### Integration options
 
-#### Option 1: Direct CLI Integration (Recommended)
+#### Option 1: direct cli integration (recommended)
 
-Claude Code CLI connects directly to our MCP server:
+Claude Code command-line tool connects directly to our MCP server:
 
 **Advantages:**
 
@@ -73,24 +75,26 @@ Claude Code CLI connects directly to our MCP server:
 **Implementation:**
 
 ```bash
-# Start Neovim with socket listener
+
+# Start neovim with socket listener
 nvim --listen /tmp/nvim.sock
 
-# Add our MCP server to Claude Code configuration
+# Add our mcp server to claude code configuration
 claude mcp add neovim-editor nvim-mcp-server -e NVIM_SOCKET=/tmp/nvim.sock
 
-# Now Claude Code can access Neovim via the MCP server
+# Now claude code can access neovim via the mcp server
 claude "Help me refactor this function"
-```
 
-#### Option 2: Enterprise Claude Deployment
+```text
+
+#### Option 2: enterprise claude deployment
 
 For organizations using Claude via Amazon Bedrock or Google Vertex AI:
 
-```
+```text
 ┌─────────────┐      ┌──────────────────┐      ┌─────────────────┐
 │   Neovim    │ ◄──► │  MCP Server      │ ◄──► │  Claude Code    │
-│             │      │  (local)         │      │  CLI (local)    │
+│             │      │  (local)         │      │  command-line tool (local)    │
 └─────────────┘      └──────────────────┘      └────────┬────────┘
                                                          │
                                                          ▼
@@ -98,9 +102,10 @@ For organizations using Claude via Amazon Bedrock or Google Vertex AI:
                                                 │ Private Claude  │
                                                 │ (Bedrock/Vertex)│
                                                 └─────────────────┘
-```
 
-### Security Considerations
+```text
+
+### Security considerations
 
 1. **Authentication**
    - Local socket with filesystem permissions
@@ -117,31 +122,31 @@ For organizations using Claude via Amazon Bedrock or Google Vertex AI:
    - Integration with SIEM systems
    - Compliance mode flags (HIPAA, SOC2, etc.)
 
-### Implementation Phases
+### Implementation phases
 
-#### Phase 1: Local MCP Server (Priority)
+#### Phase 1: local mcp server (priority)
 
 Build a secure, local-only MCP server that:
 
 - Runs as part of claude-code.nvim
 - Exposes Neovim capabilities via stdio
-- Works with Claude Code CLI locally
+- Works with Claude Code command-line tool locally
 - Never connects to external services
 
-#### Phase 2: Enterprise Features
+#### Phase 2: enterprise features
 
 - Audit logging
 - Permission policies
 - Context filtering
 - Encryption options
 
-#### Phase 3: Integration Support
+#### Phase 3: integration support
 
 - Bedrock/Vertex AI configuration guides
 - On-premise deployment documentation
 - Enterprise support channels
 
-### Key Differentiators
+### Key differentiators
 
 | Feature | mcp-neovim-server | Our Solution |
 |---------|-------------------|--------------|
@@ -152,9 +157,9 @@ Build a secure, local-only MCP server that:
 | Permission Control | Limited | Comprehensive |
 | Context Filtering | No | Yes |
 
-### Configuration Examples
+### Configuration examples
 
-#### Minimal Secure Setup
+#### Minimal secure setup
 
 ```lua
 require('claude-code').setup({
@@ -163,9 +168,10 @@ require('claude-code').setup({
     server = "embedded"  -- Run in Neovim process
   }
 })
-```
 
-#### Enterprise Setup
+```text
+
+#### Enterprise setup
 
 ```lua
 require('claude-code').setup({
@@ -194,8 +200,10 @@ require('claude-code').setup({
     }
   }
 })
-```
+
+```text
 
 ### Conclusion
 
 By building an MCP server that prioritizes local execution and enterprise security, we can enable AI-assisted development for organizations that cannot use cloud-based solutions. This approach provides the benefits of Claude Code integration while maintaining complete control over sensitive codebases.
+

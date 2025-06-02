@@ -1,14 +1,15 @@
-# Technical Resources and Documentation
 
-## MCP (Model Context Protocol) Resources
+# Technical resources and documentation
 
-### Official Documentation
+## Mcp (model context protocol) resources
+
+### Official documentation
 
 - **MCP Specification**: <https://modelcontextprotocol.io/specification/2025-03-26>
 - **MCP Main Site**: <https://modelcontextprotocol.io>
 - **MCP GitHub Organization**: <https://github.com/modelcontextprotocol>
 
-### MCP SDK and Implementation
+### Mcp sdk and implementation
 
 - **TypeScript SDK**: <https://github.com/modelcontextprotocol/typescript-sdk>
   - Official SDK for building MCP servers and clients
@@ -19,7 +20,7 @@
   - Reference implementations showing best practices
   - Includes filesystem, GitHub, GitLab, and more
 
-### Community Resources
+### Community resources
 
 - **Awesome MCP Servers**: <https://github.com/wong2/awesome-mcp-servers>
   - Curated list of MCP server implementations
@@ -30,7 +31,7 @@
 - **MCP Resources Collection**: <https://github.com/cyanheads/model-context-protocol-resources>
   - Tutorials, guides, and examples
 
-### Example MCP Servers to Study
+### Example mcp servers to study
 
 - **mcp-neovim-server**: <https://github.com/bigcodegen/mcp-neovim-server>
   - Existing Neovim MCP server (our starting point)
@@ -39,9 +40,9 @@
   - Shows editor integration patterns
   - Good reference for tool implementation
 
-## Neovim Development Resources
+## Neovim development resources
 
-### Official Documentation
+### Official documentation
 
 - **Neovim API**: <https://neovim.io/doc/user/api.html>
   - Complete API reference
@@ -56,7 +57,7 @@
   - Architecture overview
   - Development setup
 
-### RPC and External Integration
+### Rpc and external integration
 
 - **RPC Implementation**: <https://github.com/neovim/neovim/blob/master/runtime/lua/vim/lsp/rpc.lua>
   - Reference implementation for RPC communication
@@ -66,9 +67,9 @@
   - Version information
   - Type information
 
-### Neovim Client Libraries
+### Neovim client libraries
 
-#### Node.js/JavaScript
+#### Node.js/javascript
 
 - **Official Node Client**: <https://github.com/neovim/node-client>
   - Used by mcp-neovim-server
@@ -84,9 +85,9 @@
   - Alternative implementation
   - Different approach to async handling
 
-### Integration Patterns
+### Integration patterns
 
-#### Socket Connection
+#### Socket connection
 
 ```lua
 -- Neovim server
@@ -94,17 +95,18 @@ vim.fn.serverstart('/tmp/nvim.sock')
 
 -- Client connection
 local socket_path = '/tmp/nvim.sock'
-```
 
-#### RPC Communication
+```text
+
+#### Rpc communication
 
 - Uses MessagePack-RPC protocol
 - Supports both synchronous and asynchronous calls
 - Built-in request/response handling
 
-## Implementation Guides
+## Implementation guides
 
-### Creating an MCP Server (TypeScript)
+### Creating an mcp server (typescript)
 
 Reference the TypeScript SDK examples:
 
@@ -114,7 +116,7 @@ Reference the TypeScript SDK examples:
 4. Define resources
 5. Handle lifecycle events
 
-### Neovim RPC Best Practices
+### Neovim rpc best practices
 
 1. Use persistent connections for performance
 2. Handle reconnection gracefully
@@ -122,15 +124,15 @@ Reference the TypeScript SDK examples:
 4. Use notifications for one-way communication
 5. Implement proper error handling
 
-## Testing Resources
+## Testing resources
 
-### MCP Testing
+### Mcp testing
 
 - **MCP Inspector**: Tool for testing MCP servers (check SDK)
 - **Protocol Testing**: Use SDK test utilities
-- **Integration Testing**: Test with actual Claude Code CLI
+- **Integration Testing**: Test with actual Claude Code command-line tool
 
-### Neovim Testing
+### Neovim testing
 
 - **Plenary.nvim**: <https://github.com/nvim-lua/plenary.nvim>
   - Standard testing framework for Neovim plugins
@@ -139,37 +141,37 @@ Reference the TypeScript SDK examples:
   - `nvim_exec_lua()` for remote execution
   - Headless mode for CI/CD
 
-## Security Resources
+## Security resources
 
-### MCP Security
+### Mcp security
 
 - **Security Best Practices**: See MCP specification security section
 - **Permission Models**: Study example servers for patterns
 - **Audit Logging**: Implement structured logging
 
-### Neovim Security
+### Neovim security
 
 - **Sandbox Execution**: Use `vim.secure` namespace
 - **Path Validation**: Always validate file paths
 - **Command Injection**: Sanitize all user input
 
-## Performance Resources
+## Performance resources
 
-### MCP Performance
+### Mcp performance
 
 - **Streaming Responses**: Use SSE for long operations
 - **Batch Operations**: Group related operations
 - **Caching**: Implement intelligent caching
 
-### Neovim Performance
+### Neovim performance
 
 - **Async Operations**: Use `vim.loop` for non-blocking ops
 - **Buffer Updates**: Use `nvim_buf_set_lines()` for bulk updates
 - **Event Debouncing**: Limit update frequency
 
-## Additional Resources
+## Additional resources
 
-### Tutorials and Guides
+### Tutorials and guides
 
 - **Building Your First MCP Server**: Check modelcontextprotocol.io/docs
 - **Neovim Plugin Development**: <https://github.com/nanotee/nvim-lua-guide>
@@ -187,3 +189,4 @@ Reference the TypeScript SDK examples:
   - Server coordinator we'll integrate with
 - **mcphub.nvim**: <https://github.com/ravitemer/mcphub.nvim>
   - Neovim plugin for MCP hub integration
+

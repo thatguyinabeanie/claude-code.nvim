@@ -1,30 +1,31 @@
-# Pure Lua MCP Server Implementation Analysis
 
-## Is It Feasible? YES
+# Pure lua mcp server implementation analysis
+
+## Is it feasible? YES
 
 MCP is just JSON-RPC 2.0 over stdio, which Neovim's Lua can handle natively.
 
-## What We Need
+## What we need
 
-### 1. JSON-RPC 2.0 Protocol ✅
+### 1. json-rpc 2.0 protocol ✅
 
 - Neovim has `vim.json` for JSON encoding/decoding
 - Simple request/response pattern over stdio
 - Can use `vim.loop` (libuv) for async I/O
 
-### 2. stdio Communication ✅
+### 2. stdio communication ✅
 
 - Read from stdin: `vim.loop.new_pipe(false)`
 - Write to stdout: `io.stdout:write()` or `vim.loop.write()`
 - Neovim's event loop handles async naturally
 
-### 3. MCP Protocol Implementation ✅
+### 3. MCP protocol implementation ✅
 
 - Just need to implement the message patterns
 - Tools, resources, and prompts are simple JSON structures
 - No complex dependencies required
 
-## Pure Lua Architecture
+## Pure lua architecture
 
 ```lua
 -- lua/claude-code/mcp/server.lua
@@ -118,9 +119,10 @@ M.start = function()
 end
 
 return M
-```
 
-## Advantages of Pure Lua
+```text
+
+## Advantages of pure lua
 
 1. **No Dependencies**
    - No Node.js required
@@ -147,18 +149,19 @@ return M
    - Use Neovim's built-in debugging
    - Single process to monitor
 
-## Implementation Approach
+## Implementation approach
 
-### Phase 1: Basic Server
+### Phase 1: basic server
 
 ```lua
 -- Minimal MCP server that can:
 -- 1. Accept connections over stdio
 -- 2. List available tools
 -- 3. Execute simple buffer edits
-```
 
-### Phase 2: Full Protocol
+```text
+
+### Phase 2: full protocol
 
 ```lua
 -- Add:
@@ -166,9 +169,10 @@ return M
 -- 2. Error handling
 -- 3. Async operations
 -- 4. Progress notifications
-```
 
-### Phase 3: Advanced Features
+```text
+
+### Phase 3: advanced features
 
 ```lua
 -- Add:
@@ -176,45 +180,50 @@ return M
 -- 2. Git operations
 -- 3. Project-wide search
 -- 4. Security/permissions
-```
 
-## Key Components Needed
+```text
 
-### 1. JSON-RPC Parser
+## Key components needed
+
+### 1. json-rpc parser
 
 ```lua
 -- Parse incoming messages
 -- Handle Content-Length headers
 -- Support batch requests
-```
 
-### 2. Message Router
+```text
+
+### 2. message router
 
 ```lua
 -- Route methods to handlers
 -- Manage request IDs
 -- Handle async responses
-```
 
-### 3. Tool Implementations
+```text
+
+### 3. tool implementations
 
 ```lua
 -- Buffer operations
 -- File operations
 -- LSP queries
 -- Search functionality
-```
 
-### 4. Resource Providers
+```text
+
+### 4. resource providers
 
 ```lua
 -- Buffer list
 -- Project structure
 -- Diagnostics
 -- Git status
-```
 
-## Example: Complete Mini Server
+```text
+
+## Example: complete mini server
 
 ```lua
 #!/usr/bin/env -S nvim -l
@@ -267,7 +276,8 @@ end
 if arg and arg[0]:match("mcp%-server%.lua$") then
   start_mcp_server()
 end
-```
+
+```text
 
 ## Conclusion
 
@@ -279,3 +289,4 @@ A pure Lua MCP server is not only feasible but **preferable** for a Neovim plugi
 - No external dependencies
 
 We should definitely go with pure Lua!
+

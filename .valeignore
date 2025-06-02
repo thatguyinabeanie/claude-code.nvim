@@ -1,0 +1,18 @@
+# Ignore directories
+.vscode/
+.git/
+node_modules/
+vendor/
+**/vendor/
+.luarocks/
+doc/luadoc/
+.vale/
+bin/
+tests/
+mcp-server/node_modules/
+
+# Ignore generated files
+*.min.js
+*.map
+package-lock.json
+yarn.lock

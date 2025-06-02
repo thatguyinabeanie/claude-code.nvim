@@ -64,17 +64,16 @@ M.project_structure = {
     local cwd = vim.fn.getcwd()
 
     -- Simple directory listing (could be enhanced with tree structure)
-    local handle = io.popen(
-      'find '
-        .. vim.fn.shellescape(cwd)
-        .. " -type f -name '*.lua' -o -name '*.vim' -o -name '*.js' -o -name '*.ts' -o -name '*.py' -o -name '*.md' | head -50"
-    )
-    if not handle then
+    local cmd = 'find '
+      .. vim.fn.shellescape(cwd)
+      .. " -type f -name '*.lua' -o -name '*.vim' -o -name '*.js'"
+      .. " -o -name '*.ts' -o -name '*.py' -o -name '*.md' | head -50"
+
+    local result = vim.fn.system(cmd)
+
+    if vim.v.shell_error ~= 0 then
       return 'Error: Could not list project files'
     end
-
-    local result = handle:read('*a')
-    handle:close()
 
     local header = string.format('Project: %s\n\nRecent files:\n', cwd)
     return header .. result
@@ -100,13 +99,12 @@ M.git_status = {
     end
 
     local cmd = vim.fn.shellescape(git_path) .. ' status --porcelain 2>/dev/null'
-    local handle = io.popen(cmd)
-    if not handle then
+    local status = vim.fn.system(cmd)
+
+    -- Check if git command failed
+    if vim.v.shell_error ~= 0 then
       return 'Not a git repository or git not available'
     end
-
-    local status = handle:read('*a')
-    handle:close()
 
     if status == '' then
       return 'Working tree clean'

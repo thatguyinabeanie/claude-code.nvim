@@ -233,13 +233,11 @@ describe('terminal module', function()
           file_cmd_found = true
           -- Extract the buffer name from the command
           local buffer_name = cmd:match('file (.+)')
-          -- In test mode, the name includes timestamp and random number, so extract just the base part
-          local base_name = buffer_name:match('^(claude%-code%-[^%-]+)')
-          if base_name then
-            -- Check that the instance ID part was properly sanitized
-            local instance_part = base_name:match('claude%-code%-(.+)')
-            assert.is_nil(instance_part:match('[^%w%-_]'), 'Buffer name should not contain special characters')
-          end
+          -- In test mode, the name includes timestamp and random number
+          -- The sanitized path should only contain word chars, hyphens, and underscores
+          -- Buffer name format: claude-code-<sanitized-path>-<timestamp>-<random>
+          -- Check that the entire buffer name only contains allowed characters
+          assert.is_nil(buffer_name:match('[^%w%-_]'), 'Buffer name should not contain special characters')
           break
         end
       end
@@ -252,9 +250,9 @@ describe('terminal module', function()
       local instance_id = '/test/git/root'
       claude_code.claude_code.instances[instance_id] = 999 -- Invalid buffer number
 
-      -- Mock nvim_buf_is_valid to return false for this buffer
+      -- Mock nvim_buf_is_valid to return false for buffer 999 but true for others
       _G.vim.api.nvim_buf_is_valid = function(bufnr)
-        return bufnr ~= 999
+        return bufnr ~= 999 and bufnr ~= nil
       end
 
       -- Call toggle
@@ -285,6 +283,104 @@ describe('terminal module', function()
 
       -- Check that global instance is created
       assert.is_not_nil(claude_code.claude_code.instances['global'], 'Global instance should be created')
+    end)
+  end)
+
+  describe('window position current', function()
+    it('should use current window when position is set to current', function()
+      -- Set window position to current
+      config.window.position = 'current'
+
+      -- Call toggle
+      terminal.toggle(claude_code, config, git)
+
+      -- Check that no split command was issued
+      local split_cmd_found = false
+      local enew_cmd_found = false
+
+      for _, cmd in ipairs(vim_cmd_calls) do
+        if cmd:match('split') then
+          split_cmd_found = true
+        end
+        if cmd == 'enew' then
+          enew_cmd_found = true
+        end
+      end
+
+      assert.is_false(split_cmd_found, 'No split command should be issued for current position')
+      assert.is_true(enew_cmd_found, 'enew command should be issued for current position')
+    end)
+  end)
+
+  describe('floating window support', function()
+    before_each(function()
+      -- Mock nvim_open_win
+      local float_win_id = 1001
+      _G.vim.api.nvim_open_win = function(bufnr, enter, win_config)
+        return float_win_id
+      end
+      
+      -- Mock nvim_win_is_valid
+      _G.vim.api.nvim_win_is_valid = function(win_id)
+        return win_id == float_win_id
+      end
+      
+      -- Mock nvim_win_set_option
+      _G.vim.api.nvim_win_set_option = function(win_id, option, value)
+        -- Just track the calls, don't do anything
+      end
+    end)
+
+    it('should create floating window when position is set to float', function()
+      -- Set window position to float
+      config.window.position = 'float'
+      config.window.float = {
+        relative = 'editor',
+        width = 0.8,
+        height = 0.8,
+        row = 0.1,
+        col = 0.1,
+        border = 'rounded',
+        title = ' Claude Code ',
+        title_pos = 'center',
+      }
+
+      -- Call toggle
+      terminal.toggle(claude_code, config, git)
+
+      -- Check that floating window was created
+      local instance_id = '/test/git/root'
+      assert.is_not_nil(claude_code.claude_code.floating_windows[instance_id], 'Floating window should be tracked')
+      assert.equals(1001, claude_code.claude_code.floating_windows[instance_id], 'Floating window ID should be stored')
+    end)
+
+    it('should toggle floating window visibility', function()
+      -- Set window position to float
+      config.window.position = 'float'
+      config.window.float = {
+        relative = 'editor',
+        width = 0.8,
+        height = 0.8,
+        row = 0.1,
+        col = 0.1,
+        border = 'rounded',
+      }
+
+      -- First toggle - create window
+      terminal.toggle(claude_code, config, git)
+      local instance_id = '/test/git/root'
+      assert.is_not_nil(claude_code.claude_code.floating_windows[instance_id])
+
+      -- Mock window close
+      local close_called = false
+      _G.vim.api.nvim_win_close = function(win_id, force)
+        close_called = true
+      end
+
+      -- Second toggle - close window
+      terminal.toggle(claude_code, config, git)
+      assert.is_true(close_called, 'Window close should be called')
+      assert.is_nil(claude_code.claude_code.floating_windows[instance_id], 'Floating window should be removed from tracking')
     end)
   end)
 

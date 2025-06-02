@@ -116,10 +116,12 @@ M.vim_status = {
     local mode = vim.api.nvim_get_mode().mode
 
     -- Find window ID for the buffer
+    local winnr = 0
     local wins = vim.api.nvim_list_wins()
     for _, win in ipairs(wins) do
       if vim.api.nvim_win_get_buf(win) == bufnr then
         cursor_pos = vim.api.nvim_win_get_cursor(win)
+        winnr = win
         break
       end
     end

@@ -1,0 +1,156 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+      - '.github/workflows/shellcheck.yml'
+      - '.github/workflows/yaml-lint.yml'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+      - '.github/workflows/shellcheck.yml'
+      - '.github/workflows/yaml-lint.yml'
+
+jobs:
+  # Tests run first - they take longer and are more important
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        neovim-version: [stable, nightly]
+
+    name: Test with Neovim ${{ matrix.neovim-version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: ${{ matrix.neovim-version }}
+
+      - name: Create cache directories
+        run: |
+          mkdir -p ~/.luarocks
+          mkdir -p ~/.local/share/nvim/site/pack
+
+      - name: Cache plugin dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/nvim/site/pack
+          key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-${{ matrix.neovim-version }}
+          restore-keys: |
+            ${{ runner.os }}-nvim-plugins-
+
+      - name: Install dependencies
+        run: |
+          mkdir -p ~/.local/share/nvim/site/pack/vendor/start
+          if [ ! -d "$HOME/.local/share/nvim/site/pack/vendor/start/plenary.nvim" ]; then
+            echo "Cloning plenary.nvim..."
+            git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
+          else
+            echo "plenary.nvim directory already exists, updating..."
+            cd ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim && git pull origin master
+          fi
+
+      - name: Verify test directory structure
+        run: |
+          echo "Main tests directory:"
+          ls -la ./tests/
+          echo "Unit test specs:"
+          ls -la ./tests/spec/
+          echo "Legacy tests:"
+          ls -la ./tests/legacy/
+          echo "Interactive tests:"
+          ls -la ./tests/interactive/
+
+      - name: Display Neovim version
+        run: nvim --version
+
+      - name: Run unit tests
+        run: |
+          export PLUGIN_ROOT="$(pwd)"
+          ./scripts/test.sh
+        continue-on-error: false
+
+      - name: Test MCP server standalone
+        run: |
+          # Test that MCP server can start without errors
+          echo "Testing MCP server help command..."
+          nvim -l ./bin/claude-code-mcp-server --help > help_output.txt 2>&1
+          if grep -q "Claude Code MCP Server" help_output.txt; then
+            echo "✅ MCP server help command works"
+          else
+            echo "❌ MCP server help command failed"
+            cat help_output.txt
+            exit 1
+          fi
+        continue-on-error: false
+
+      - name: Test config generation
+        run: |
+          # Test config generation in headless mode
+          nvim --headless --noplugin -u tests/minimal-init.lua \
+            -c "lua require('claude-code.mcp').generate_config('test-config.json', 'claude-code')" \
+            -c "qa!"
+          test -f test-config.json
+          cat test-config.json
+          rm test-config.json
+        continue-on-error: false
+
+  mcp-integration:
+    runs-on: ubuntu-latest
+    name: MCP Integration Tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: stable
+
+      - name: Make MCP server executable
+        run: chmod +x ./bin/claude-code-mcp-server
+
+      - name: Test MCP server initialization
+        run: |
+          # Test MCP server can load without errors
+          echo "Testing MCP server loading..."
+          nvim --headless --noplugin -u tests/minimal-init.lua \
+            -c "lua local mcp = require('claude-code.mcp'); print('MCP module loaded successfully'); vim.cmd('qa!')" \
+            || { echo "❌ Failed to load MCP module"; exit 1; }
+
+          echo "✅ MCP server module loads successfully"
+
+      - name: Test MCP tools enumeration
+        run: |
+          # Create a test that verifies our tools are available
+          nvim --headless --noplugin -u tests/minimal-init.lua \
+            -c "lua local tools = require('claude-code.mcp.tools'); local count = 0; for _ in pairs(tools) do count = count + 1 end; print('Tools found: ' .. count); assert(count >= 8, 'Expected at least 8 tools'); print('✅ Tools test passed')" \
+            -c "qa!"
+
+      - name: Test MCP resources enumeration
+        run: |
+          # Create a test that verifies our resources are available
+          nvim --headless --noplugin -u tests/minimal-init.lua \
+            -c "lua local resources = require('claude-code.mcp.resources'); local count = 0; for _ in pairs(resources) do count = count + 1 end; print('Resources found: ' .. count); assert(count >= 6, 'Expected at least 6 resources'); print('✅ Resources test passed')" \
+            -c "qa!"
+
+      - name: Test MCP Hub functionality
+        run: |
+          # Test hub can list servers and generate configs
+          nvim --headless --noplugin -u tests/minimal-init.lua \
+            -c "lua local hub = require('claude-code.mcp.hub'); local servers = hub.list_servers(); print('Servers found: ' .. #servers); assert(#servers > 0, 'Expected at least one server'); print('✅ Hub test passed')" \
+            -c "qa!"
+
+# Documentation validation has been moved to the dedicated docs.yml workflow

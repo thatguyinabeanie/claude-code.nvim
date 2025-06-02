@@ -8,7 +8,8 @@ local M = {}
 
 --- ClaudeCodeWindow class for window configuration
 -- @table ClaudeCodeWindow
--- @field split_ratio number Percentage of screen for the terminal window (height for horizontal, width for vertical splits)
+-- @field split_ratio number Percentage of screen for the terminal window
+-- (height for horizontal, width for vertical splits)
 -- @field position string Position of the window: "botright", "topleft", "vertical", etc.
 -- @field enter_insert boolean Whether to enter insert mode when opening Claude Code
 -- @field start_in_normal_mode boolean Whether to start in normal mode instead of insert mode when opening Claude Code
@@ -72,11 +73,22 @@ M.default_config = {
   window = {
     split_ratio = 0.3, -- Percentage of screen for the terminal window (height or width)
     height_ratio = 0.3, -- DEPRECATED: Use split_ratio instead
-    position = 'botright', -- Position of the window: "botright", "topleft", "vertical", etc.
+    position = 'current', -- Window position: "current", "float", "botright", "topleft", "vertical", etc.
     enter_insert = true, -- Whether to enter insert mode when opening Claude Code
     start_in_normal_mode = false, -- Whether to start in normal mode instead of insert mode
     hide_numbers = true, -- Hide line numbers in the terminal window
     hide_signcolumn = true, -- Hide the sign column in the terminal window
+    -- Floating window specific settings
+    float = {
+      relative = 'editor', -- 'editor' or 'cursor'
+      width = 0.8, -- Width as percentage of editor width (0.0-1.0)
+      height = 0.8, -- Height as percentage of editor height (0.0-1.0)
+      row = 0.1, -- Row position as percentage (0.0-1.0), 0.1 = 10% from top
+      col = 0.1, -- Column position as percentage (0.0-1.0), 0.1 = 10% from left
+      border = 'rounded', -- Border style: 'none', 'single', 'double', 'rounded', 'solid', 'shadow'
+      title = ' Claude Code ', -- Window title
+      title_pos = 'center', -- Title position: 'left', 'center', 'right'
+    },
   },
   -- File refresh settings
   refresh = {
@@ -389,7 +401,6 @@ local function detect_claude_cli(custom_path)
 
   -- Auto-detect Claude CLI across different installation methods
   -- Priority order ensures most specific/recent installations are preferred
-  
   -- Check for local development installation (highest priority)
   -- ~/.claude/local/claude is used for development builds and custom installations
   local local_claude = vim.fn.expand('~/.claude/local/claude')

@@ -1,4 +1,5 @@
-# Project Tree Helper
+
+# Project tree helper
 
 ## Overview
 
@@ -18,19 +19,21 @@ The Project Tree Helper provides utilities for generating comprehensive file tre
 
 ```vim
 :ClaudeCodeWithProjectTree
-```
+
+```text
 
 This command generates a project file tree and passes it to Claude Code as context.
 
-### Example Output
+### Example output
 
-```
-# Project Structure
+```text
+
+# Project structure
 
 **Project:** claude-code.nvim
 **Root:** ./
 
-```
+```text
 claude-code.nvim/
   README.md
   lua/
@@ -44,20 +47,21 @@ claude-code.nvim/
       tree_helper_spec.lua
   doc/
     claude-code.txt
-```
+
+```text
 
 ## Configuration
 
 The tree helper uses sensible defaults but can be customized:
 
-### Default Settings
+### Default settings
 
 - **Max Depth:** 3 levels
 - **Max Files:** 50 files
 - **Show Size:** false
 - **Ignore Patterns:** Common development artifacts
 
-### Default Ignore Patterns
+### Default ignore patterns
 
 ```lua
 {
@@ -73,17 +77,19 @@ The tree helper uses sensible defaults but can be customized:
   "__pycache__",
   "%.mypy_cache"
 }
-```
 
-## API Reference
+```text
 
-### Core Functions
+## Api reference
+
+### Core functions
 
 #### `generate_tree(root_dir, options)`
 
 Generate a file tree representation of a directory.
 
 **Parameters:**
+
 - `root_dir` (string): Root directory to scan
 - `options` (table, optional): Configuration options
   - `max_depth` (number): Maximum depth to scan (default: 3)
@@ -98,6 +104,7 @@ Generate a file tree representation of a directory.
 Get project tree context as formatted markdown.
 
 **Parameters:**
+
 - `options` (table, optional): Same as `generate_tree`
 
 **Returns:** string - Markdown formatted project tree
@@ -107,11 +114,12 @@ Get project tree context as formatted markdown.
 Create a temporary file with project tree content.
 
 **Parameters:**
+
 - `options` (table, optional): Same as `generate_tree`
 
 **Returns:** string - Path to temporary file
 
-### Utility Functions
+### Utility functions
 
 #### `get_default_ignore_patterns()`
 
@@ -124,19 +132,20 @@ Get the default ignore patterns.
 Add a new ignore pattern to the default list.
 
 **Parameters:**
+
 - `pattern` (string): Pattern to add
 
 ## Integration
 
-### With Claude Code CLI
+### With claude code cli
 
 The project tree helper integrates seamlessly with Claude Code:
 
 1. **Automatic Detection** - Uses git root or current directory
 2. **Temporary Files** - Creates markdown files that are auto-cleaned
-3. **CLI Integration** - Passes files using `--file` parameter
+3. **command-line tool Integration** - Passes files using `--file` parameter
 
-### With MCP Server
+### With mcp server
 
 The tree functionality is also available through MCP resources:
 
@@ -146,7 +155,7 @@ The tree functionality is also available through MCP resources:
 
 ## Examples
 
-### Basic Usage
+### Basic usage
 
 ```lua
 local tree_helper = require('claude-code.tree_helper')
@@ -161,9 +170,10 @@ local tree = tree_helper.generate_tree("/path/to/project", {
   max_files = 25,
   show_size = true
 })
-```
 
-### Custom Ignore Patterns
+```text
+
+### Custom ignore patterns
 
 ```lua
 local tree_helper = require('claude-code.tree_helper')
@@ -175,9 +185,10 @@ tree_helper.add_ignore_pattern("%.log$")
 local tree = tree_helper.generate_tree("/path/to/project", {
   ignore_patterns = {"%.git", "node_modules", "%.tmp$"}
 })
-```
 
-### Markdown Context
+```text
+
+### Markdown context
 
 ```lua
 local tree_helper = require('claude-code.tree_helper')
@@ -191,11 +202,12 @@ local context = tree_helper.get_project_tree_context({
 -- Create temporary file for Claude Code
 local temp_file = tree_helper.create_tree_file()
 -- File is automatically cleaned up after 10 seconds
-```
 
-## Implementation Details
+```text
 
-### File System Traversal
+## Implementation details
+
+### File system traversal
 
 The tree helper uses Neovim's built-in file system functions:
 
@@ -204,7 +216,7 @@ The tree helper uses Neovim's built-in file system functions:
 - **`vim.fn.filereadable()`** - File accessibility
 - **`vim.fn.getfsize()`** - File size information
 
-### Pattern Matching
+### Pattern matching
 
 Ignore patterns use Lua pattern matching:
 
@@ -212,23 +224,23 @@ Ignore patterns use Lua pattern matching:
 - **`%.%w+$`** - Files ending with extension
 - **`^node_modules$`** - Exact directory name match
 
-### Performance Considerations
+### Performance considerations
 
 - **Depth Limiting** - Prevents excessive directory traversal
 - **File Count Limiting** - Avoids overwhelming output
 - **Efficient Sorting** - Directories first, then files alphabetically
 - **Lazy Evaluation** - Only processes needed files
 
-## Best Practices
+## Best practices
 
-### When to Use
+### When to use
 
 - **Project Overview** - Give Claude context about codebase structure
 - **Architecture Discussions** - Show how project is organized
 - **Code Navigation** - Help Claude understand file relationships
 - **Refactoring Planning** - Provide context for large changes
 
-### Recommended Settings
+### Recommended settings
 
 ```lua
 -- For small projects
@@ -251,9 +263,10 @@ local options = {
   max_files = 50,
   show_size = true
 }
-```
 
-### Custom Workflows
+```text
+
+### Custom workflows
 
 Combine with other context types:
 
@@ -266,11 +279,12 @@ Combine with other context types:
 
 " Or provide workspace context
 :ClaudeCodeWithWorkspace
-```
+
+```text
 
 ## Troubleshooting
 
-### Empty Output
+### Empty output
 
 If tree generation returns empty results:
 
@@ -278,7 +292,7 @@ If tree generation returns empty results:
 2. **Verify Path** - Confirm directory exists
 3. **Review Patterns** - Check if ignore patterns are too restrictive
 
-### Performance Issues
+### Performance issues
 
 For large projects:
 
@@ -286,7 +300,7 @@ For large projects:
 2. **Lower max_files** - Reduce file count
 3. **Add Ignore Patterns** - Exclude large directories
 
-### Integration Problems
+### Integration problems
 
 If command doesn't work:
 
@@ -307,4 +321,6 @@ Run tests:
 
 ```bash
 nvim --headless -c "lua require('tests.run_tests').run_specific('tree_helper_spec')" -c "qall"
-```
+
+```text
+

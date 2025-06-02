@@ -17,8 +17,13 @@ local function get_mcp_server_path()
     vim.fn.stdpath('data') .. '/lazy/claude-code.nvim/bin/claude-code-mcp-server',
     vim.fn.stdpath('data') .. '/site/pack/*/start/claude-code.nvim/bin/claude-code-mcp-server',
     vim.fn.stdpath('data') .. '/site/pack/*/opt/claude-code.nvim/bin/claude-code-mcp-server',
-    vim.fn.expand('~/source/claude-code.nvim/bin/claude-code-mcp-server'), -- Development path
   }
+
+  -- Add development path from environment variable if set
+  local dev_path = os.getenv('CLAUDE_CODE_DEV_PATH')
+  if dev_path then
+    table.insert(plugin_paths, 1, vim.fn.expand(dev_path) .. '/bin/claude-code-mcp-server')
+  end
 
   for _, path in ipairs(plugin_paths) do
     -- Handle wildcards in path
@@ -248,8 +253,8 @@ function M.setup(opts)
   -- Create commands
   vim.api.nvim_create_user_command('MCPHubList', function()
     local servers = M.list_servers()
-    print('Available MCP Servers:')
-    print('=====================')
+    vim.print('Available MCP Servers:')
+    vim.print('=====================')
     for _, server in ipairs(servers) do
       local line = '• ' .. server.name
       if server.description then
@@ -258,7 +263,7 @@ function M.setup(opts)
       if server.native then
         line = line .. ' [NATIVE]'
       end
-      print(line)
+      vim.print(line)
     end
   end, {
     desc = 'List available MCP servers from hub',
@@ -343,18 +348,18 @@ function M.live_test()
     test = true,
   }
 
-  print('\n=== MCP HUB LIVE TEST ===')
-  print('1. Testing server registration...')
+  vim.print('\n=== MCP HUB LIVE TEST ===')
+  vim.print('1. Testing server registration...')
   local success = M.register_server('test-server', test_server)
-  print('   Registration: ' .. (success and '✅ PASS' or '❌ FAIL'))
+  vim.print('   Registration: ' .. (success and '✅ PASS' or '❌ FAIL'))
 
   -- Test 2: Server retrieval
-  print('\n2. Testing server retrieval...')
+  vim.print('\n2. Testing server retrieval...')
   local retrieved = M.get_server('test-server')
-  print('   Retrieval: ' .. (retrieved and retrieved.test and '✅ PASS' or '❌ FAIL'))
+  vim.print('   Retrieval: ' .. (retrieved and retrieved.test and '✅ PASS' or '❌ FAIL'))
 
   -- Test 3: List servers
-  print('\n3. Testing server listing...')
+  vim.print('\n3. Testing server listing...')
   local servers = M.list_servers()
   local found = false
   for _, server in ipairs(servers) do
@@ -363,13 +368,13 @@ function M.live_test()
       break
     end
   end
-  print('   Listing: ' .. (found and '✅ PASS' or '❌ FAIL'))
+  vim.print('   Listing: ' .. (found and '✅ PASS' or '❌ FAIL'))
 
   -- Test 4: Generate config
-  print('\n4. Testing config generation...')
+  vim.print('\n4. Testing config generation...')
   local test_path = vim.fn.tempname() .. '.json'
   local gen_success = M.generate_config({ 'claude-code-neovim', 'test-server' }, test_path)
-  print('   Generation: ' .. (gen_success and '✅ PASS' or '❌ FAIL'))
+  vim.print('   Generation: ' .. (gen_success and '✅ PASS' or '❌ FAIL'))
 
   -- Verify generated config
   if gen_success and vim.fn.filereadable(test_path) == 1 then
@@ -377,9 +382,9 @@ function M.live_test()
     local content = file:read('*all')
     file:close()
     local config = vim.json.decode(content)
-    print('   Config contains:')
+    vim.print('   Config contains:')
     for server_name, _ in pairs(config.mcpServers or {}) do
-      print('     • ' .. server_name)
+      vim.print('     • ' .. server_name)
     end
     vim.fn.delete(test_path)
   end
@@ -388,11 +393,11 @@ function M.live_test()
   M.registry.servers['test-server'] = nil
   M.save_registry()
 
-  print('\n=== TEST COMPLETE ===')
-  print('\nClaude Code can now use MCPHub commands:')
-  print('  :MCPHubList - List available servers')
-  print('  :MCPHubInstall <server> - Install a server')
-  print('  :MCPHubGenerate - Generate config with selected servers')
+  vim.print('\n=== TEST COMPLETE ===')
+  vim.print('\nClaude Code can now use MCPHub commands:')
+  vim.print('  :MCPHubList - List available servers')
+  vim.print('  :MCPHubInstall <server> - Install a server')
+  vim.print('  :MCPHubGenerate - Generate config with selected servers')
 
   return true
 end
