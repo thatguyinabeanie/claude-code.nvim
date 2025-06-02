@@ -234,18 +234,10 @@ describe('terminal module', function()
           -- Extract the buffer name from the command
           local buffer_name = cmd:match('file (.+)')
           -- In test mode, the name includes timestamp and random number
-          -- Extract the part between claude-code- and the first timestamp
-          local instance_part = buffer_name:match('claude%-code%-(.-)%-%d+%-%d+')
-          if instance_part then
-            -- Check that the instance ID part was properly sanitized (no spaces or special chars)
-            assert.is_nil(instance_part:match('[^%w%-_]'), 'Buffer name should not contain special characters')
-          else
-            -- If no timestamp, just check the whole instance part
-            instance_part = buffer_name:match('claude%-code%-(.+)')
-            if instance_part then
-              assert.is_nil(instance_part:match('[^%w%-_]'), 'Buffer name should not contain special characters')
-            end
-          end
+          -- The sanitized path should only contain word chars, hyphens, and underscores
+          -- Buffer name format: claude-code-<sanitized-path>-<timestamp>-<random>
+          -- Check that the entire buffer name only contains allowed characters
+          assert.is_nil(buffer_name:match('[^%w%-_]'), 'Buffer name should not contain special characters')
           break
         end
       end
