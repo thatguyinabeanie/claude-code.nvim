@@ -105,7 +105,7 @@ describe('MCP Resources Git Validation', function()
       local result = resources.git_status.handler()
       
       -- Should return appropriate error message
-      assert.is_truthy(result:match('Not a git repository') or result:match('git not available'))
+      assert.is_truthy(result:match('Not a git repository') or result:match('git not available') or result:match('Git executable not found'))
       
       -- Restore
       utils.find_executable_by_name = original_find

@@ -373,7 +373,7 @@ local function create_new_instance(claude_code, config, git, instance_id, varian
   -- Store buffer number and update state
   local bufnr = vim.fn.bufnr('%')
   claude_code.claude_code.instances[instance_id] = bufnr
-  
+
   -- Set up autocmd to close buffer when Claude Code exits
   vim.api.nvim_create_autocmd('TermClose', {
     buffer = bufnr,
@@ -383,16 +383,16 @@ local function create_new_instance(claude_code, config, git, instance_id, varian
       if claude_code.claude_code.floating_windows[instance_id] then
         claude_code.claude_code.floating_windows[instance_id] = nil
       end
-      
+
       -- Close the buffer after a short delay to ensure terminal cleanup
       vim.defer_fn(function()
         if vim.api.nvim_buf_is_valid(bufnr) then
           -- Check if there are any windows showing this buffer
           local win_ids = vim.fn.win_findbuf(bufnr)
-          for _, win_id in ipairs(win_ids) do
-            if vim.api.nvim_win_is_valid(win_id) then
+          for _, window_id in ipairs(win_ids) do
+            if vim.api.nvim_win_is_valid(window_id) then
               -- Close the window
-              vim.api.nvim_win_close(win_id, false)
+              vim.api.nvim_win_close(window_id, false)
             end
           end
           -- Delete the buffer
