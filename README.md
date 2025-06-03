@@ -442,9 +442,10 @@ The context-aware commands automatically include relevant information:
 - `:ClaudeCodeContinue` - Resume the most recent conversation
 - `:ClaudeCodeResume` - Display an interactive conversation picker
 
-#### Output options command
+#### Output options commands
 
 - `:ClaudeCodeVerbose` - Enable verbose logging with full turn-by-turn output
+- `:ClaudeCodeMcpDebug` - Enable MCP debug mode for troubleshooting MCP server issues
 
 #### Window management commands
 
@@ -475,6 +476,7 @@ Variant mode mappings (if configured):
 
 - `<leader>cC` - Toggle Claude Code with --continue flag
 - `<leader>cV` - Toggle Claude Code with --verbose flag
+- `<leader>cD` - Toggle Claude Code with --mcp-debug flag
 
 Additionally, when in the Claude Code terminal:
 

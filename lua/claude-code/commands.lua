@@ -22,8 +22,9 @@ function M.register_commands(claude_code)
   -- Create commands for each command variant
   for variant_name, variant_args in pairs(claude_code.config.command_variants) do
     if variant_args ~= false then
-      -- Convert variant name to PascalCase for command name (e.g., "continue" -> "Continue")
-      local capitalized_name = variant_name:gsub('^%l', string.upper)
+      -- Convert variant name to PascalCase for command name (e.g., "continue" -> "Continue", "mcp_debug" -> "McpDebug")
+      local capitalized_name = variant_name:gsub('_(.)', function(c) return c:upper() end)
+        :gsub('^%l', string.upper)
       local cmd_name = 'ClaudeCode' .. capitalized_name
 
       vim.api.nvim_create_user_command(cmd_name, function()

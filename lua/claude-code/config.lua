@@ -113,6 +113,9 @@ M.default_config = {
 
     -- Output options
     verbose = '--verbose', -- Enable verbose logging with full turn-by-turn output
+    
+    -- Debugging options
+    mcp_debug = '--mcp-debug', -- Enable MCP debug mode
   },
   -- Keymaps
   keymaps = {
@@ -122,6 +125,7 @@ M.default_config = {
       variants = {
         continue = '<leader>cC', -- Normal mode keymap for Claude Code with continue flag
         verbose = '<leader>cV', -- Normal mode keymap for Claude Code with verbose flag
+        mcp_debug = '<leader>cD', -- Normal mode keymap for Claude Code with MCP debug flag
       },
     },
     window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)

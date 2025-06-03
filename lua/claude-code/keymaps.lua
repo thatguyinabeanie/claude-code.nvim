@@ -39,8 +39,9 @@ function M.register_keymaps(claude_code, config)
   if config.keymaps.toggle.variants then
     for variant_name, keymap in pairs(config.keymaps.toggle.variants) do
       if keymap then
-        -- Convert variant name to PascalCase for command name (e.g., "continue" -> "Continue")
-        local capitalized_name = variant_name:gsub('^%l', string.upper)
+        -- Convert variant name to PascalCase for command name (e.g., "continue" -> "Continue", "mcp_debug" -> "McpDebug")
+        local capitalized_name = variant_name:gsub('_(.)', function(c) return c:upper() end)
+          :gsub('^%l', string.upper)
         local cmd_name = 'ClaudeCode' .. capitalized_name
 
         vim.api.nvim_set_keymap(
@@ -74,7 +75,8 @@ function M.register_keymaps(claude_code, config)
       if config.keymaps.toggle.variants then
         for variant_name, keymap in pairs(config.keymaps.toggle.variants) do
           if keymap then
-            local capitalized_name = variant_name:gsub('^%l', string.upper)
+            local capitalized_name = variant_name:gsub('_(.)', function(c) return c:upper() end)
+              :gsub('^%l', string.upper)
             which_key.add {
               mode = 'n',
               { keymap, desc = 'Claude Code: ' .. capitalized_name, icon = '🤖' },
