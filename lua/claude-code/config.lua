@@ -113,7 +113,6 @@ M.default_config = {
 
     -- Output options
     verbose = '--verbose', -- Enable verbose logging with full turn-by-turn output
-    
     -- Debugging options
     mcp_debug = '--mcp-debug', -- Enable MCP debug mode
   },
