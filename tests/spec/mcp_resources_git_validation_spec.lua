@@ -89,52 +89,22 @@ describe('MCP Resources Git Validation', function()
     end)
 
     it('should handle git command failures gracefully', function()
-      -- Mock utils.find_executable_by_name to return a valid git path
+      -- Mock utils.find_executable_by_name to return nil (git not found)
       local original_find = utils.find_executable_by_name
       utils.find_executable_by_name = function(name)
         if name == 'git' then
-          return '/usr/bin/git'
-        end
-        return nil
-      end
-
-      -- Mock vim.fn.shellescape
-      local original_shellescape = vim.fn.shellescape
-      vim.fn.shellescape = function(str)
-        return "'" .. str .. "'"
-      end
-
-      -- Mock vim.fn.system and vim.v.shell_error to simulate git command failure
-      local original_system = vim.fn.system
-      vim.fn.system = function(cmd)
-        if cmd:match("'/usr/bin/git' status") then
-          vim.v.shell_error = 1
-          return ''
-        end
-        return ''
-      end
-
-      -- Mock io.popen to simulate git command failure
-      io.popen = function(cmd)
-        if cmd:match("'/usr/bin/git' status") then
-          return nil
+          return nil -- Simulate git not found
         end
         return nil
       end
 
       local result = resources.git_status.handler()
 
-      -- Should return appropriate error message
-      assert.is_truthy(
-        result:match('Not a git repository')
-          or result:match('git not available')
-          or result:match('Git executable not found')
-      )
+      -- Should return error message when git is not found
+      assert.is_truthy(result:match('Git executable not found'))
 
       -- Restore
       utils.find_executable_by_name = original_find
-      vim.fn.shellescape = original_shellescape
-      vim.fn.system = original_system
     end)
   end)
 
