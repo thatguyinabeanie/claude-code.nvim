@@ -35,14 +35,14 @@ vim.opt.termguicolors = true
 local is_ci = os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE')
 if is_ci then
   print('🔧 CI environment detected, applying CI-specific settings...')
-  
+
   -- Mock vim functions that might not work properly in CI
   local original_win_findbuf = vim.fn.win_findbuf
   vim.fn.win_findbuf = function(bufnr)
     -- In CI, always return empty list (no windows)
     return {}
   end
-  
+
   -- Mock other potentially problematic functions
   local original_jobwait = vim.fn.jobwait
   vim.fn.jobwait = function(job_ids, timeout)
@@ -77,13 +77,14 @@ if status_ok then
   print('✓ Successfully loaded Claude Code plugin')
 
   -- Initialize the terminal state properly for tests
-  claude_code.claude_code = claude_code.claude_code or {
-    instances = {},
-    current_instance = nil,
-    saved_updatetime = nil,
-    process_states = {},
-    floating_windows = {},
-  }
+  claude_code.claude_code = claude_code.claude_code
+    or {
+      instances = {},
+      current_instance = nil,
+      saved_updatetime = nil,
+      process_states = {},
+      floating_windows = {},
+    }
 
   -- Ensure the functions we need exist and work properly
   if not claude_code.get_process_status then
@@ -153,21 +154,21 @@ if status_ok then
   print('  :ClaudeCodeSafeToggle      - Safely toggle without interrupting execution')
   print('  :ClaudeCodeStatus          - Show current process status')
   print('  :ClaudeCodeInstances       - List all instances and their states')
-  
+
   -- Create stub commands for any missing commands that tests might reference
   -- This prevents "command not found" errors during test execution
   vim.api.nvim_create_user_command('ClaudeCodeQuit', function()
     print('ClaudeCodeQuit: Stub command for testing - no action taken')
   end, { desc = 'Stub command for testing' })
-  
+
   vim.api.nvim_create_user_command('ClaudeCodeRefreshFiles', function()
     print('ClaudeCodeRefreshFiles: Stub command for testing - no action taken')
   end, { desc = 'Stub command for testing' })
-  
+
   vim.api.nvim_create_user_command('ClaudeCodeSuspend', function()
     print('ClaudeCodeSuspend: Stub command for testing - no action taken')
   end, { desc = 'Stub command for testing' })
-  
+
   vim.api.nvim_create_user_command('ClaudeCodeRestart', function()
     print('ClaudeCodeRestart: Stub command for testing - no action taken')
   end, { desc = 'Stub command for testing' })

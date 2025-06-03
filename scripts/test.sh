@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # Exit immediately if a command exits with a non-zero status
+set -ex  # Exit immediately if a command exits with a non-zero status, enable verbose logging
 
 # Get the plugin directory from the script location
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -34,7 +34,12 @@ fi
 # Run tests with minimal Neovim configuration and add a timeout
 # Timeout after 120 seconds to prevent hanging in CI (increased for complex tests)
 echo "Running tests with a 120 second timeout..."
-timeout --foreground 120 "$NVIM" --headless --noplugin -u tests/minimal-init.lua -c "luafile tests/run_tests.lua"
+echo "Command: timeout --foreground 120 $NVIM --headless --noplugin -u tests/minimal-init.lua -c 'luafile tests/run_tests.lua'"
+timeout --foreground 120 "$NVIM" --headless --noplugin -u tests/minimal-init.lua -c "luafile tests/run_tests.lua" || {
+  EXIT_CODE=$?
+  echo "Test command failed with exit code: $EXIT_CODE"
+  exit $EXIT_CODE
+}
 
 # Check exit code
 EXIT_CODE=$?

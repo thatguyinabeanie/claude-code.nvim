@@ -135,7 +135,10 @@ describe('terminal module', function()
 
       -- Instance should be created in instances table
       local current_instance = claude_code.claude_code.current_instance
-      assert.is_not_nil(claude_code.claude_code.instances[current_instance], 'Instance buffer should be set')
+      assert.is_not_nil(
+        claude_code.claude_code.instances[current_instance],
+        'Instance buffer should be set'
+      )
     end)
 
     it('should use git root as instance identifier when use_git_root is true', function()
@@ -237,7 +240,10 @@ describe('terminal module', function()
           -- The sanitized path should only contain word chars, hyphens, and underscores
           -- Buffer name format: claude-code-<sanitized-path>-<timestamp>-<random>
           -- Check that the entire buffer name only contains allowed characters
-          assert.is_nil(buffer_name:match('[^%w%-_]'), 'Buffer name should not contain special characters')
+          assert.is_nil(
+            buffer_name:match('[^%w%-_]'),
+            'Buffer name should not contain special characters'
+          )
           break
         end
       end
@@ -259,8 +265,16 @@ describe('terminal module', function()
       terminal.toggle(claude_code, config, git)
 
       -- Invalid buffer should be cleaned up and replaced with new buffer
-      assert.is_not.equal(999, claude_code.claude_code.instances[instance_id], 'Invalid buffer should be cleaned up')
-      assert.is.equal(42, claude_code.claude_code.instances[instance_id], 'New buffer should be created')
+      assert.is_not.equal(
+        999,
+        claude_code.claude_code.instances[instance_id],
+        'Invalid buffer should be cleaned up'
+      )
+      assert.is.equal(
+        42,
+        claude_code.claude_code.instances[instance_id],
+        'New buffer should be created'
+      )
     end)
   end)
 
@@ -282,7 +296,10 @@ describe('terminal module', function()
       terminal.toggle(claude_code, config, git)
 
       -- Check that global instance is created
-      assert.is_not_nil(claude_code.claude_code.instances['global'], 'Global instance should be created')
+      assert.is_not_nil(
+        claude_code.claude_code.instances['global'],
+        'Global instance should be created'
+      )
     end)
   end)
 
@@ -319,12 +336,12 @@ describe('terminal module', function()
       _G.vim.api.nvim_open_win = function(bufnr, enter, win_config)
         return float_win_id
       end
-      
+
       -- Mock nvim_win_is_valid
       _G.vim.api.nvim_win_is_valid = function(win_id)
         return win_id == float_win_id
       end
-      
+
       -- Mock nvim_win_set_option
       _G.vim.api.nvim_win_set_option = function(win_id, option, value)
         -- Just track the calls, don't do anything
@@ -350,8 +367,15 @@ describe('terminal module', function()
 
       -- Check that floating window was created
       local instance_id = '/test/git/root'
-      assert.is_not_nil(claude_code.claude_code.floating_windows[instance_id], 'Floating window should be tracked')
-      assert.equals(1001, claude_code.claude_code.floating_windows[instance_id], 'Floating window ID should be stored')
+      assert.is_not_nil(
+        claude_code.claude_code.floating_windows[instance_id],
+        'Floating window should be tracked'
+      )
+      assert.equals(
+        1001,
+        claude_code.claude_code.floating_windows[instance_id],
+        'Floating window ID should be stored'
+      )
     end)
 
     it('should toggle floating window visibility', function()
@@ -380,7 +404,10 @@ describe('terminal module', function()
       -- Second toggle - close window
       terminal.toggle(claude_code, config, git)
       assert.is_true(close_called, 'Window close should be called')
-      assert.is_nil(claude_code.claude_code.floating_windows[instance_id], 'Floating window should be removed from tracking')
+      assert.is_nil(
+        claude_code.claude_code.floating_windows[instance_id],
+        'Floating window should be removed from tracking'
+      )
     end)
   end)
 
