@@ -19,15 +19,10 @@ on:
       - '.github/workflows/yaml-lint.yml'
 
 jobs:
-  # Tests run first - they take longer and are more important
-  test:
+  # Unit tests with Neovim stable
+  unit-tests:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        neovim-version: [stable, nightly]
-
-    name: Test with Neovim ${{ matrix.neovim-version }}
+    name: Unit Tests
     steps:
       - uses: actions/checkout@v4
 
@@ -35,7 +30,7 @@ jobs:
         uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
-          version: ${{ matrix.neovim-version }}
+          version: stable
 
       - name: Create cache directories
         run: |
@@ -46,7 +41,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.local/share/nvim/site/pack
-          key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-${{ matrix.neovim-version }}
+          key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-stable
           restore-keys: |
             ${{ runner.os }}-nvim-plugins-
 
@@ -105,20 +100,91 @@ jobs:
       - name: Display Neovim version
         run: nvim --version
 
-      - name: Run unit tests with coverage
+      - name: Run unit tests
+        run: |
+          export PLUGIN_ROOT="$(pwd)"
+          export CLAUDE_CODE_TEST_MODE="true"
+          echo "Running unit tests..."
+          ./scripts/test.sh
+        continue-on-error: false
+
+  coverage-tests:
+    runs-on: ubuntu-latest
+    name: Coverage Tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: stable
+
+      - name: Create cache directories
+        run: |
+          mkdir -p ~/.luarocks
+          mkdir -p ~/.local/share/nvim/site/pack
+
+      - name: Cache plugin dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/nvim/site/pack
+          key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-stable
+          restore-keys: |
+            ${{ runner.os }}-nvim-plugins-
+
+      - name: Install dependencies
+        run: |
+          mkdir -p ~/.local/share/nvim/site/pack/vendor/start
+          if [ ! -d "$HOME/.local/share/nvim/site/pack/vendor/start/plenary.nvim" ]; then
+            echo "Cloning plenary.nvim..."
+            git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
+          else
+            echo "plenary.nvim directory already exists, updating..."
+            cd ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim && git pull origin master
+          fi
+
+      - name: Cache LuaCov installation
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.luarocks
+            /usr/local/lib/luarocks
+            /usr/local/share/lua
+          key: ${{ runner.os }}-luacov-${{ hashFiles('.github/workflows/ci.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-luacov-
+
+      - name: Install LuaCov for coverage
+        run: |
+          # Check if LuaCov is already available
+          if lua -e "require('luacov')" 2>/dev/null; then
+            echo "✅ LuaCov already available, skipping installation"
+          else
+            echo "Installing LuaCov..."
+            # Install lua and luarocks
+            sudo apt-get update
+            sudo apt-get install -y lua5.1 liblua5.1-0-dev luarocks
+            # Install luacov with faster mirror
+            sudo luarocks install --server=https://luarocks.org luacov || {
+              echo "Trying alternative server..."
+              sudo luarocks install luacov
+            }
+            # Verify installation
+            lua -e "require('luacov'); print('LuaCov loaded successfully')" || echo "LuaCov installation failed"
+          fi
+
+      - name: Run tests with coverage
         run: |
           export PLUGIN_ROOT="$(pwd)"
           export CLAUDE_CODE_TEST_MODE="true"
           # Check if LuaCov is available, run coverage tests if possible
           if lua -e "require('luacov')" 2>/dev/null; then
             echo "Running tests with coverage..."
-            ./scripts/test-coverage.sh || {
-              echo "Coverage tests failed, falling back to regular tests..."
-              ./scripts/test.sh
-            }
+            ./scripts/test-coverage.sh
           else
-            echo "LuaCov not available, running regular tests..."
-            ./scripts/test.sh
+            echo "LuaCov not available, skipping coverage tests..."
+            exit 1
           fi
         continue-on-error: false
 
@@ -130,7 +196,7 @@ jobs:
             lua ./scripts/check-coverage.lua
           else
             echo "📊 Coverage report not found - tests ran without coverage collection"
-            echo "This is expected if LuaCov installation failed or timed out"
+            exit 1
           fi
         continue-on-error: true
 
@@ -138,10 +204,27 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: coverage-report-${{ matrix.neovim-version }}
+          name: coverage-report
           path: |
             luacov.report.out
             luacov.stats.out
+
+  mcp-server-tests:
+    runs-on: ubuntu-latest
+    name: MCP Server Tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: stable
+
+      - name: Install dependencies
+        run: |
+          mkdir -p ~/.local/share/nvim/site/pack/vendor/start
+          git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
 
       - name: Test MCP server standalone
         run: |
@@ -156,6 +239,23 @@ jobs:
             exit 1
           fi
         continue-on-error: false
+
+  config-tests:
+    runs-on: ubuntu-latest
+    name: Config Generation Tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: stable
+
+      - name: Install dependencies
+        run: |
+          mkdir -p ~/.local/share/nvim/site/pack/vendor/start
+          git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
 
       - name: Test config generation
         run: |
