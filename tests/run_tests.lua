@@ -87,7 +87,7 @@ end
 -- Run the tests
 local test_ok, test_err = pcall(require('plenary.test_harness').test_directory, 'tests/spec/', {
   minimal_init = 'tests/minimal-init.lua',
-  sequential = false,
+  sequential = true,  -- Run tests sequentially to avoid race conditions in CI
 })
 
 if not test_ok then

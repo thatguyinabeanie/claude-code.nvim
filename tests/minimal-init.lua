@@ -49,6 +49,16 @@ if is_ci then
     -- In CI, jobs are considered finished
     return { 0 }
   end
+
+  -- Mock executable check for claude command
+  local original_executable = vim.fn.executable
+  vim.fn.executable = function(cmd)
+    -- Mock that 'claude' and 'echo' commands exist
+    if cmd == 'claude' or cmd == 'echo' then
+      return 1
+    end
+    return original_executable(cmd)
+  end
 end
 
 -- Add the plugin directory to runtimepath
