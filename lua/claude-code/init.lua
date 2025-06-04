@@ -241,7 +241,9 @@ function M.setup(user_config)
       })
     elseif not ok then
       -- MCP module failed to load, but don't error out in tests
-      if not (os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE')) then
+      if
+        not (os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE'))
+      then
         vim.notify('MCP module failed to load: ' .. tostring(mcp), vim.log.levels.WARN)
       end
     else

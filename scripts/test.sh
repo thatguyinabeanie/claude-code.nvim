@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex  # Exit immediately if a command exits with a non-zero status, enable verbose logging
+set -euo pipefail -x  # Exit on errors, unset variables, pipe failures, and enable verbose logging
 
 # Get the plugin directory from the script location
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -35,16 +35,12 @@ fi
 # Timeout after 300 seconds to prevent hanging in CI (increased for complex tests)
 echo "Running tests with a 300 second timeout..."
 echo "Command: timeout --foreground 300 $NVIM --headless --noplugin -u tests/minimal-init.lua -c 'luafile tests/run_tests.lua'"
-timeout --foreground 300 "$NVIM" --headless --noplugin -u tests/minimal-init.lua -c "luafile tests/run_tests.lua" || {
-  EXIT_CODE=$?
-  echo "Test command failed with exit code: $EXIT_CODE"
-  exit $EXIT_CODE
-}
+timeout --foreground 300 "$NVIM" --headless --noplugin -u tests/minimal-init.lua -c "luafile tests/run_tests.lua"
+EXIT_CODE=$?
 
 # Check exit code
-EXIT_CODE=$?
 if [ $EXIT_CODE -eq 124 ]; then
-  echo "Error: Test execution timed out after 120 seconds"
+  echo "Error: Test execution timed out after 300 seconds"
   exit 1
 elif [ $EXIT_CODE -ne 0 ]; then
   echo "Error: Tests failed with exit code $EXIT_CODE"

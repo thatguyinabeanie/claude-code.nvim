@@ -164,7 +164,9 @@ jobs:
             echo "Running tests with coverage..."
             ./scripts/test-coverage.sh
           else
-            echo "LuaCov not available, skipping coverage tests..."
+            echo "ERROR: LuaCov is required for coverage tests but is not available."
+            echo "Coverage tests cannot proceed without LuaCov."
+            echo "Please ensure LuaCov was installed successfully in the previous step."
             exit 1
           fi
         continue-on-error: false
