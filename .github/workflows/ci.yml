@@ -82,9 +82,10 @@ jobs:
         run: |
           export PLUGIN_ROOT="$(pwd)"
           export CLAUDE_CODE_TEST_MODE="true"
+          export TEST_FILE="${{ matrix.test-file }}"
           echo "Running test: ${{ matrix.test-file }}"
           nvim --headless --noplugin -u tests/minimal-init.lua \
-            -c "lua require('plenary.test_harness').test_file('${{ matrix.test-file }}', { minimal_init = 'tests/minimal-init.lua' })"
+            -c "luafile scripts/run_single_test.lua"
         continue-on-error: false
 
   coverage-tests:
