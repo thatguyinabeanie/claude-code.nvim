@@ -29,7 +29,10 @@ vim.opt.backup = false
 vim.opt.writebackup = false
 vim.opt.undofile = false
 vim.opt.hidden = true
-vim.opt.termguicolors = true\n\n-- Set test mode environment variable\nvim.fn.setenv('CLAUDE_CODE_TEST_MODE', '1')
+vim.opt.termguicolors = true
+
+-- Set test mode environment variable
+vim.fn.setenv('CLAUDE_CODE_TEST_MODE', '1')
 
 -- CI environment detection and adjustments
 local is_ci = os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE')
@@ -177,7 +180,8 @@ if status_ok then
   end
 
   -- Print available commands for user reference
-  print('\nAvailable Commands:')
+  print('
+Available Commands:')
   print('  :ClaudeCode                - Toggle Claude Code terminal')
   print('  :ClaudeCodeWithFile        - Toggle with current file context')
   print('  :ClaudeCodeWithSelection   - Toggle with visual selection')
@@ -206,7 +210,8 @@ if status_ok then
   end, { desc = 'Stub command for testing' })
 
   -- Test the commands that are failing in CI
-  print('\nTesting commands:')
+  print('
+Testing commands:')
   local status_ok, status_result = pcall(function()
     vim.cmd('ClaudeCodeStatus')
   end)
@@ -233,6 +238,7 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.signcolumn = 'yes'
 
-print('\nClaude Code minimal test environment loaded.')
+print('
+Claude Code minimal test environment loaded.')
 print('- Type :messages to see any error messages')
 print("- Try ':ClaudeCode' to start a new session")
