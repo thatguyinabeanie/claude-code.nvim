@@ -220,18 +220,24 @@ jobs:
           mkdir -p ~/.local/share/nvim/site/pack/vendor/start
           git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
 
-      - name: Test MCP server standalone
+      - name: Test MCP wrapper script
         run: |
-          # Test that MCP server can start without errors
-          echo "Testing MCP server help command..."
-          nvim -l ./bin/claude-code-mcp-server --help > help_output.txt 2>&1
-          if grep -q "Claude Code MCP Server" help_output.txt; then
-            echo "✅ MCP server help command works"
+          # Test that claude-nvim wrapper exists and is executable
+          echo "Testing claude-nvim wrapper..."
+          if [ -x ./bin/claude-nvim ]; then
+            echo "✅ claude-nvim wrapper is executable"
+            # Test basic functionality (should fail without nvim socket but show help)
+            ./bin/claude-nvim --help 2>&1 | head -20 || true
           else
-            echo "❌ MCP server help command failed"
-            cat help_output.txt
+            echo "❌ claude-nvim wrapper not found or not executable"
             exit 1
           fi
+          
+          # Test MCP module loading
+          echo "Testing MCP module loading..."
+          nvim --headless --noplugin -u tests/mcp-test-init.lua \
+            -c "lua local ok, mcp = pcall(require, 'claude-code.mcp'); if ok then print('✅ MCP module loaded successfully'); else print('❌ MCP module failed to load: ' .. tostring(mcp)); vim.cmd('cquit 1'); end" \
+            -c "qa!"
         continue-on-error: false
 
   config-tests:
@@ -281,7 +287,7 @@ jobs:
           version: stable
 
       - name: Make MCP server executable
-        run: chmod +x ./bin/claude-code-mcp-server
+        run: chmod +x ./bin/claude-nvim
 
       - name: Test MCP server initialization
         run: |
