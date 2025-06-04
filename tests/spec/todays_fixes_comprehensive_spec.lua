@@ -101,13 +101,11 @@ describe("Today's CI and Feature Fixes", function()
     end)
 
     it('should create floating window with correct dimensions', function()
-      -- Skip this test due to buffer mocking issues
-      pending('Skipping due to buffer mocking complexity')
+      pending('Skipping due to buffer mocking complexity in CI environment')
     end)
 
     it('should toggle floating window visibility', function()
-      -- Skip this test due to buffer mocking issues
-      pending('Skipping due to buffer mocking complexity')
+      pending('Skipping due to buffer mocking complexity in CI environment')
     end)
   end)
 
@@ -235,7 +233,7 @@ describe("Today's CI and Feature Fixes", function()
 
       local status = claude_code.get_process_status()
       assert.equals('none', status.status)
-      assert.is_truthy(status.message:match('test mode'))
+      assert.equals('No active Claude Code instance (test mode)', status.message)
 
       local instances = claude_code.list_instances()
       assert.equals(0, #instances)
@@ -376,7 +374,7 @@ describe("Today's CI and Feature Fixes", function()
       end
 
       assert.is_string(buffer_name)
-      assert.is_truthy(buffer_name:match('claude%-code%-'))
+      assert.is_true(buffer_name:match('claude%-code%-') ~= nil)
     end)
 
     it('should validate line length requirements', function()

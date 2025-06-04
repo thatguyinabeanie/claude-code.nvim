@@ -75,6 +75,27 @@ describe('terminal module', function()
       return { mode = 'n' }
     end
 
+    -- Mock vim.api.nvim_create_autocmd
+    _G.vim.api.nvim_create_autocmd = function(event, opts)
+      -- Just store the autocmd for verification if needed
+      return true
+    end
+
+    -- Mock vim.api.nvim_buf_set_name
+    _G.vim.api.nvim_buf_set_name = function(bufnr, name)
+      return true
+    end
+
+    -- Mock vim.defer_fn
+    _G.vim.defer_fn = function(fn, delay)
+      fn() -- Execute immediately in tests
+    end
+
+    -- Mock vim.api.nvim_buf_delete
+    _G.vim.api.nvim_buf_delete = function(bufnr, opts)
+      return true
+    end
+
     -- Setup test objects
     config = {
       command = 'claude',
