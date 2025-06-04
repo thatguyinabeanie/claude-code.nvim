@@ -105,7 +105,10 @@ function M.register_commands(claude_code)
     if vim.fn.executable('mcp-neovim-server') == 1 then
       vim.notify('mcp-neovim-server is available', vim.log.levels.INFO)
     else
-      vim.notify('mcp-neovim-server not found. Install with: npm install -g mcp-neovim-server', vim.log.levels.WARN)
+      vim.notify(
+        'mcp-neovim-server not found. Install with: npm install -g mcp-neovim-server',
+        vim.log.levels.WARN
+      )
     end
   end, { desc = 'Show Claude MCP server status' })
 

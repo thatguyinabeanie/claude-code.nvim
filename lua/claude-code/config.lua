@@ -191,11 +191,7 @@ local function validate_window_config(window)
     return false, 'window config must be a table'
   end
 
-  if
-    type(window.split_ratio) ~= 'number'
-    or window.split_ratio <= 0
-    or window.split_ratio > 1
-  then
+  if type(window.split_ratio) ~= 'number' or window.split_ratio <= 0 or window.split_ratio > 1 then
     return false, 'window.split_ratio must be a number between 0 and 1'
   end
 
@@ -329,7 +325,8 @@ local function validate_keymaps_config(keymaps, command_variants)
         return false, 'keymaps.toggle.variants.' .. variant_name .. ' must be a string or false'
       end
       if keymap ~= false and not command_variants[variant_name] then
-        return false, 'keymaps.toggle.variants.' .. variant_name .. ' has no corresponding command variant'
+        return false,
+          'keymaps.toggle.variants.' .. variant_name .. ' has no corresponding command variant'
       end
     end
   end

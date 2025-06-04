@@ -146,7 +146,9 @@ local function setup_mcp_integration(mcp_config)
   local ok, mcp = pcall(require, 'claude-code.mcp')
   if not ok then
     -- MCP module failed to load, but don't error out in tests
-    if not (os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE')) then
+    if
+      not (os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE'))
+    then
       vim.notify('MCP module failed to load: ' .. tostring(mcp), vim.log.levels.WARN)
     end
     return
@@ -174,7 +176,13 @@ end
 --- Setup MCP server socket
 --- @param socket_config table
 local function setup_mcp_server_socket(socket_config)
-  if not (socket_config.mcp and socket_config.mcp.enabled and socket_config.mcp.auto_server_start ~= false) then
+  if
+    not (
+      socket_config.mcp
+      and socket_config.mcp.enabled
+      and socket_config.mcp.auto_server_start ~= false
+    )
+  then
     return
   end
 
