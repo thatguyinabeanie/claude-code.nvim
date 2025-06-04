@@ -17,6 +17,11 @@ print("  PLUGIN_ROOT: " .. tostring(os.getenv('PLUGIN_ROOT')))
 print("Working directory: " .. vim.fn.getcwd())
 print("Neovim version: " .. tostring(vim.version()))
 
+-- Track test completion
+local test_completed = false
+local test_failed = false
+local test_errors = 0
+
 -- Set up verbose logging for plenary
 local original_print = print
 local test_output = {}
@@ -25,6 +30,17 @@ _G.print = function(...)
   local output = table.concat(args, " ")
   table.insert(test_output, output)
   original_print(...)
+  
+  -- Check for test completion patterns
+  if output:match("Success:%s*%d+") and output:match("Failed%s*:%s*%d+") then
+    test_completed = true
+    local failed = tonumber(output:match("Failed%s*:%s*(%d+)")) or 0
+    local errors = tonumber(output:match("Errors%s*:%s*(%d+)")) or 0
+    if failed > 0 or errors > 0 then
+      test_failed = true
+      test_errors = failed + errors
+    end
+  end
 end
 
 print("Starting test execution...")
@@ -43,7 +59,9 @@ _G.print = original_print
 
 print("=== TEST EXECUTION COMPLETE ===")
 print("Duration: " .. duration .. "ms")
-print("Success: " .. tostring(ok))
+print("Plenary execution success: " .. tostring(ok))
+print("Test completion detected: " .. tostring(test_completed))
+print("Test failed: " .. tostring(test_failed))
 
 if not ok then
   print("Error details: " .. tostring(result))
@@ -53,14 +71,27 @@ if not ok then
   end
   print("=== END OUTPUT CAPTURE ===")
   vim.cmd('cquit 1')
+elseif test_failed then
+  print("Tests failed with " .. test_errors .. " errors/failures")
+  print("=== FAILED TEST OUTPUT ===")
+  -- Show all output for failed tests
+  for i, line in ipairs(test_output) do
+    print(string.format("%d: %s", i, line))
+  end
+  print("=== END FAILED OUTPUT ===")
+  vim.cmd('cquit 1')
 else
-  print("Test completed successfully")
+  print("All tests passed successfully")
   print("=== FINAL TEST OUTPUT ===")
   -- Show last 20 lines of output
   local start_idx = math.max(1, #test_output - 19)
   for i = start_idx, #test_output do
-    print(string.format("%d: %s", i, test_output[i]))
+    if test_output[i] then
+      print(string.format("%d: %s", i, test_output[i]))
+    end
   end
   print("=== END FINAL OUTPUT ===")
+  
+  -- Force immediate exit with success
   vim.cmd('qa!')
 end
