@@ -33,4 +33,7 @@ vim.opt.runtimepath:append(plugin_dir)
 -- Set environment variable for development path
 vim.env.CLAUDE_CODE_DEV_PATH = plugin_dir
 
+-- Set test mode to skip mcp-neovim-server check
+vim.fn.setenv('CLAUDE_CODE_TEST_MODE', '1')
+
 print('MCP test environment loaded from: ' .. plugin_dir)

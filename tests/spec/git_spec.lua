@@ -40,7 +40,7 @@ describe('git', function()
 
       -- Mock vim.v to make shell_error writable
       vim.v = setmetatable({
-        shell_error = 1
+        shell_error = 1,
       }, {
         __index = original_v,
         __newindex = function(t, k, v)
@@ -49,12 +49,12 @@ describe('git', function()
           else
             original_v[k] = v
           end
-        end
+        end,
       })
 
       -- Replace vim.fn.system with a mock that simulates error
       vim.fn.system = function()
-        vim.v.shell_error = 1  -- Simulate command failure
+        vim.v.shell_error = 1 -- Simulate command failure
         return ''
       end
 
@@ -77,7 +77,7 @@ describe('git', function()
 
       -- Mock vim.v to make shell_error writable
       vim.v = setmetatable({
-        shell_error = 0
+        shell_error = 0,
       }, {
         __index = original_v,
         __newindex = function(t, k, v)
@@ -86,14 +86,14 @@ describe('git', function()
           else
             original_v[k] = v
           end
-        end
+        end,
       })
 
       -- Mock vim.fn.system to simulate a non-git directory
       local mock_called = 0
       vim.fn.system = function(cmd)
         mock_called = mock_called + 1
-        vim.v.shell_error = 0  -- Command succeeds but returns false
+        vim.v.shell_error = 0 -- Command succeeds but returns false
         return 'false'
       end
 
@@ -118,10 +118,10 @@ describe('git', function()
       local mock_called = 0
       local orig_system = vim.fn.system
       local orig_v = vim.v
-      
+
       -- Mock vim.v to make shell_error writable (just in case)
       vim.v = setmetatable({
-        shell_error = 0
+        shell_error = 0,
       }, {
         __index = orig_v,
         __newindex = function(t, k, v)
@@ -130,9 +130,9 @@ describe('git', function()
           else
             orig_v[k] = v
           end
-        end
+        end,
       })
-      
+
       vim.fn.system = function(cmd)
         mock_called = mock_called + 1
         -- In test mode, we shouldn't reach here, but just in case
