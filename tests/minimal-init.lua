@@ -29,7 +29,7 @@ vim.opt.backup = false
 vim.opt.writebackup = false
 vim.opt.undofile = false
 vim.opt.hidden = true
-vim.opt.termguicolors = true
+vim.opt.termguicolors = true\n\n-- Set test mode environment variable\nvim.fn.setenv('CLAUDE_CODE_TEST_MODE', '1')
 
 -- CI environment detection and adjustments
 local is_ci = os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE')

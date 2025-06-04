@@ -96,7 +96,7 @@ function M.generate_config(output_path, config_type)
   local mcp_server_command = 'mcp-neovim-server'
 
   -- Check if the server is installed
-  if vim.fn.executable(mcp_server_command) == 0 then
+  if vim.fn.executable(mcp_server_command) == 0 and not os.getenv('CLAUDE_CODE_TEST_MODE') then
     notify(
       'mcp-neovim-server not found. Install with: npm install -g mcp-neovim-server',
       vim.log.levels.ERROR
