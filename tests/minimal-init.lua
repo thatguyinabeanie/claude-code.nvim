@@ -57,7 +57,7 @@ if is_ci then
   local original_executable = vim.fn.executable
   vim.fn.executable = function(cmd)
     -- Mock that 'claude' and 'echo' commands exist
-    if cmd == 'claude' or cmd == 'echo' then
+    if cmd == 'claude' or cmd == 'echo' or cmd == 'mcp-neovim-server' then
       return 1
     end
     return original_executable(cmd)
@@ -67,10 +67,28 @@ if is_ci then
   package.loaded['claude-code.mcp'] = {
     generate_config = function(filename, config_type)
       -- Mock successful config generation
+      return true, filename or '/tmp/mcp-config.json'
+    end,
+    setup = function(config)
       return true
     end,
-    start_server = function()
-      return true, 'Mock MCP server started'
+    start = function()
+      return true
+    end,
+    stop = function()
+      return true
+    end,
+    status = function()
+      return {
+        name = 'claude-code-nvim',
+        version = '1.0.0',
+        initialized = true,
+        tool_count = 8,
+        resource_count = 7,
+      }
+    end,
+    setup_claude_integration = function(config_type)
+      return true
     end,
   }
   
