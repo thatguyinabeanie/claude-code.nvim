@@ -73,13 +73,17 @@ end
 local function create_float(config, existing_bufnr)
   local float_config = config.window.float or {}
   
+  -- Get editor dimensions (accounting for command line, status line, etc.)
+  local editor_width = vim.o.columns
+  local editor_height = vim.o.lines - vim.o.cmdheight - 1 -- Subtract command line and status line
+  
   -- Calculate dimensions
-  local width = calculate_float_dimension(float_config.width, vim.o.columns)
-  local height = calculate_float_dimension(float_config.height, vim.o.lines)
+  local width = calculate_float_dimension(float_config.width, editor_width)
+  local height = calculate_float_dimension(float_config.height, editor_height)
   
   -- Calculate position
-  local row = calculate_float_position(float_config.row, height, vim.o.lines)
-  local col = calculate_float_position(float_config.col, width, vim.o.columns)
+  local row = calculate_float_position(float_config.row, height, editor_height)
+  local col = calculate_float_position(float_config.col, width, editor_width)
   
   -- Create floating window configuration
   local win_config = {

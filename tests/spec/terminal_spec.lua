@@ -534,6 +534,7 @@ describe('terminal module', function()
       _G.vim.o = _G.vim.o or {}
       _G.vim.o.columns = 120
       _G.vim.o.lines = 40
+      _G.vim.o.cmdheight = 1
     end)
 
     it('should create floating window when position is "float"', function()
@@ -562,7 +563,8 @@ describe('terminal module', function()
       -- Check calculated positions (clamped to ensure visibility)
       assert.is_true(nvim_open_win_config.row >= 0)
       assert.is_true(nvim_open_win_config.col >= 0)
-      assert.is_true(nvim_open_win_config.row <= 40 - 20) -- max_lines - height
+      local editor_height = 40 - 1 - 1 -- lines - cmdheight - status line
+      assert.is_true(nvim_open_win_config.row <= editor_height - 20) -- max_lines - height
       assert.is_true(nvim_open_win_config.col <= 120 - 80) -- max_columns - width
     end)
 
@@ -584,13 +586,14 @@ describe('terminal module', function()
 
       -- Check that dimensions were calculated correctly  
       assert.is_true(nvim_open_win_called, 'nvim_open_win should be called')
+      local editor_height = 40 - 1 - 1 -- lines - cmdheight - status line = 38
       local expected_width = math.floor(120 * 0.8) -- 80% of 120
-      local expected_height = math.floor(40 * 0.5) -- 50% of 40
+      local expected_height = math.floor(editor_height * 0.5) -- 50% of 38
       assert.are.equal(expected_width, nvim_open_win_config.width)
       assert.are.equal(expected_height, nvim_open_win_config.height)
       -- Verify percentage calculations are independent of hardcoded values
       assert.are.equal(96, expected_width)
-      assert.are.equal(20, expected_height)
+      assert.are.equal(19, expected_height) -- floor(38 * 0.5) = 19
     end)
 
     it('should center floating window when position is "center"', function()
@@ -612,7 +615,8 @@ describe('terminal module', function()
 
       -- Check that window is centered
       assert.is_true(nvim_open_win_called, 'nvim_open_win should be called')
-      assert.are.equal(10, nvim_open_win_config.row) -- (40-20)/2
+      local editor_height = 40 - 1 - 1 -- lines - cmdheight - status line = 38
+      assert.are.equal(math.floor((editor_height - 20) / 2), nvim_open_win_config.row) -- (38-20)/2 = 9
       assert.are.equal(30, nvim_open_win_config.col) -- (120-60)/2
     end)
 
@@ -662,8 +666,9 @@ describe('terminal module', function()
 
       -- Check that window is created (even if dims are out of bounds)
       assert.is_true(nvim_open_win_called, 'nvim_open_win should be called')
+      local editor_height = 40 - 1 - 1 -- lines - cmdheight - status line = 38
       assert.are.equal(math.floor(120 * 1.5), nvim_open_win_config.width)
-      assert.are.equal(math.floor(40 * 1.1), nvim_open_win_config.height)
+      assert.are.equal(math.floor(editor_height * 1.1), nvim_open_win_config.height)
     end)
   end)
 end)
