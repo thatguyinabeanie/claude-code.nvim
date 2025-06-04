@@ -391,8 +391,14 @@ local function create_new_instance(claude_code, config, git, instance_id, varian
           local win_ids = vim.fn.win_findbuf(bufnr)
           for _, window_id in ipairs(win_ids) do
             if vim.api.nvim_win_is_valid(window_id) then
-              -- Close the window
-              vim.api.nvim_win_close(window_id, false)
+              -- Only close the window if it's not the last window
+              local win_count = #vim.api.nvim_list_wins()
+              if win_count > 1 then
+                vim.api.nvim_win_close(window_id, false)
+              else
+                -- If it's the last window, switch to a new empty buffer instead
+                vim.cmd('enew')
+              end
             end
           end
           -- Delete the buffer

@@ -120,12 +120,12 @@ M.default_config = {
   -- Keymaps
   keymaps = {
     toggle = {
-      normal = '<C-,>', -- Normal mode keymap for toggling Claude Code
-      terminal = '<C-,>', -- Terminal mode keymap for toggling Claude Code
+      normal = '<leader>aa', -- Normal mode keymap for toggling Claude Code
+      terminal = '<leader>aa', -- Terminal mode keymap for toggling Claude Code
       variants = {
-        continue = '<leader>cC', -- Normal mode keymap for Claude Code with continue flag
-        verbose = '<leader>cV', -- Normal mode keymap for Claude Code with verbose flag
-        mcp_debug = '<leader>cD', -- Normal mode keymap for Claude Code with MCP debug flag
+        continue = '<leader>ac', -- Normal mode keymap for Claude Code with continue flag
+        verbose = '<leader>av', -- Normal mode keymap for Claude Code with verbose flag
+        mcp_debug = '<leader>ad', -- Normal mode keymap for Claude Code with MCP debug flag
       },
     },
     window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)

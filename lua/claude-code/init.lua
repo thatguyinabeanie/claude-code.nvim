@@ -291,4 +291,7 @@ function M.get_prompt_input()
   return vim.fn.getcmdline() or ''
 end
 
+-- Lazy.nvim integration
+M.lazy = true  -- Mark as lazy-loadable
+
 return M
