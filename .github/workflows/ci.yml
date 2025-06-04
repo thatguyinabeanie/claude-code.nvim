@@ -84,8 +84,19 @@ jobs:
           export CLAUDE_CODE_TEST_MODE="true"
           export TEST_FILE="${{ matrix.test-file }}"
           echo "Running test: ${{ matrix.test-file }}"
-          nvim --headless --noplugin -u tests/minimal-init.lua \
-            -c "luafile scripts/run_single_test.lua"
+          echo "Test timeout: 120 seconds"
+          timeout 120 nvim --headless --noplugin -u tests/minimal-init.lua \
+            -c "luafile scripts/run_single_test.lua" || {
+            EXIT_CODE=$?
+            if [ $EXIT_CODE -eq 124 ]; then
+              echo "ERROR: Test ${{ matrix.test-file }} timed out after 120 seconds"
+              echo "This suggests the test is hanging or stuck in an infinite loop"
+              exit 1
+            else
+              echo "ERROR: Test ${{ matrix.test-file }} failed with exit code $EXIT_CODE"
+              exit $EXIT_CODE
+            fi
+          }
         continue-on-error: false
 
   coverage-tests:
