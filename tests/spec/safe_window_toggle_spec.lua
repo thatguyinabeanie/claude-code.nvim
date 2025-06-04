@@ -172,7 +172,7 @@ describe('Safe Window Toggle', function()
       end
 
       -- Test: Toggle should show existing window
-      terminal.toggle(claude_code, config, git)
+      terminal.safe_toggle(claude_code, config, git)
 
       -- Verify: Split was created to show existing buffer
       assert.is_true(#splits_created > 0)

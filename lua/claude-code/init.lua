@@ -292,6 +292,6 @@ function M.get_prompt_input()
 end
 
 -- Lazy.nvim integration
-M.lazy = true  -- Mark as lazy-loadable
+M.lazy = true -- Mark as lazy-loadable
 
 return M

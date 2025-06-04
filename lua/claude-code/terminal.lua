@@ -392,11 +392,20 @@ local function create_new_instance(claude_code, config, git, instance_id, varian
           for _, window_id in ipairs(win_ids) do
             if vim.api.nvim_win_is_valid(window_id) then
               -- Only close the window if it's not the last window
-              local win_count = #vim.api.nvim_list_wins()
-              if win_count > 1 then
+              -- Check for non-floating windows only
+              local non_floating_count = 0
+              for _, win in ipairs(vim.api.nvim_list_wins()) do
+                local win_config = vim.api.nvim_win_get_config(win)
+                if win_config.relative == '' then
+                  non_floating_count = non_floating_count + 1
+                end
+              end
+              
+              if non_floating_count > 1 then
                 vim.api.nvim_win_close(window_id, false)
               else
                 -- If it's the last window, switch to a new empty buffer instead
+                vim.api.nvim_set_current_win(window_id)
                 vim.cmd('enew')
               end
             end
