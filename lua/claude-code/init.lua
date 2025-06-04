@@ -259,6 +259,35 @@ function M.setup(user_config)
     { desc = 'Insert @File#L1-99 reference for Claude prompt' }
   )
 
+  -- Auto-start Neovim server socket for MCP connection
+  if M.config.mcp and M.config.mcp.enabled and M.config.mcp.auto_server_start ~= false then
+    local server_socket = vim.fn.expand('~/.cache/nvim/claude-code-' .. vim.fn.getpid() .. '.sock')
+    
+    -- Check if we're already listening on a socket
+    if not vim.v.servername or vim.v.servername == '' then
+      -- Start server socket
+      pcall(vim.fn.serverstart, server_socket)
+      
+      -- Set environment variable for MCP server to find us
+      vim.fn.setenv('NVIM', server_socket)
+      
+      -- Clean up socket on exit
+      vim.api.nvim_create_autocmd('VimLeavePre', {
+        callback = function()
+          pcall(vim.fn.delete, server_socket)
+        end,
+        desc = 'Clean up Claude Code server socket',
+      })
+      
+      if M.config.startup_notification and M.config.startup_notification.enabled then
+        vim.notify('Claude Code: Server socket started at ' .. server_socket, vim.log.levels.DEBUG)
+      end
+    else
+      -- Already have a server, just set the environment variable
+      vim.fn.setenv('NVIM', vim.v.servername)
+    end
+  end
+
   -- Show configurable startup notification
   if M.config.startup_notification and M.config.startup_notification.enabled then
     vim.notify(M.config.startup_notification.message, M.config.startup_notification.level)

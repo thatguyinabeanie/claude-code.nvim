@@ -128,6 +128,15 @@ M.default_config = {
         mcp_debug = '<leader>ad', -- Normal mode keymap for Claude Code with MCP debug flag
       },
     },
+    selection = {
+      send = '<leader>as', -- Visual mode keymap for sending selection to Claude Code
+      explain = '<leader>ae', -- Visual mode keymap for explaining selection
+      with_context = '<leader>aw', -- Visual mode keymap for toggling with selection
+    },
+    seamless = {
+      claude = '<leader>cc', -- Normal/visual mode keymap for seamless Claude
+      ask = '<leader>ca', -- Normal mode keymap for quick ask
+    },
     window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)
     scrolling = true, -- Enable scrolling keymaps (<C-f/b>) for page up/down
   },
@@ -139,7 +148,8 @@ M.default_config = {
       port = 27123, -- Port for HTTP server
     },
     session_timeout_minutes = 30, -- Session timeout in minutes
-    auto_start = false, -- Don't auto-start the MCP server by default
+    auto_start = false, -- Don't auto-start by default (MCP server runs as separate process)
+    auto_server_start = true, -- Auto-start Neovim server socket for seamless MCP connection
     tools = {
       buffer = true,
       command = true,
@@ -308,6 +318,34 @@ local function validate_config(config)
     end
   end
 
+  -- Validate selection keymaps if they exist
+  if config.keymaps.selection then
+    if type(config.keymaps.selection) ~= 'table' then
+      return false, 'keymaps.selection must be a table'
+    end
+
+    -- Check each selection keymap
+    for key_name, keymap in pairs(config.keymaps.selection) do
+      if not (keymap == false or type(keymap) == 'string' or keymap == nil) then
+        return false, 'keymaps.selection.' .. key_name .. ' must be a string, false, or nil'
+      end
+    end
+  end
+
+  -- Validate seamless keymaps if they exist
+  if config.keymaps.seamless then
+    if type(config.keymaps.seamless) ~= 'table' then
+      return false, 'keymaps.seamless must be a table'
+    end
+
+    -- Check each seamless keymap
+    for key_name, keymap in pairs(config.keymaps.seamless) do
+      if not (keymap == false or type(keymap) == 'string' or keymap == nil) then
+        return false, 'keymaps.seamless.' .. key_name .. ' must be a string, false, or nil'
+      end
+    end
+  end
+
   if type(config.keymaps.window_navigation) ~= 'boolean' then
     return false, 'keymaps.window_navigation must be a boolean'
   end
@@ -339,6 +377,10 @@ local function validate_config(config)
 
   if type(config.mcp.session_timeout_minutes) ~= 'number' then
     return false, 'mcp.session_timeout_minutes must be a number'
+  end
+
+  if config.mcp.auto_start ~= nil and type(config.mcp.auto_start) ~= 'boolean' then
+    return false, 'mcp.auto_start must be a boolean'
   end
 
   -- Validate startup_notification configuration

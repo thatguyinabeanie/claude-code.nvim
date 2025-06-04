@@ -22,6 +22,36 @@ function M.register_keymaps(claude_code, config)
     )
   end
 
+  -- Visual mode selection keymaps
+  if config.keymaps.selection then
+    if config.keymaps.selection.send then
+      vim.api.nvim_set_keymap(
+        'v',
+        config.keymaps.selection.send,
+        [[<cmd>ClaudeCodeSendSelection<CR>]],
+        vim.tbl_extend('force', map_opts, { desc = 'Claude Code: Send selection' })
+      )
+    end
+
+    if config.keymaps.selection.explain then
+      vim.api.nvim_set_keymap(
+        'v',
+        config.keymaps.selection.explain,
+        [[<cmd>ClaudeCodeExplainSelection<CR>]],
+        vim.tbl_extend('force', map_opts, { desc = 'Claude Code: Explain selection' })
+      )
+    end
+
+    if config.keymaps.selection.with_context then
+      vim.api.nvim_set_keymap(
+        'v',
+        config.keymaps.selection.with_context,
+        [[<cmd>ClaudeCodeWithSelection<CR>]],
+        vim.tbl_extend('force', map_opts, { desc = 'Claude Code: Toggle with selection' })
+      )
+    end
+  end
+
   if config.keymaps.toggle.terminal then
     -- Terminal mode escape sequence handling for reliable keymap functionality
     -- Terminal mode in Neovim requires special escape sequences to work properly
@@ -91,8 +121,57 @@ function M.register_keymaps(claude_code, config)
           end
         end
       end
+
+      -- Register visual mode keymaps with which-key
+      if config.keymaps.selection then
+        if config.keymaps.selection.send then
+          which_key.add {
+            mode = 'v',
+            { config.keymaps.selection.send, desc = 'Claude Code: Send selection', icon = '📤' },
+          }
+        end
+        if config.keymaps.selection.explain then
+          which_key.add {
+            mode = 'v',
+            { config.keymaps.selection.explain, desc = 'Claude Code: Explain selection', icon = '💡' },
+          }
+        end
+        if config.keymaps.selection.with_context then
+          which_key.add {
+            mode = 'v',
+            { config.keymaps.selection.with_context, desc = 'Claude Code: Toggle with selection', icon = '🤖' },
+          }
+        end
+      end
     end
   end, 100)
+
+  -- Seamless Claude keymaps
+  if config.keymaps.seamless then
+    if config.keymaps.seamless.claude then
+      vim.api.nvim_set_keymap(
+        'n',
+        config.keymaps.seamless.claude,
+        [[<cmd>Claude<CR>]],
+        vim.tbl_extend('force', map_opts, { desc = 'Claude: Ask question' })
+      )
+      vim.api.nvim_set_keymap(
+        'v',
+        config.keymaps.seamless.claude,
+        [[<cmd>Claude<CR>]],
+        vim.tbl_extend('force', map_opts, { desc = 'Claude: Ask about selection' })
+      )
+    end
+
+    if config.keymaps.seamless.ask then
+      vim.api.nvim_set_keymap(
+        'n',
+        config.keymaps.seamless.ask,
+        [[:ClaudeAsk ]],
+        vim.tbl_extend('force', map_opts, { desc = 'Claude: Quick ask', silent = false })
+      )
+    end
+  end
 end
 
 --- Set up terminal-specific keymaps for window navigation

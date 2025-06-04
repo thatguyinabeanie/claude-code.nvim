@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Test script for Claude Code MCP server
+# Test script for mcp-neovim-server integration
 
 # Configurable server path - can be overridden via environment variable
-SERVER="${CLAUDE_MCP_SERVER_PATH:-./bin/claude-code-mcp-server}"
+SERVER="${CLAUDE_MCP_SERVER_PATH:-mcp-neovim-server}"
 
 # Configurable timeout (in seconds)
 TIMEOUT="${CLAUDE_MCP_TIMEOUT:-10}"
@@ -11,14 +11,15 @@ TIMEOUT="${CLAUDE_MCP_TIMEOUT:-10}"
 # Debug mode
 DEBUG="${CLAUDE_MCP_DEBUG:-0}"
 
-# Validate server path exists
-if [ ! -f "$SERVER" ] && [ ! -x "$SERVER" ]; then
-    echo "Error: MCP server not found at: $SERVER"
-    echo "Set CLAUDE_MCP_SERVER_PATH environment variable to specify custom path"
+# Validate server command exists
+if ! command -v "$SERVER" &> /dev/null; then
+    echo "Error: MCP server command not found: $SERVER"
+    echo "Please install with: npm install -g mcp-neovim-server"
+    echo "Or set CLAUDE_MCP_SERVER_PATH environment variable to specify custom path"
     exit 1
 fi
 
-echo "Testing Claude Code MCP Server"
+echo "Testing mcp-neovim-server Integration"
 echo "==============================="
 echo "Server: $SERVER"
 echo "Timeout: ${TIMEOUT}s"

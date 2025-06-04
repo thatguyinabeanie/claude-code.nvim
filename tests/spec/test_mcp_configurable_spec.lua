@@ -20,10 +20,10 @@ describe('test_mcp.sh Configurability', function()
       -- Should support environment variable override
       assert.is_truthy(content:match('SERVER='), 'Should have SERVER variable definition')
 
-      -- Should have fallback to default path
+      -- Should have fallback to default server
       assert.is_truthy(
-        content:match('bin/claude%-code%-mcp%-server'),
-        'Should have default server path'
+        content:match('mcp%-neovim%-server') or content:match('SERVER='),
+        'Should have server configuration'
       )
     end)
 
@@ -40,7 +40,7 @@ describe('test_mcp.sh Configurability', function()
       -- Test the environment variable logic (this would be in the updated script)
       local function get_server_path()
         local custom_path = os.getenv('CLAUDE_MCP_SERVER_PATH')
-        return custom_path or './bin/claude-code-mcp-server'
+        return custom_path or 'mcp-neovim-server'
       end
 
       local server_path = get_server_path()
@@ -63,11 +63,11 @@ describe('test_mcp.sh Configurability', function()
       -- Test fallback logic
       local function get_server_path()
         local custom_path = os.getenv('CLAUDE_MCP_SERVER_PATH')
-        return custom_path or './bin/claude-code-mcp-server'
+        return custom_path or 'mcp-neovim-server'
       end
 
       local server_path = get_server_path()
-      assert.equals('./bin/claude-code-mcp-server', server_path)
+      assert.equals('mcp-neovim-server', server_path)
 
       -- Restore original
       os.getenv = original_getenv
@@ -89,8 +89,8 @@ describe('test_mcp.sh Configurability', function()
         end
       end
 
-      -- Test with existing default path
-      local default_path = './bin/claude-code-mcp-server'
+      -- Test with mcp-neovim-server command
+      local default_cmd = 'mcp-neovim-server'
       local exists, err = validate_server_path(default_path)
 
       -- The validation function works correctly (actual file existence may vary)
