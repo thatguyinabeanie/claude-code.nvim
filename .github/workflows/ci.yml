@@ -19,10 +19,29 @@ on:
       - '.github/workflows/yaml-lint.yml'
 
 jobs:
-  # Unit tests with Neovim stable
+  # Get list of test files for matrix
+  get-test-files:
+    runs-on: ubuntu-latest
+    outputs:
+      test-files: ${{ steps.list-tests.outputs.test-files }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: List test files
+        id: list-tests
+        run: |
+          test_files=$(find tests/spec -name "*_spec.lua" -type f | jq -R -s -c 'split("\n")[:-1]')
+          echo "test-files=$test_files" >> $GITHUB_OUTPUT
+          echo "Found test files: $test_files"
+
+  # Unit tests with Neovim stable - run each test individually
   unit-tests:
     runs-on: ubuntu-latest
-    name: Unit Tests
+    needs: get-test-files
+    strategy:
+      fail-fast: false
+      matrix:
+        test-file: ${{ fromJson(needs.get-test-files.outputs.test-files) }}
+    name: Test ${{ matrix.test-file }}
     steps:
       - uses: actions/checkout@v4
 
@@ -56,62 +75,22 @@ jobs:
             cd ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim && git pull origin master
           fi
 
-      - name: Cache LuaCov installation
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.luarocks
-            /usr/local/lib/luarocks
-            /usr/local/share/lua
-          key: ${{ runner.os }}-luacov-${{ hashFiles('.github/workflows/ci.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-luacov-
-
-      - name: Install LuaCov for coverage
-        run: |
-          # Check if LuaCov is already available
-          if lua -e "require('luacov')" 2>/dev/null; then
-            echo "✅ LuaCov already available, skipping installation"
-          else
-            echo "Installing LuaCov..."
-            # Install lua and luarocks
-            sudo apt-get update
-            sudo apt-get install -y lua5.1 liblua5.1-0-dev luarocks
-            # Install luacov with faster mirror
-            sudo luarocks install --server=https://luarocks.org luacov || {
-              echo "Trying alternative server..."
-              sudo luarocks install luacov
-            }
-            # Verify installation
-            lua -e "require('luacov'); print('LuaCov loaded successfully')" || echo "LuaCov installation failed"
-          fi
-
-      - name: Verify test directory structure
-        run: |
-          echo "Main tests directory:"
-          ls -la ./tests/
-          echo "Unit test specs:"
-          ls -la ./tests/spec/
-          echo "Legacy tests:"
-          ls -la ./tests/legacy/
-          echo "Interactive tests:"
-          ls -la ./tests/interactive/
-
       - name: Display Neovim version
         run: nvim --version
 
-      - name: Run unit tests
+      - name: Run individual test
         run: |
           export PLUGIN_ROOT="$(pwd)"
           export CLAUDE_CODE_TEST_MODE="true"
-          echo "Running unit tests..."
-          ./scripts/test.sh
+          echo "Running test: ${{ matrix.test-file }}"
+          nvim --headless --noplugin -u tests/minimal-init.lua \
+            -c "lua require('plenary.test_harness').test_file('${{ matrix.test-file }}', { minimal_init = 'tests/minimal-init.lua' })"
         continue-on-error: false
 
   coverage-tests:
     runs-on: ubuntu-latest
     name: Coverage Tests
-    if: false  # Temporarily disabled while debugging unit test failures
+    needs: unit-tests
     steps:
       - uses: actions/checkout@v4
 
