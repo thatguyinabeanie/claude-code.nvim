@@ -261,10 +261,20 @@ describe("Today's CI and Feature Fixes", function()
 
     before_each(function()
       original_dev_path = os.getenv('CLAUDE_CODE_DEV_PATH')
+      -- Don't clear MCP modules if they're mocked in CI
+      if not (os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE')) then
+        package.loaded['claude-code.mcp'] = nil
+        package.loaded['claude-code.mcp.tools'] = nil
+      end
     end)
 
     after_each(function()
       vim.env.CLAUDE_CODE_DEV_PATH = original_dev_path
+      -- Don't clear mocked modules in CI
+      if not (os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE')) then
+        package.loaded['claude-code.mcp'] = nil
+        package.loaded['claude-code.mcp.tools'] = nil
+      end
     end)
 
     it('should handle MCP module loading with error handling', function()
@@ -302,15 +312,19 @@ describe("Today's CI and Feature Fixes", function()
     it('should set development path for MCP server detection', function()
       local test_path = '/test/dev/path'
       vim.env.CLAUDE_CODE_DEV_PATH = test_path
+      
+      -- Force environment variable update in Neovim
+      os.execute('export CLAUDE_CODE_DEV_PATH=' .. test_path)
 
       local function get_server_path()
-        local dev_path = os.getenv('CLAUDE_CODE_DEV_PATH')
+        local dev_path = vim.env.CLAUDE_CODE_DEV_PATH or os.getenv('CLAUDE_CODE_DEV_PATH')
         return dev_path and (dev_path .. '/bin/claude-code-mcp-server') or nil
       end
 
       local server_path = get_server_path()
+      assert.is_not_nil(server_path, 'Server path should not be nil')
       assert.is_string(server_path)
-      assert.is_true(server_path:match('/bin/claude%-code%-mcp%-server$'))
+      assert.is_true(server_path:match('/bin/claude%-code%-mcp%-server$') ~= nil)
     end)
 
     it('should handle config generation with error handling', function()

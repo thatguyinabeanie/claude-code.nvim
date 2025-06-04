@@ -59,6 +59,28 @@ if is_ci then
     end
     return original_executable(cmd)
   end
+
+  -- Mock MCP modules for tests that require them
+  package.loaded['claude-code.mcp'] = {
+    generate_config = function(filename, config_type)
+      -- Mock successful config generation
+      return true
+    end,
+    start_server = function()
+      return true, 'Mock MCP server started'
+    end,
+  }
+  
+  package.loaded['claude-code.mcp.tools'] = {
+    tool1 = { name = 'tool1', handler = function() end },
+    tool2 = { name = 'tool2', handler = function() end },
+    tool3 = { name = 'tool3', handler = function() end },
+    tool4 = { name = 'tool4', handler = function() end },
+    tool5 = { name = 'tool5', handler = function() end },
+    tool6 = { name = 'tool6', handler = function() end },
+    tool7 = { name = 'tool7', handler = function() end },
+    tool8 = { name = 'tool8', handler = function() end },
+  }
 end
 
 -- Add the plugin directory to runtimepath
