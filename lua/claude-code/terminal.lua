@@ -130,6 +130,34 @@ local function build_command_with_git_root(config, git, base_cmd)
   return base_cmd
 end
 
+--- Configure common window options
+--- @param win_id number Window ID to configure
+--- @param config table Plugin configuration
+--- @private
+local function configure_window_options(win_id, config)
+  if config.window.hide_numbers then
+    vim.api.nvim_win_set_option(win_id, 'number', false)
+    vim.api.nvim_win_set_option(win_id, 'relativenumber', false)
+  end
+  
+  if config.window.hide_signcolumn then
+    vim.api.nvim_win_set_option(win_id, 'signcolumn', 'no')
+  end
+end
+
+--- Generate buffer name for instance
+--- @param instance_id string Instance identifier
+--- @param config table Plugin configuration
+--- @return string Buffer name
+--- @private  
+local function generate_buffer_name(instance_id, config)
+  if config.git.multi_instance then
+    return 'claude-code-' .. instance_id:gsub('[^%w%-_]', '-')
+  else
+    return 'claude-code'
+  end
+end
+
 --- Create a split window according to the specified position configuration
 --- @param position string Window position configuration
 --- @param config table Plugin configuration containing window settings
@@ -284,24 +312,12 @@ function M.toggle(claude_code, config, git)
       -- Run terminal in the buffer
       vim.fn.termopen(cmd)
       
-      -- Create a unique buffer name (or a standard one in single instance mode)
-      local buffer_name
-      if config.git.multi_instance then
-        buffer_name = 'claude-code-' .. instance_id:gsub('[^%w%-_]', '-')
-      else
-        buffer_name = 'claude-code'
-      end
+      -- Create a unique buffer name
+      local buffer_name = generate_buffer_name(instance_id, config)
       vim.api.nvim_buf_set_name(new_bufnr, buffer_name)
       
-      -- Configure buffer options
-      if config.window.hide_numbers then
-        vim.api.nvim_win_set_option(win_id, 'number', false)
-        vim.api.nvim_win_set_option(win_id, 'relativenumber', false)
-      end
-      
-      if config.window.hide_signcolumn then
-        vim.api.nvim_win_set_option(win_id, 'signcolumn', 'no')
-      end
+      -- Configure window options
+      configure_window_options(win_id, config)
       
       -- Store buffer number for this instance
       claude_code.claude_code.instances[instance_id] = new_bufnr
@@ -321,22 +337,13 @@ function M.toggle(claude_code, config, git)
       vim.cmd(cmd)
       vim.cmd 'setlocal bufhidden=hide'
       
-      -- Create a unique buffer name (or a standard one in single instance mode)
-      local buffer_name
-      if config.git.multi_instance then
-        buffer_name = 'claude-code-' .. instance_id:gsub('[^%w%-_]', '-')
-      else
-        buffer_name = 'claude-code'
-      end
+      -- Create a unique buffer name
+      local buffer_name = generate_buffer_name(instance_id, config)
       vim.cmd('file ' .. buffer_name)
 
-      if config.window.hide_numbers then
-        vim.cmd 'setlocal nonumber norelativenumber'
-      end
-
-      if config.window.hide_signcolumn then
-        vim.cmd 'setlocal signcolumn=no'
-      end
+      -- Configure window options using helper function
+      local current_win = vim.api.nvim_get_current_win()
+      configure_window_options(current_win, config)
 
       -- Store buffer number for this instance
       claude_code.claude_code.instances[instance_id] = vim.fn.bufnr('%')

@@ -40,6 +40,9 @@ describe('config validation', function()
       local result = config.parse_config(invalid_config, true) -- silent mode
       -- When validation fails, should return default config
       assert.are.equal(config.default_config.window.position, result.window.position)
+      -- Ensure invalid float config doesn't bleed through
+      assert.is.table(result.window.float)
+      assert.are.equal(config.default_config.window.float.border, result.window.float.border)
     end)
 
     it('should validate float.width can be a number or percentage string', function()
@@ -80,6 +83,9 @@ describe('config validation', function()
 
       local result = config.parse_config(invalid_config, true) -- silent mode
       assert.are.equal(config.default_config.window.position, result.window.position)
+      -- Ensure invalid border doesn't bleed through  
+      assert.are.not_equal('invalid', result.window.float.border)
+      assert.are.equal(config.default_config.window.float.border, result.window.float.border)
     end)
   end)
 
