@@ -88,6 +88,10 @@ describe('file refresh', function()
       claude_code = {
         bufnr = 42,
         saved_updatetime = nil,
+        current_instance = 'test_instance',
+        instances = {
+          test_instance = 42,
+        },
       },
     }
 
