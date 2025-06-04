@@ -70,6 +70,12 @@ if not ok then
     print(string.format("%d: %s", i, line))
   end
   print("=== END OUTPUT CAPTURE ===")
+  
+  -- Cleanup before exit
+  if _G.cleanup_test_environment then
+    _G.cleanup_test_environment()
+  end
+  
   vim.cmd('cquit 1')
 elseif test_failed then
   print("Tests failed with " .. test_errors .. " errors/failures")
@@ -79,6 +85,12 @@ elseif test_failed then
     print(string.format("%d: %s", i, line))
   end
   print("=== END FAILED OUTPUT ===")
+  
+  -- Cleanup before exit
+  if _G.cleanup_test_environment then
+    _G.cleanup_test_environment()
+  end
+  
   vim.cmd('cquit 1')
 else
   print("All tests passed successfully")
@@ -91,6 +103,11 @@ else
     end
   end
   print("=== END FINAL OUTPUT ===")
+  
+  -- Cleanup before exit
+  if _G.cleanup_test_environment then
+    _G.cleanup_test_environment()
+  end
   
   -- Force immediate exit with success
   vim.cmd('qa!')

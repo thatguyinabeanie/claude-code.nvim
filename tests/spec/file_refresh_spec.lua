@@ -196,4 +196,11 @@ describe('file refresh', function()
       assert.is_true(timer_closed, 'Timer should be closed')
     end)
   end)
+
+  after_each(function()
+    -- Clean up any timers to prevent test hanging
+    pcall(function()
+      file_refresh.cleanup()
+    end)
+  end)
 end)

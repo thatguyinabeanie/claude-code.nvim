@@ -77,13 +77,13 @@ describe('terminal module', function()
 
     -- Store autocmd registrations for testing
     _G.test_autocmds = {}
-    
+
     -- Mock vim.api.nvim_create_autocmd
     _G.vim.api.nvim_create_autocmd = function(event, opts)
       -- Capture the autocmd registration
       table.insert(_G.test_autocmds, {
         event = event,
-        opts = opts
+        opts = opts,
       })
       return true
     end

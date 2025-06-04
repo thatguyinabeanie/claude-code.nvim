@@ -9,7 +9,7 @@ local mcp = require('claude-code.mcp')
 local function run_with_args(args)
   -- Simulate MCP operations based on args
   local result = {}
-  
+
   if vim.tbl_contains(args, '--start-mcp-server') then
     result.started = true
     result.status = 'MCP server ready'
@@ -63,7 +63,7 @@ local function run_with_args(args)
       end
     end
   end
-  
+
   return result
 end
 

@@ -68,7 +68,7 @@ describe('MCP External Server Integration', function()
       -- Test socket detection logic
       local test_socket = '/tmp/test-nvim.sock'
       vim.v.servername = test_socket
-      
+
       -- Socket should be available via environment
       assert.equals(test_socket, vim.v.servername)
     end)
@@ -77,10 +77,10 @@ describe('MCP External Server Integration', function()
       -- Clear servername
       local original_servername = vim.v.servername
       vim.v.servername = ''
-      
+
       -- Should handle empty servername
       assert.equals('', vim.v.servername)
-      
+
       -- Restore
       vim.v.servername = original_servername
     end)
@@ -98,20 +98,20 @@ describe('MCP External Server Integration', function()
 
       local temp_file = vim.fn.tempname() .. '.json'
       local success, path = mcp.generate_config(temp_file, 'claude-code')
-      
+
       assert.is_true(success)
       assert.equals(temp_file, path)
-      
+
       -- Read and validate generated config
       local file = io.open(temp_file, 'r')
       local content = file:read('*all')
       file:close()
-      
+
       local config = vim.json.decode(content)
       assert.is_table(config.mcpServers)
       assert.is_table(config.mcpServers.neovim)
       assert.equals('mcp-neovim-server', config.mcpServers.neovim.command)
-      
+
       vim.fn.delete(temp_file)
     end)
 
@@ -126,19 +126,19 @@ describe('MCP External Server Integration', function()
 
       local temp_file = vim.fn.tempname() .. '.json'
       local success, path = mcp.generate_config(temp_file, 'workspace')
-      
+
       assert.is_true(success)
       assert.equals(temp_file, path)
-      
+
       -- Read and validate generated config
       local file = io.open(temp_file, 'r')
       local content = file:read('*all')
       file:close()
-      
+
       local config = vim.json.decode(content)
       assert.is_table(config.neovim)
       assert.equals('mcp-neovim-server', config.neovim.command)
-      
+
       vim.fn.delete(temp_file)
     end)
   end)

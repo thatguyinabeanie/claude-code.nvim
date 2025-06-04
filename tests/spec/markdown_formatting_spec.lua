@@ -72,7 +72,7 @@ describe('Markdown Formatting Validation', function()
       if not in_code_block then
         -- Skip obvious code comments and special markdown syntax
         local is_code_comment = line:match('^%s*%-%-%s') -- Lua comments
-          or line:match('^%s*#') -- Shell/Python comments 
+          or line:match('^%s*#') -- Shell/Python comments
           or line:match('^%s*//') -- C-style comments
 
         local is_markdown_syntax = line:match('^%s*%-%-%-+%s*$') -- Horizontal rules

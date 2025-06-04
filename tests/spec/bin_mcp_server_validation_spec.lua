@@ -74,7 +74,7 @@ describe('Claude-Nvim Wrapper Validation', function()
       -- Simulate the wrapper validation
       local script_source = '@/test/path/bin/claude-nvim'
       local script_dir = script_source:sub(2):match('(.*/)') -- "/test/path/bin/"
-      
+
       -- Check if script directory would be validated
       assert.is_string(script_dir)
       assert.is_truthy(script_dir:match('/bin/$')) -- Should end with /bin/
@@ -133,7 +133,7 @@ describe('Claude-Nvim Wrapper Validation', function()
         '~/.cache/nvim/*.sock',
         '/tmp/nvim*.sock',
         '/tmp/nvim',
-        '/tmp/nvimsocket*'
+        '/tmp/nvimsocket*',
       }
 
       -- Mock vim.fn.glob to test socket discovery
@@ -168,7 +168,7 @@ describe('Claude-Nvim Wrapper Validation', function()
       -- Check if mcp-neovim-server is installed
       local is_installed = vim.fn.executable('mcp-neovim-server') == 1
       assert.is_false(is_installed)
-      assert.are.same({'mcp-neovim-server'}, commands_checked)
+      assert.are.same({ 'mcp-neovim-server' }, commands_checked)
 
       -- Restore
       vim.fn.executable = original_executable

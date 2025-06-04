@@ -34,6 +34,26 @@ vim.opt.termguicolors = true
 -- Set test mode environment variable
 vim.fn.setenv('CLAUDE_CODE_TEST_MODE', '1')
 
+-- Track all created timers for cleanup
+local test_timers = {}
+local original_new_timer = vim.loop.new_timer
+vim.loop.new_timer = function()
+  local timer = original_new_timer()
+  table.insert(test_timers, timer)
+  return timer
+end
+
+-- Cleanup function to ensure no hanging timers
+_G.cleanup_test_environment = function()
+  for _, timer in ipairs(test_timers) do
+    pcall(function()
+      timer:stop()
+      timer:close()
+    end)
+  end
+  test_timers = {}
+end
+
 -- CI environment detection and adjustments
 local is_ci = os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE')
 if is_ci then
@@ -198,8 +218,7 @@ if status_ok then
   end
 
   -- Print available commands for user reference
-  print('
-Available Commands:')
+  print('\nAvailable Commands:')
   print('  :ClaudeCode                - Toggle Claude Code terminal')
   print('  :ClaudeCodeWithFile        - Toggle with current file context')
   print('  :ClaudeCodeWithSelection   - Toggle with visual selection')
@@ -228,8 +247,7 @@ Available Commands:')
   end, { desc = 'Stub command for testing' })
 
   -- Test the commands that are failing in CI
-  print('
-Testing commands:')
+  print('\nTesting commands:')
   local status_ok, status_result = pcall(function()
     vim.cmd('ClaudeCodeStatus')
   end)
@@ -256,7 +274,15 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.signcolumn = 'yes'
 
-print('
-Claude Code minimal test environment loaded.')
+print('\nClaude Code minimal test environment loaded.')
 print('- Type :messages to see any error messages')
 print("- Try ':ClaudeCode' to start a new session")
+
+-- Register cleanup on exit
+vim.api.nvim_create_autocmd('VimLeavePre', {
+  callback = function()
+    if _G.cleanup_test_environment then
+      _G.cleanup_test_environment()
+    end
+  end,
+})

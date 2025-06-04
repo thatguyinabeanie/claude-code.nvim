@@ -1,6 +1,9 @@
 -- Test-Driven Development: Safe Window Toggle Tests
 -- Written BEFORE implementation to define expected behavior
 describe('Safe Window Toggle', function()
+  -- Ensure test mode is set
+  vim.env.CLAUDE_CODE_TEST_MODE = '1'
+
   local terminal = require('claude-code.terminal')
 
   -- Mock vim functions for testing
@@ -559,5 +562,11 @@ describe('Safe Window Toggle', function()
       -- Verify: Instance still tracked after multiple toggles
       assert.equals(bufnr, claude_code.claude_code.instances.global)
     end)
+  end)
+
+  -- Ensure no hanging processes or timers
+  after_each(function()
+    -- Reset test mode
+    vim.env.CLAUDE_CODE_TEST_MODE = '1'
   end)
 end)
