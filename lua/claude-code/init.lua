@@ -136,6 +136,75 @@ function M.list_instances()
   return _internal.terminal.list_instances(M)
 end
 
+--- Setup MCP integration
+--- @param mcp_config table
+local function setup_mcp_integration(mcp_config)
+  if not (mcp_config.mcp and mcp_config.mcp.enabled) then
+    return
+  end
+
+  local ok, mcp = pcall(require, 'claude-code.mcp')
+  if not ok then
+    -- MCP module failed to load, but don't error out in tests
+    if not (os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE')) then
+      vim.notify('MCP module failed to load: ' .. tostring(mcp), vim.log.levels.WARN)
+    end
+    return
+  end
+
+  if not (mcp and type(mcp.setup) == 'function') then
+    vim.notify('MCP module not available', vim.log.levels.WARN)
+    return
+  end
+
+  mcp.setup(mcp_config)
+
+  -- Initialize MCP Hub integration
+  local hub_ok, hub = pcall(require, 'claude-code.mcp.hub')
+  if hub_ok and hub and type(hub.setup) == 'function' then
+    hub.setup()
+  end
+
+  -- Auto-start if configured
+  if mcp_config.mcp.auto_start then
+    mcp.start()
+  end
+end
+
+--- Setup MCP server socket
+--- @param socket_config table
+local function setup_mcp_server_socket(socket_config)
+  if not (socket_config.mcp and socket_config.mcp.enabled and socket_config.mcp.auto_server_start ~= false) then
+    return
+  end
+
+  local server_socket = vim.fn.expand('~/.cache/nvim/claude-code-' .. vim.fn.getpid() .. '.sock')
+
+  -- Check if we're already listening on a socket
+  if not vim.v.servername or vim.v.servername == '' then
+    -- Start server socket
+    pcall(vim.fn.serverstart, server_socket)
+
+    -- Set environment variable for MCP server to find us
+    vim.fn.setenv('NVIM', server_socket)
+
+    -- Clean up socket on exit
+    vim.api.nvim_create_autocmd('VimLeavePre', {
+      callback = function()
+        pcall(vim.fn.delete, server_socket)
+      end,
+      desc = 'Clean up Claude Code server socket',
+    })
+
+    if socket_config.startup_notification and socket_config.startup_notification.enabled then
+      vim.notify('Claude Code: Server socket started at ' .. server_socket, vim.log.levels.DEBUG)
+    end
+  else
+    -- Already have a server, just set the environment variable
+    vim.fn.setenv('NVIM', vim.v.servername)
+  end
+end
+
 --- Setup function for the plugin
 --- @param user_config table|nil Optional user configuration
 function M.setup(user_config)
@@ -161,95 +230,7 @@ function M.setup(user_config)
   _internal.file_refresh.setup(M, M.config)
 
   -- Initialize MCP server if enabled
-  if M.config.mcp and M.config.mcp.enabled then
-    local ok, mcp = pcall(require, 'claude-code.mcp')
-    if ok and mcp and type(mcp.setup) == 'function' then
-      mcp.setup(M.config)
-
-      -- Initialize MCP Hub integration
-      local hub_ok, hub = pcall(require, 'claude-code.mcp.hub')
-      if hub_ok and hub and type(hub.setup) == 'function' then
-        hub.setup()
-      end
-
-      -- Auto-start if configured
-      if M.config.mcp.auto_start then
-        mcp.start()
-      end
-
-      -- Create MCP-specific commands
-      vim.api.nvim_create_user_command('ClaudeCodeMCPStart', function()
-        mcp.start()
-      end, {
-        desc = 'Start Claude Code MCP server',
-      })
-
-      vim.api.nvim_create_user_command('ClaudeCodeMCPStop', function()
-        mcp.stop()
-      end, {
-        desc = 'Stop Claude Code MCP server',
-      })
-
-      vim.api.nvim_create_user_command('ClaudeCodeMCPStatus', function()
-        local status = mcp.status()
-
-        local msg = string.format(
-          'MCP Server: %s v%s\nInitialized: %s\nTools: %d\nResources: %d',
-          status.name,
-          status.version,
-          status.initialized and 'Yes' or 'No',
-          status.tool_count,
-          status.resource_count
-        )
-
-        vim.notify(msg, vim.log.levels.INFO)
-      end, {
-        desc = 'Show Claude Code MCP server status',
-      })
-
-      vim.api.nvim_create_user_command('ClaudeCodeMCPConfig', function(opts)
-        local args = vim.split(opts.args, '%s+')
-        local config_type = args[1] or 'claude-code'
-        local output_path = args[2]
-        mcp.generate_config(output_path, config_type)
-      end, {
-        desc = 'Generate MCP configuration file (usage: :ClaudeCodeMCPConfig [claude-code|workspace|custom] [path])',
-        nargs = '*',
-        complete = function(ArgLead, CmdLine, CursorPos)
-          if
-            ArgLead == ''
-            or not vim.tbl_contains(
-              { 'claude-code', 'workspace', 'custom' },
-              ArgLead:sub(1, #ArgLead)
-            )
-          then
-            return { 'claude-code', 'workspace', 'custom' }
-          end
-          return {}
-        end,
-      })
-
-      vim.api.nvim_create_user_command('ClaudeCodeSetup', function(opts)
-        local config_type = opts.args ~= '' and opts.args or 'claude-code'
-        mcp.setup_claude_integration(config_type)
-      end, {
-        desc = 'Setup MCP integration (usage: :ClaudeCodeSetup [claude-code|workspace])',
-        nargs = '?',
-        complete = function()
-          return { 'claude-code', 'workspace' }
-        end,
-      })
-    elseif not ok then
-      -- MCP module failed to load, but don't error out in tests
-      if
-        not (os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE'))
-      then
-        vim.notify('MCP module failed to load: ' .. tostring(mcp), vim.log.levels.WARN)
-      end
-    else
-      vim.notify('MCP module not available', vim.log.levels.WARN)
-    end
-  end
+  setup_mcp_integration(M.config)
 
   -- Setup keymap for file reference shortcut
   vim.keymap.set(
@@ -260,33 +241,7 @@ function M.setup(user_config)
   )
 
   -- Auto-start Neovim server socket for MCP connection
-  if M.config.mcp and M.config.mcp.enabled and M.config.mcp.auto_server_start ~= false then
-    local server_socket = vim.fn.expand('~/.cache/nvim/claude-code-' .. vim.fn.getpid() .. '.sock')
-
-    -- Check if we're already listening on a socket
-    if not vim.v.servername or vim.v.servername == '' then
-      -- Start server socket
-      pcall(vim.fn.serverstart, server_socket)
-
-      -- Set environment variable for MCP server to find us
-      vim.fn.setenv('NVIM', server_socket)
-
-      -- Clean up socket on exit
-      vim.api.nvim_create_autocmd('VimLeavePre', {
-        callback = function()
-          pcall(vim.fn.delete, server_socket)
-        end,
-        desc = 'Clean up Claude Code server socket',
-      })
-
-      if M.config.startup_notification and M.config.startup_notification.enabled then
-        vim.notify('Claude Code: Server socket started at ' .. server_socket, vim.log.levels.DEBUG)
-      end
-    else
-      -- Already have a server, just set the environment variable
-      vim.fn.setenv('NVIM', vim.v.servername)
-    end
-  end
+  setup_mcp_server_socket(M.config)
 
   -- Show configurable startup notification
   if M.config.startup_notification and M.config.startup_notification.enabled then

@@ -182,252 +182,327 @@ M.default_config = {
   },
 }
 
---- Validate the configuration
---- @param config ClaudeCodeConfig
+--- Validate window configuration
+--- @param window table
 --- @return boolean valid
 --- @return string? error_message
-local function validate_config(config)
-  -- Validate window settings
-  if type(config.window) ~= 'table' then
+local function validate_window_config(window)
+  if type(window) ~= 'table' then
     return false, 'window config must be a table'
   end
 
   if
-    type(config.window.split_ratio) ~= 'number'
-    or config.window.split_ratio <= 0
-    or config.window.split_ratio > 1
+    type(window.split_ratio) ~= 'number'
+    or window.split_ratio <= 0
+    or window.split_ratio > 1
   then
     return false, 'window.split_ratio must be a number between 0 and 1'
   end
 
-  if type(config.window.position) ~= 'string' then
+  if type(window.position) ~= 'string' then
     return false, 'window.position must be a string'
   end
 
-  if type(config.window.enter_insert) ~= 'boolean' then
+  if type(window.enter_insert) ~= 'boolean' then
     return false, 'window.enter_insert must be a boolean'
   end
 
-  if type(config.window.start_in_normal_mode) ~= 'boolean' then
+  if type(window.start_in_normal_mode) ~= 'boolean' then
     return false, 'window.start_in_normal_mode must be a boolean'
   end
 
-  if type(config.window.hide_numbers) ~= 'boolean' then
+  if type(window.hide_numbers) ~= 'boolean' then
     return false, 'window.hide_numbers must be a boolean'
   end
 
-  if type(config.window.hide_signcolumn) ~= 'boolean' then
+  if type(window.hide_signcolumn) ~= 'boolean' then
     return false, 'window.hide_signcolumn must be a boolean'
   end
 
-  -- Validate refresh settings
-  if type(config.refresh) ~= 'table' then
+  return true, nil
+end
+
+--- Validate refresh configuration
+--- @param refresh table
+--- @return boolean valid
+--- @return string? error_message
+local function validate_refresh_config(refresh)
+  if type(refresh) ~= 'table' then
     return false, 'refresh config must be a table'
   end
 
-  if type(config.refresh.enable) ~= 'boolean' then
+  if type(refresh.enable) ~= 'boolean' then
     return false, 'refresh.enable must be a boolean'
   end
 
-  if type(config.refresh.updatetime) ~= 'number' or config.refresh.updatetime <= 0 then
+  if type(refresh.updatetime) ~= 'number' or refresh.updatetime <= 0 then
     return false, 'refresh.updatetime must be a positive number'
   end
 
-  if type(config.refresh.timer_interval) ~= 'number' or config.refresh.timer_interval <= 0 then
+  if type(refresh.timer_interval) ~= 'number' or refresh.timer_interval <= 0 then
     return false, 'refresh.timer_interval must be a positive number'
   end
 
-  if type(config.refresh.show_notifications) ~= 'boolean' then
+  if type(refresh.show_notifications) ~= 'boolean' then
     return false, 'refresh.show_notifications must be a boolean'
   end
 
-  -- Validate git settings
-  if type(config.git) ~= 'table' then
+  return true, nil
+end
+
+--- Validate git configuration
+--- @param git table
+--- @return boolean valid
+--- @return string? error_message
+local function validate_git_config(git)
+  if type(git) ~= 'table' then
     return false, 'git config must be a table'
   end
 
-  if type(config.git.use_git_root) ~= 'boolean' then
+  if type(git.use_git_root) ~= 'boolean' then
     return false, 'git.use_git_root must be a boolean'
   end
 
-  if type(config.git.multi_instance) ~= 'boolean' then
+  if type(git.multi_instance) ~= 'boolean' then
     return false, 'git.multi_instance must be a boolean'
   end
 
-  -- Validate command settings
+  return true, nil
+end
+
+--- Validate command configuration
+--- @param config table
+--- @return boolean valid
+--- @return string? error_message
+local function validate_command_config(config)
   if type(config.command) ~= 'string' then
     return false, 'command must be a string'
   end
 
-  -- Validate cli_path if provided
   if config.cli_path ~= nil and type(config.cli_path) ~= 'string' then
     return false, 'cli_path must be a string or nil'
   end
 
-  -- Validate command variants settings
   if type(config.command_variants) ~= 'table' then
     return false, 'command_variants config must be a table'
   end
 
-  -- Check each command variant
   for variant_name, variant_args in pairs(config.command_variants) do
     if not (variant_args == false or type(variant_args) == 'string') then
       return false, 'command_variants.' .. variant_name .. ' must be a string or false'
     end
   end
 
-  -- Validate keymaps settings
-  if type(config.keymaps) ~= 'table' then
+  return true, nil
+end
+
+--- Validate keymaps configuration
+--- @param keymaps table
+--- @param command_variants table
+--- @return boolean valid
+--- @return string? error_message
+local function validate_keymaps_config(keymaps, command_variants)
+  if type(keymaps) ~= 'table' then
     return false, 'keymaps config must be a table'
   end
 
-  if type(config.keymaps.toggle) ~= 'table' then
+  if type(keymaps.toggle) ~= 'table' then
     return false, 'keymaps.toggle must be a table'
   end
 
-  if
-    not (config.keymaps.toggle.normal == false or type(config.keymaps.toggle.normal) == 'string')
-  then
+  if not (keymaps.toggle.normal == false or type(keymaps.toggle.normal) == 'string') then
     return false, 'keymaps.toggle.normal must be a string or false'
   end
 
-  if
-    not (
-      config.keymaps.toggle.terminal == false or type(config.keymaps.toggle.terminal) == 'string'
-    )
-  then
+  if not (keymaps.toggle.terminal == false or type(keymaps.toggle.terminal) == 'string') then
     return false, 'keymaps.toggle.terminal must be a string or false'
   end
 
-  -- Validate variant keymaps if they exist
-  if config.keymaps.toggle.variants then
-    if type(config.keymaps.toggle.variants) ~= 'table' then
+  -- Validate variant keymaps
+  if keymaps.toggle.variants then
+    if type(keymaps.toggle.variants) ~= 'table' then
       return false, 'keymaps.toggle.variants must be a table'
     end
 
-    -- Check each variant keymap
-    for variant_name, keymap in pairs(config.keymaps.toggle.variants) do
+    for variant_name, keymap in pairs(keymaps.toggle.variants) do
       if not (keymap == false or type(keymap) == 'string') then
         return false, 'keymaps.toggle.variants.' .. variant_name .. ' must be a string or false'
       end
-      -- Ensure variant exists in command_variants
-      if keymap ~= false and not config.command_variants[variant_name] then
-        return false,
-          'keymaps.toggle.variants.' .. variant_name .. ' has no corresponding command variant'
+      if keymap ~= false and not command_variants[variant_name] then
+        return false, 'keymaps.toggle.variants.' .. variant_name .. ' has no corresponding command variant'
       end
     end
   end
 
-  -- Validate selection keymaps if they exist
-  if config.keymaps.selection then
-    if type(config.keymaps.selection) ~= 'table' then
+  -- Validate selection keymaps
+  if keymaps.selection then
+    if type(keymaps.selection) ~= 'table' then
       return false, 'keymaps.selection must be a table'
     end
 
-    -- Check each selection keymap
-    for key_name, keymap in pairs(config.keymaps.selection) do
+    for key_name, keymap in pairs(keymaps.selection) do
       if not (keymap == false or type(keymap) == 'string' or keymap == nil) then
         return false, 'keymaps.selection.' .. key_name .. ' must be a string, false, or nil'
       end
     end
   end
 
-  -- Validate seamless keymaps if they exist
-  if config.keymaps.seamless then
-    if type(config.keymaps.seamless) ~= 'table' then
+  -- Validate seamless keymaps
+  if keymaps.seamless then
+    if type(keymaps.seamless) ~= 'table' then
       return false, 'keymaps.seamless must be a table'
     end
 
-    -- Check each seamless keymap
-    for key_name, keymap in pairs(config.keymaps.seamless) do
+    for key_name, keymap in pairs(keymaps.seamless) do
       if not (keymap == false or type(keymap) == 'string' or keymap == nil) then
         return false, 'keymaps.seamless.' .. key_name .. ' must be a string, false, or nil'
       end
     end
   end
 
-  if type(config.keymaps.window_navigation) ~= 'boolean' then
+  if type(keymaps.window_navigation) ~= 'boolean' then
     return false, 'keymaps.window_navigation must be a boolean'
   end
 
-  if type(config.keymaps.scrolling) ~= 'boolean' then
+  if type(keymaps.scrolling) ~= 'boolean' then
     return false, 'keymaps.scrolling must be a boolean'
   end
 
-  -- Validate MCP server settings
-  if type(config.mcp) ~= 'table' then
+  return true, nil
+end
+
+--- Validate MCP configuration
+--- @param mcp table
+--- @return boolean valid
+--- @return string? error_message
+local function validate_mcp_config(mcp)
+  if type(mcp) ~= 'table' then
     return false, 'mcp config must be a table'
   end
 
-  if type(config.mcp.enabled) ~= 'boolean' then
+  if type(mcp.enabled) ~= 'boolean' then
     return false, 'mcp.enabled must be a boolean'
   end
 
-  if type(config.mcp.http_server) ~= 'table' then
+  if type(mcp.http_server) ~= 'table' then
     return false, 'mcp.http_server config must be a table'
   end
 
-  if type(config.mcp.http_server.host) ~= 'string' then
+  if type(mcp.http_server.host) ~= 'string' then
     return false, 'mcp.http_server.host must be a string'
   end
 
-  if type(config.mcp.http_server.port) ~= 'number' then
+  if type(mcp.http_server.port) ~= 'number' then
     return false, 'mcp.http_server.port must be a number'
   end
 
-  if type(config.mcp.session_timeout_minutes) ~= 'number' then
+  if type(mcp.session_timeout_minutes) ~= 'number' then
     return false, 'mcp.session_timeout_minutes must be a number'
   end
 
-  if config.mcp.auto_start ~= nil and type(config.mcp.auto_start) ~= 'boolean' then
+  if mcp.auto_start ~= nil and type(mcp.auto_start) ~= 'boolean' then
     return false, 'mcp.auto_start must be a boolean'
   end
 
-  -- Validate startup_notification configuration
-  if config.startup_notification ~= nil then
-    if type(config.startup_notification) == 'boolean' then
-      -- Allow simple boolean to enable/disable
-      config.startup_notification = {
-        enabled = config.startup_notification,
-        message = 'Claude Code plugin loaded',
-        level = vim.log.levels.INFO,
-      }
-    elseif type(config.startup_notification) == 'table' then
-      -- Validate table structure
-      if
-        config.startup_notification.enabled ~= nil
-        and type(config.startup_notification.enabled) ~= 'boolean'
-      then
-        return false, 'startup_notification.enabled must be a boolean'
-      end
+  return true, nil
+end
 
-      if
-        config.startup_notification.message ~= nil
-        and type(config.startup_notification.message) ~= 'string'
-      then
-        return false, 'startup_notification.message must be a string'
-      end
+--- Validate startup notification configuration
+--- @param config table
+--- @return boolean valid
+--- @return string? error_message
+local function validate_startup_notification_config(config)
+  if config.startup_notification == nil then
+    return true, nil
+  end
 
-      if
-        config.startup_notification.level ~= nil
-        and type(config.startup_notification.level) ~= 'number'
-      then
-        return false, 'startup_notification.level must be a number'
-      end
-
-      -- Set defaults for missing values
-      if config.startup_notification.enabled == nil then
-        config.startup_notification.enabled = true
-      end
-      if config.startup_notification.message == nil then
-        config.startup_notification.message = 'Claude Code plugin loaded'
-      end
-      if config.startup_notification.level == nil then
-        config.startup_notification.level = vim.log.levels.INFO
-      end
-    else
-      return false, 'startup_notification must be a boolean or table'
+  if type(config.startup_notification) == 'boolean' then
+    -- Allow simple boolean to enable/disable
+    config.startup_notification = {
+      enabled = config.startup_notification,
+      message = 'Claude Code plugin loaded',
+      level = vim.log.levels.INFO,
+    }
+  elseif type(config.startup_notification) == 'table' then
+    -- Validate table structure
+    if
+      config.startup_notification.enabled ~= nil
+      and type(config.startup_notification.enabled) ~= 'boolean'
+    then
+      return false, 'startup_notification.enabled must be a boolean'
     end
+
+    if
+      config.startup_notification.message ~= nil
+      and type(config.startup_notification.message) ~= 'string'
+    then
+      return false, 'startup_notification.message must be a string'
+    end
+
+    if
+      config.startup_notification.level ~= nil
+      and type(config.startup_notification.level) ~= 'number'
+    then
+      return false, 'startup_notification.level must be a number'
+    end
+
+    -- Set defaults for missing values
+    if config.startup_notification.enabled == nil then
+      config.startup_notification.enabled = true
+    end
+    if config.startup_notification.message == nil then
+      config.startup_notification.message = 'Claude Code plugin loaded'
+    end
+    if config.startup_notification.level == nil then
+      config.startup_notification.level = vim.log.levels.INFO
+    end
+  else
+    return false, 'startup_notification must be a boolean or table'
+  end
+
+  return true, nil
+end
+
+--- Validate the configuration
+--- @param config ClaudeCodeConfig
+--- @return boolean valid
+--- @return string? error_message
+local function validate_config(config)
+  local valid, err
+
+  valid, err = validate_window_config(config.window)
+  if not valid then
+    return false, err
+  end
+
+  valid, err = validate_refresh_config(config.refresh)
+  if not valid then
+    return false, err
+  end
+
+  valid, err = validate_git_config(config.git)
+  if not valid then
+    return false, err
+  end
+
+  valid, err = validate_command_config(config)
+  if not valid then
+    return false, err
+  end
+
+  valid, err = validate_keymaps_config(config.keymaps, config.command_variants)
+  if not valid then
+    return false, err
+  end
+
+  valid, err = validate_mcp_config(config.mcp)
+  if not valid then
+    return false, err
+  end
+
+  valid, err = validate_startup_notification_config(config)
+  if not valid then
+    return false, err
   end
 
   return true, nil
