@@ -94,10 +94,13 @@ function M.generate_config(output_path, config_type)
 
   -- Use mcp-neovim-server (should be installed globally via npm)
   local mcp_server_command = 'mcp-neovim-server'
-  
+
   -- Check if the server is installed
   if vim.fn.executable(mcp_server_command) == 0 then
-    notify('mcp-neovim-server not found. Install with: npm install -g mcp-neovim-server', vim.log.levels.ERROR)
+    notify(
+      'mcp-neovim-server not found. Install with: npm install -g mcp-neovim-server',
+      vim.log.levels.ERROR
+    )
     return false
   end
 
@@ -115,7 +118,7 @@ function M.generate_config(output_path, config_type)
     -- VS Code workspace format (default)
     config = {
       neovim = {
-        command = mcp_server_path,
+        command = mcp_server_command,
       },
     }
   end

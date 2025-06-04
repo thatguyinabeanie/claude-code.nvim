@@ -562,34 +562,34 @@ M.get_selection = {
   },
   handler = function(args)
     local include_context = args.include_context or false
-    
+
     -- Get the current mode
     local mode = vim.api.nvim_get_mode().mode
     local is_visual = mode:match('[vV]') ~= nil
-    
+
     -- Get visual selection marks
     local start_pos = vim.fn.getpos("'<")
     local end_pos = vim.fn.getpos("'>")
-    
+
     -- If not in visual mode and marks are not set, return empty
     if not is_visual and (start_pos[2] == 0 or end_pos[2] == 0) then
       return { content = { type = 'text', text = 'No visual selection available' } }
     end
-    
+
     -- Get buffer information
     local bufnr = vim.api.nvim_get_current_buf()
     local buf_name = vim.api.nvim_buf_get_name(bufnr)
     local filetype = vim.api.nvim_get_option_value('filetype', { buf = bufnr })
-    
+
     -- Get the selected lines
     local start_line = start_pos[2]
     local end_line = end_pos[2]
     local start_col = start_pos[3]
     local end_col = end_pos[3]
-    
+
     -- Get the lines
     local lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, false)
-    
+
     -- Handle character-wise selection
     if mode == 'v' or (not is_visual and vim.fn.visualmode() == 'v') then
       -- Adjust for character-wise selection
@@ -604,7 +604,7 @@ M.get_selection = {
         end
       end
     end
-    
+
     local result_lines = {
       string.format('# Selection from: %s', vim.fn.fnamemodify(buf_name, ':~:.')),
       string.format('**File Type:** %s', filetype),
@@ -612,17 +612,17 @@ M.get_selection = {
       string.format('**Mode:** %s', is_visual and mode or vim.fn.visualmode()),
       '',
     }
-    
+
     -- Add context if requested
     if include_context then
       table.insert(result_lines, '## Context')
       table.insert(result_lines, '')
-      
+
       -- Get context lines (5 before and after)
       local context_start = math.max(1, start_line - 5)
       local context_end = math.min(vim.api.nvim_buf_line_count(bufnr), end_line + 5)
       local context_lines = vim.api.nvim_buf_get_lines(bufnr, context_start - 1, context_end, false)
-      
+
       table.insert(result_lines, string.format('```%s', filetype))
       for i, line in ipairs(context_lines) do
         local line_num = context_start + i - 1
@@ -635,7 +635,7 @@ M.get_selection = {
       table.insert(result_lines, '```')
       table.insert(result_lines, '')
     end
-    
+
     -- Add the selection
     table.insert(result_lines, '## Selected Text')
     table.insert(result_lines, '')
@@ -644,7 +644,7 @@ M.get_selection = {
       table.insert(result_lines, line)
     end
     table.insert(result_lines, '```')
-    
+
     return { content = { type = 'text', text = table.concat(result_lines, '\n') } }
   end,
 }

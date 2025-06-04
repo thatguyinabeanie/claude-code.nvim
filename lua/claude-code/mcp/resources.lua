@@ -325,11 +325,11 @@ M.visual_selection = {
     -- Get the current mode
     local mode = vim.api.nvim_get_mode().mode
     local is_visual = mode:match('[vV]') ~= nil
-    
+
     -- Get visual selection marks
     local start_pos = vim.fn.getpos("'<")
     local end_pos = vim.fn.getpos("'>")
-    
+
     -- If not in visual mode and marks are not set, return empty
     if not is_visual and (start_pos[2] == 0 or end_pos[2] == 0) then
       return vim.json.encode({
@@ -337,21 +337,21 @@ M.visual_selection = {
         message = 'No visual selection available',
       })
     end
-    
+
     -- Get buffer information
     local bufnr = vim.api.nvim_get_current_buf()
     local buf_name = vim.api.nvim_buf_get_name(bufnr)
     local filetype = vim.api.nvim_get_option_value('filetype', { buf = bufnr })
-    
+
     -- Get the selected lines
     local start_line = start_pos[2]
     local end_line = end_pos[2]
     local start_col = start_pos[3]
     local end_col = end_pos[3]
-    
+
     -- Get the lines
     local lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, false)
-    
+
     -- Handle character-wise selection
     if mode == 'v' or (not is_visual and vim.fn.visualmode() == 'v') then
       -- Adjust for character-wise selection
@@ -366,7 +366,7 @@ M.visual_selection = {
         end
       end
     end
-    
+
     local result = {
       has_selection = true,
       is_active = is_visual,
@@ -381,7 +381,7 @@ M.visual_selection = {
       text = table.concat(lines, '\n'),
       lines = lines,
     }
-    
+
     return vim.json.encode(result)
   end,
 }

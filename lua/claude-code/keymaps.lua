@@ -133,13 +133,21 @@ function M.register_keymaps(claude_code, config)
         if config.keymaps.selection.explain then
           which_key.add {
             mode = 'v',
-            { config.keymaps.selection.explain, desc = 'Claude Code: Explain selection', icon = '💡' },
+            {
+              config.keymaps.selection.explain,
+              desc = 'Claude Code: Explain selection',
+              icon = '💡',
+            },
           }
         end
         if config.keymaps.selection.with_context then
           which_key.add {
             mode = 'v',
-            { config.keymaps.selection.with_context, desc = 'Claude Code: Toggle with selection', icon = '🤖' },
+            {
+              config.keymaps.selection.with_context,
+              desc = 'Claude Code: Toggle with selection',
+              icon = '🤖',
+            },
           }
         end
       end

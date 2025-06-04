@@ -400,7 +400,7 @@ local function create_new_instance(claude_code, config, git, instance_id, varian
                   non_floating_count = non_floating_count + 1
                 end
               end
-              
+
               if non_floating_count > 1 then
                 vim.api.nvim_win_close(window_id, false)
               else
