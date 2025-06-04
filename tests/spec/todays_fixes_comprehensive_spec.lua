@@ -329,13 +329,21 @@ describe("Today's CI and Feature Fixes", function()
 
     it('should handle config generation with error handling', function()
       local function mock_config_generation(filename, config_type)
-        local ok, err = pcall(function()
+        local ok, result = pcall(function()
           if not filename or not config_type then
             error('Missing params')
           end
           return true
         end)
-        return ok, ok and 'Success' or ('Failed: ' .. tostring(err))
+        if ok then
+          return true, 'Success'
+        else
+          -- Extract error message from pcall result
+          local err_msg = tostring(result)
+          -- Look for the actual error message after the file path info
+          local msg = err_msg:match(':%d+: (.+)$') or err_msg
+          return false, 'Failed: ' .. msg
+        end
       end
 
       local success, message = mock_config_generation('test.json', 'claude-code')
@@ -344,7 +352,10 @@ describe("Today's CI and Feature Fixes", function()
 
       success, message = mock_config_generation(nil, 'claude-code')
       assert.is_false(success)
-      assert.is_true(message:match('Missing params'))
+      -- More flexible pattern matching for the error message
+      assert.is_string(message)
+      assert.is_true(message:find('Missing params') ~= nil or message:find('missing params') ~= nil, 
+        'Expected error message to contain "Missing params", but got: ' .. tostring(message))
     end)
   end)
 
