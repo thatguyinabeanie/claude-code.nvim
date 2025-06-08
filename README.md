@@ -56,14 +56,14 @@ This plugin provides:
 
 ### Mcp server (new!)
 
-- 🔌 **Pure Lua MCP server** - No Node.js dependencies required
+- 🔌 **Official mcp-neovim-server** - Uses the community-maintained MCP server
 - 📝 **Direct buffer editing** - Claude Code can read and modify your Neovim buffers directly
 - ⚡ **Real-time context** - Access to cursor position, buffer content, and editor state
 - 🛠️ **Vim command execution** - Run any Vim command through Claude Code
-- 📊 **Project awareness** - Access to git status, LSP diagnostics, and project structure
-- 🎯 **Enhanced resource providers** - Buffer list, current file, related files, recent files, workspace context
-- 🔍 **Smart analysis tools** - Analyze related files, search workspace symbols, find project files
-- 🔒 **Secure by design** - All operations go through Neovim's API
+- 🎯 **Visual selections** - Work with selected text and visual mode
+- 🔍 **Window management** - Control splits and window layout
+- 📌 **Marks & registers** - Full access to Vim's marks and registers
+- 🔒 **Secure by design** - All operations go through Neovim's socket API
 
 ### Development
 
@@ -91,6 +91,7 @@ These features are tracked in the [ROADMAP.md](ROADMAP.md) and ensure full parit
     2. Local installation at `~/.claude/local/claude` (preferred)
     3. Falls back to `claude` in PATH
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) (dependency for git operations)
+- Node.js (for MCP server) - the wrapper will install `mcp-neovim-server` automatically
 
 See [CHANGELOG.md](CHANGELOG.md) for version history and updates.
 
@@ -133,43 +134,53 @@ Plug 'nvim-lua/plenary.nvim'
 Plug 'greggh/claude-code.nvim'
 " After installing, add this to your init.vim:
 " lua require('claude-code').setup()
+```
 
-```text
+### Post-installation (optional)
 
-## Mcp server
+To use the `claude-nvim` wrapper from anywhere:
 
-The plugin includes a pure Lua implementation of an MCP (Model Context Protocol) server that allows Claude Code to directly interact with your Neovim instance.
+```bash
+# Add to your shell configuration (.bashrc, .zshrc, etc.)
+export PATH="$PATH:~/.local/share/nvim/lazy/claude-code.nvim/bin"
+
+# Or create a symlink
+ln -s ~/.local/share/nvim/lazy/claude-code.nvim/bin/claude-nvim ~/.local/bin/
+
+# Now you can use from anywhere:
+claude-nvim "Help me with this code"
+```
+
+## MCP Server Integration
+
+The plugin integrates with the official `mcp-neovim-server` to enable Claude Code to directly interact with your Neovim instance via the Model Context Protocol (MCP).
 
 ### Quick start
 
-1. **Add to Claude Code MCP configuration:**
+1. **The plugin automatically installs `mcp-neovim-server` if needed**
+
+2. **Use the seamless wrapper script:**
 
    ```bash
-# Add the MCP server to Claude code
-   claude mcp add neovim-server /path/to/claude-code.nvim/bin/claude-code-mcp-server
+   # From within Neovim with the plugin loaded:
+   claude-nvim "Help me refactor this code"
    ```
 
-2. **Start Neovim and the plugin automatically sets up the MCP server:**
+   The wrapper automatically connects Claude to your running Neovim instance.
 
-   ```lua
-   require('claude-code').setup({
-     mcp = {
-       enabled = true,
-       auto_start = false  -- Set to true to auto-start with Neovim
-     }
-   })
-   ```
-
-3. **Use Claude Code with full Neovim integration:**
+3. **Or manually configure Claude Code:**
 
    ```bash
-   claude "refactor this function to use async/await"
-# Claude can now see your current buffer, edit it directly, and run Vim commands
+   # Generate MCP configuration
+   :ClaudeMCPGenerateConfig
+   
+   # Use with Claude Code
+   claude --mcp-config ~/.config/claude-code/neovim-mcp.json "refactor this function"
    ```
 
 ### Available tools
 
-The MCP server provides these tools to Claude Code:
+The `mcp-neovim-server` provides these tools to Claude Code:
 
 - **`vim_buffer`** - View buffer content with optional filename filtering
 - **`vim_command`** - Execute any Vim command (`:w`, `:bd`, custom commands, etc.)
@@ -185,7 +196,7 @@ The MCP server provides these tools to Claude Code:
 
 ### Available resources
 
-The MCP server exposes these resources:
+The `mcp-neovim-server` exposes these resources:
 
 - **`neovim://current-buffer`** - Content of the currently active buffer
 - **`neovim://buffers`** - List of all open buffers with metadata
@@ -299,12 +310,18 @@ require("claude-code").setup({
   -- Keymaps
   keymaps = {
     toggle = {
-      normal = "<C-,>",       -- Normal mode keymap for toggling Claude Code, false to disable
-      terminal = "<C-,>",     -- Terminal mode keymap for toggling Claude Code, false to disable
+      normal = "<leader>aa",   -- Normal mode keymap for toggling Claude Code, false to disable
+      terminal = "<leader>aa", -- Terminal mode keymap for toggling Claude Code, false to disable
       variants = {
-        continue = "<leader>cC", -- Normal mode keymap for Claude Code with continue flag
-        verbose = "<leader>cV",  -- Normal mode keymap for Claude Code with verbose flag
+        continue = "<leader>ac", -- Normal mode keymap for Claude Code with continue flag
+        verbose = "<leader>av",  -- Normal mode keymap for Claude Code with verbose flag
+        mcp_debug = "<leader>ad", -- Normal mode keymap for Claude Code with MCP debug flag
       },
+    },
+    selection = {
+      send = "<leader>as",      -- Visual mode keymap for sending selection
+      explain = "<leader>ae",   -- Visual mode keymap for explaining selection
+      with_context = "<leader>aw", -- Visual mode keymap for toggling with selection
     },
     window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)
     scrolling = true,         -- Enable scrolling keymaps (<C-f/b>) for page up/down
@@ -319,18 +336,42 @@ The plugin provides seamless integration with the Claude Code command-line tool 
 
 ### Quick setup
 
-1. **Generate MCP Configuration:**
+#### Zero-config usage (recommended)
 
-   ```vim
-   :ClaudeCodeSetup
+Just use the new seamless commands - everything is handled automatically:
+
+```vim
+" In Neovim - just ask Claude directly!
+:Claude How can I optimize this function?
+
+" Or use the wrapper from terminal
+$ claude-nvim "Help me debug this error"
+```
+
+The plugin automatically:
+- ✅ Starts a server socket if needed  
+- ✅ Installs mcp-neovim-server if missing
+- ✅ Manages all configuration
+- ✅ Connects Claude to your Neovim instance
+
+#### Manual setup (for advanced users)
+
+If you prefer manual control:
+
+1. **Install MCP server:**
+   ```bash
+   npm install -g mcp-neovim-server
    ```
 
-   This creates `claude-code-mcp-config.json` in your current directory with usage instructions.
-
-2. **Use with Claude Code command-line tool:**
-
+2. **Start Neovim with socket:**
    ```bash
-   claude --mcp-config claude-code-mcp-config.json --allowedTools "mcp__neovim__*" "Your prompt here"
+   nvim --listen /tmp/nvim
+   ```
+
+3. **Use with Claude:**
+   ```bash
+   export NVIM_SOCKET_PATH=/tmp/nvim
+   claude "Your prompt"
    ```
 
 ### Available commands
@@ -347,53 +388,62 @@ The plugin provides seamless integration with the Claude Code command-line tool 
 - **`workspace`** - Creates `.vscode/mcp.json` for VS Code MCP extension
 - **`custom`** - Creates `mcp-config.json` for other MCP clients
 
-### Mcp tools & resources
+### Mcp tools
 
-**Tools** (Actions Claude Code can perform):
+The official `mcp-neovim-server` provides these tools:
 
-- `mcp__neovim__vim_buffer` - Read/write buffer contents
-- `mcp__neovim__vim_command` - Execute Vim commands
-- `mcp__neovim__vim_edit` - Edit text in buffers
-- `mcp__neovim__vim_status` - Get editor status
-- `mcp__neovim__vim_window` - Manage windows
-- `mcp__neovim__vim_mark` - Manage marks
-- `mcp__neovim__vim_register` - Access registers
-- `mcp__neovim__vim_visual` - Visual selections
-- `mcp__neovim__analyze_related` - Analyze related files through imports
-- `mcp__neovim__find_symbols` - Search workspace symbols
-- `mcp__neovim__search_files` - Find project files by pattern
-
-**Resources** (Information Claude Code can access):
-
-- `mcp__neovim__current_buffer` - Current buffer content
-- `mcp__neovim__buffer_list` - List of open buffers
-- `mcp__neovim__project_structure` - Project file tree
-- `mcp__neovim__git_status` - Git repository status
-- `mcp__neovim__lsp_diagnostics` - LSP diagnostics
-- `mcp__neovim__vim_options` - Vim configuration options
-- `mcp__neovim__related_files` - Files related through imports/requires
-- `mcp__neovim__recent_files` - Recently accessed project files
-- `mcp__neovim__workspace_context` - Enhanced workspace context
-- `mcp__neovim__search_results` - Current search results and quickfix
+- `vim_buffer` - View buffer content  
+- `vim_command` - Execute Vim commands (shell commands optional via ALLOW_SHELL_COMMANDS env var)
+- `vim_status` - Get current buffer, cursor position, mode, and file name
+- `vim_edit` - Edit buffer content (insert/replace/replaceAll modes)
+- `vim_window` - Window management (split, vsplit, close, navigation)
+- `vim_mark` - Set marks in buffers
+- `vim_register` - Set register content  
+- `vim_visual` - Make visual selections
 
 ## Usage
 
 ### Quick start
 
+The plugin now provides multiple ways to interact with Claude:
+
+#### 1. Seamless MCP integration (NEW!)
+
 ```vim
-" In your Vim/Neovim commands or init file:
+" Ask Claude anything - it automatically connects to your Neovim
+:Claude How do I implement a binary search?
+
+" With visual selection - select code then:
+:'<,'>Claude Explain this code
+
+" Quick question with response in buffer:
+:ClaudeAsk What's the difference between vim.api and vim.fn?
+```
+
+#### 2. Traditional terminal interface
+
+```vim
+" Toggle Claude Code terminal
 :ClaudeCode
 
-```text
+" With specific context:
+:ClaudeCodeWithFile          " Current file
+:ClaudeCodeWithSelection     " Visual selection
+:ClaudeCodeWithWorkspace     " Related files and context
+```
 
-```lua
--- Or from Lua:
-vim.cmd[[ClaudeCode]]
+#### 3. Using the wrapper directly
 
--- Or map to a key:
-vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude Code' })
+```bash
+# In your terminal (automatically finds your Neovim instance)
+claude-nvim "Help me refactor this function"
 
-```text
+# The wrapper handles:
+# - Building the TypeScript server if needed
+# - Finding your Neovim socket
+# - Setting up MCP configuration
+# - Launching Claude with full access to your editor
+```
 
 ### Context-aware usage examples
 
@@ -412,8 +462,22 @@ vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude
 
 " Project file tree structure for codebase overview
 :ClaudeCodeWithProjectTree
+```
 
-```text
+### Visual selection with MCP
+
+When Claude Code is connected via MCP, it can directly access your visual selections:
+
+```lua
+-- Select some code in visual mode, then:
+-- Press <leader>as to send selection to Claude Code
+-- Press <leader>ae to ask Claude to explain the selection
+-- Press <leader>aw to start Claude with the selection as context
+
+-- Claude Code can also query your selection programmatically:
+-- Using tool: mcp__neovim__get_selection
+-- Using resource: mcp__neovim__visual_selection
+```
 
 The context-aware commands automatically include relevant information:
 
@@ -442,9 +506,10 @@ The context-aware commands automatically include relevant information:
 - `:ClaudeCodeContinue` - Resume the most recent conversation
 - `:ClaudeCodeResume` - Display an interactive conversation picker
 
-#### Output options command
+#### Output options commands
 
 - `:ClaudeCodeVerbose` - Enable verbose logging with full turn-by-turn output
+- `:ClaudeCodeMcpDebug` - Enable MCP debug mode for troubleshooting MCP server issues
 
 #### Window management commands
 
@@ -462,19 +527,31 @@ The context-aware commands automatically include relevant information:
 - `:ClaudeCodeMCPConfig` - Generate MCP configuration
 - `:ClaudeCodeSetup` - Setup MCP integration
 
+#### Visual selection commands ✨
+
+- `:ClaudeCodeSendSelection` - Send visual selection to Claude Code (copies to clipboard)
+- `:ClaudeCodeExplainSelection` - Explain visual selection with Claude Code
+
 Note: Commands are automatically generated for each entry in your `command_variants` configuration.
 
 ### Key mappings
 
 Default key mappings:
 
-- `<leader>ac` - Toggle Claude Code terminal window (normal mode)
-- `<C-,>` - Toggle Claude Code terminal window (both normal and terminal modes)
+**Normal mode:**
+- `<leader>aa` - Toggle Claude Code terminal window
+- `<leader>ac` - Toggle Claude Code with --continue flag
+- `<leader>av` - Toggle Claude Code with --verbose flag
+- `<leader>ad` - Toggle Claude Code with --mcp-debug flag
 
-Variant mode mappings (if configured):
+**Visual mode:**
+- `<leader>as` - Send visual selection to Claude Code
+- `<leader>ae` - Explain visual selection with Claude Code
+- `<leader>aw` - Toggle Claude Code with visual selection as context
 
-- `<leader>cC` - Toggle Claude Code with --continue flag
-- `<leader>cV` - Toggle Claude Code with --verbose flag
+**Seamless mode (NEW!):**
+- `<leader>cc` - Launch Claude with MCP (normal/visual mode)
+- `<leader>ca` - Quick ask Claude (opens command prompt)
 
 Additionally, when in the Claude Code terminal:
 

@@ -315,6 +315,77 @@ M.recent_files = {
   end,
 }
 
+-- Resource: Current visual selection
+M.visual_selection = {
+  uri = 'neovim://visual-selection',
+  name = 'Visual Selection',
+  description = 'Currently selected text in visual mode or last visual selection',
+  mimeType = 'application/json',
+  handler = function()
+    -- Get the current mode
+    local mode = vim.api.nvim_get_mode().mode
+    local is_visual = mode:match('[vV]') ~= nil
+
+    -- Get visual selection marks
+    local start_pos = vim.fn.getpos("'<")
+    local end_pos = vim.fn.getpos("'>")
+
+    -- If not in visual mode and marks are not set, return empty
+    if not is_visual and (start_pos[2] == 0 or end_pos[2] == 0) then
+      return vim.json.encode({
+        has_selection = false,
+        message = 'No visual selection available',
+      })
+    end
+
+    -- Get buffer information
+    local bufnr = vim.api.nvim_get_current_buf()
+    local buf_name = vim.api.nvim_buf_get_name(bufnr)
+    local filetype = vim.api.nvim_get_option_value('filetype', { buf = bufnr })
+
+    -- Get the selected lines
+    local start_line = start_pos[2]
+    local end_line = end_pos[2]
+    local start_col = start_pos[3]
+    local end_col = end_pos[3]
+
+    -- Get the lines
+    local lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, false)
+
+    -- Handle character-wise selection
+    if mode == 'v' or (not is_visual and vim.fn.visualmode() == 'v') then
+      -- Adjust for character-wise selection
+      if #lines == 1 then
+        -- Single line selection
+        lines[1] = lines[1]:sub(start_col, end_col)
+      else
+        -- Multi-line selection
+        lines[1] = lines[1]:sub(start_col)
+        if #lines > 1 then
+          lines[#lines] = lines[#lines]:sub(1, end_col)
+        end
+      end
+    end
+
+    local result = {
+      has_selection = true,
+      is_active = is_visual,
+      mode = is_visual and mode or vim.fn.visualmode(),
+      file = buf_name,
+      filetype = filetype,
+      start_line = start_line,
+      end_line = end_line,
+      start_column = start_col,
+      end_column = end_col,
+      line_count = end_line - start_line + 1,
+      text = table.concat(lines, '\n'),
+      lines = lines,
+    }
+
+    return vim.json.encode(result)
+  end,
+}
+
 -- Resource: Enhanced workspace context
 M.workspace_context = {
   uri = 'neovim://workspace-context',

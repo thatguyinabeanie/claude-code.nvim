@@ -92,14 +92,16 @@ function M.generate_config(output_path, config_type)
     output_path = output_path or vim.fn.getcwd() .. '/mcp-config.json'
   end
 
-  -- Find the plugin root directory (go up from lua/claude-code/mcp/init.lua to root)
-  local script_path = debug.getinfo(1, 'S').source:sub(2)
-  local plugin_root = vim.fn.fnamemodify(script_path, ':h:h:h:h')
-  local mcp_server_path = plugin_root .. '/bin/claude-code-mcp-server'
+  -- Use mcp-neovim-server (should be installed globally via npm)
+  local mcp_server_command = 'mcp-neovim-server'
 
-  -- Make path absolute if needed
-  if not vim.startswith(mcp_server_path, '/') then
-    mcp_server_path = vim.fn.fnamemodify(mcp_server_path, ':p')
+  -- Check if the server is installed
+  if vim.fn.executable(mcp_server_command) == 0 and not os.getenv('CLAUDE_CODE_TEST_MODE') then
+    notify(
+      'mcp-neovim-server not found. Install with: npm install -g mcp-neovim-server',
+      vim.log.levels.ERROR
+    )
+    return false
   end
 
   local config
@@ -108,7 +110,7 @@ function M.generate_config(output_path, config_type)
     config = {
       mcpServers = {
         neovim = {
-          command = mcp_server_path,
+          command = mcp_server_command,
         },
       },
     }
@@ -116,7 +118,7 @@ function M.generate_config(output_path, config_type)
     -- VS Code workspace format (default)
     config = {
       neovim = {
-        command = mcp_server_path,
+        command = mcp_server_command,
       },
     }
   end
@@ -175,6 +177,7 @@ Available tools:
   mcp__neovim__vim_mark      - Manage marks
   mcp__neovim__vim_register  - Access registers
   mcp__neovim__vim_visual    - Visual selections
+  mcp__neovim__get_selection - Get current/last visual selection
 
 Available resources:
   mcp__neovim__current_buffer - Current buffer content
@@ -183,6 +186,7 @@ Available resources:
   mcp__neovim__git_status     - Git repository status
   mcp__neovim__lsp_diagnostics - LSP diagnostics
   mcp__neovim__vim_options    - Vim configuration options
+  mcp__neovim__visual_selection - Current visual selection
 ]], vim.log.levels.INFO)
   end
 

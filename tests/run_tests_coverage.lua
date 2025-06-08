@@ -19,7 +19,7 @@ else
   -- Try alternative loading methods
   local alt_paths = {
     '/usr/local/share/lua/5.1/luacov.lua',
-    '/usr/share/lua/5.1/luacov.lua'
+    '/usr/share/lua/5.1/luacov.lua',
   }
   for _, path in ipairs(alt_paths) do
     local f = io.open(path, 'r')
@@ -35,25 +35,72 @@ else
   end
 end
 
+-- Track test completion
+local tests_started = false
+local last_output_time = vim.loop.now()
+local test_results = { success = 0, failed = 0, errors = 0 }
+
+-- Hook into print to detect test output
+local original_print = print
+_G.print = function(...)
+  original_print(...)
+  last_output_time = vim.loop.now()
+  
+  local output = table.concat({...}, " ")
+  -- Check for test completion patterns
+  if output:match("Success:%s*(%d+)") then
+    tests_started = true
+    test_results.success = tonumber(output:match("Success:%s*(%d+)")) or 0
+  end
+  if output:match("Failed%s*:%s*(%d+)") then
+    test_results.failed = tonumber(output:match("Failed%s*:%s*(%d+)")) or 0
+  end
+  if output:match("Errors%s*:%s*(%d+)") then
+    test_results.errors = tonumber(output:match("Errors%s*:%s*(%d+)")) or 0
+  end
+end
+
+-- Function to check if tests are complete and exit
+local function check_completion()
+  local now = vim.loop.now()
+  local idle_time = now - last_output_time
+  
+  -- If we've seen test output and been idle for 2 seconds, tests are done
+  if tests_started and idle_time > 2000 then
+    -- Restore original print
+    _G.print = original_print
+    
+    print(string.format("\nTest run complete: Success: %d, Failed: %d, Errors: %d",
+      test_results.success, test_results.failed, test_results.errors))
+    
+    if test_results.failed > 0 or test_results.errors > 0 then
+      vim.cmd('cquit 1')
+    else
+      vim.cmd('qa!')
+    end
+    return true
+  end
+  
+  return false
+end
+
+-- Start checking for completion
+local check_timer = vim.loop.new_timer()
+check_timer:start(500, 500, vim.schedule_wrap(function()
+  if check_completion() then
+    check_timer:stop()
+  end
+end))
+
+-- Failsafe exit after 30 seconds
+vim.defer_fn(function()
+  print("\nTest timeout - exiting")
+  vim.cmd('cquit 1')
+end, 30000)
+
 -- Run tests
-print('Starting test run...')
+print('Starting test run with coverage...')
 require('plenary.test_harness').test_directory('tests/spec/', {
   minimal_init = 'tests/minimal-init.lua',
-  sequential = false
+  sequential = true,  -- Run tests sequentially to avoid race conditions in CI
 })
-
--- Force exit after a very short delay to allow output to be flushed
-vim.defer_fn(function()
-  -- Check if any tests failed by looking at the output
-  local messages = vim.api.nvim_exec('messages', true)
-  local exit_code = 0
-  
-  if messages:match('Failed%s*:%s*[1-9]') or messages:match('Errors%s*:%s*[1-9]') then
-    exit_code = 1
-    print('Tests failed - exiting with code 1')
-    vim.cmd('cquit 1')
-  else
-    print('All tests passed - exiting with code 0')
-    vim.cmd('qa!')
-  end
-end, 100) -- 100ms delay should be enough for output to flush

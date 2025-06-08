@@ -371,7 +371,52 @@ local function create_new_instance(claude_code, config, git, instance_id, varian
   end
 
   -- Store buffer number and update state
-  claude_code.claude_code.instances[instance_id] = vim.fn.bufnr('%')
+  local bufnr = vim.fn.bufnr('%')
+  claude_code.claude_code.instances[instance_id] = bufnr
+
+  -- Set up autocmd to close buffer when Claude Code exits
+  vim.api.nvim_create_autocmd('TermClose', {
+    buffer = bufnr,
+    callback = function()
+      -- Clean up the instance
+      claude_code.claude_code.instances[instance_id] = nil
+      if claude_code.claude_code.floating_windows[instance_id] then
+        claude_code.claude_code.floating_windows[instance_id] = nil
+      end
+
+      -- Close the buffer after a short delay to ensure terminal cleanup
+      vim.defer_fn(function()
+        if vim.api.nvim_buf_is_valid(bufnr) then
+          -- Check if there are any windows showing this buffer
+          local win_ids = vim.fn.win_findbuf(bufnr)
+          for _, window_id in ipairs(win_ids) do
+            if vim.api.nvim_win_is_valid(window_id) then
+              -- Only close the window if it's not the last window
+              -- Check for non-floating windows only
+              local non_floating_count = 0
+              for _, win in ipairs(vim.api.nvim_list_wins()) do
+                local win_config = vim.api.nvim_win_get_config(win)
+                if win_config.relative == '' then
+                  non_floating_count = non_floating_count + 1
+                end
+              end
+
+              if non_floating_count > 1 then
+                vim.api.nvim_win_close(window_id, false)
+              else
+                -- If it's the last window, switch to a new empty buffer instead
+                vim.api.nvim_set_current_win(window_id)
+                vim.cmd('enew')
+              end
+            end
+          end
+          -- Delete the buffer
+          vim.api.nvim_buf_delete(bufnr, { force = true })
+        end
+      end, 100)
+    end,
+    desc = 'Close Claude Code buffer on exit',
+  })
 
   -- Enter insert mode if configured
   if not config.window.start_in_normal_mode and config.window.enter_insert then

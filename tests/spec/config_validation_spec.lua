@@ -6,7 +6,7 @@ local before_each = require('plenary.busted').before_each
 
 describe('config validation', function()
   local config
-  
+
   before_each(function()
     -- Clear module cache to ensure fresh state
     package.loaded['claude-code.config'] = nil
@@ -95,10 +95,10 @@ describe('config validation', function()
       -- First config should have custom keymap
       assert.is_not_nil(result1.keymaps.toggle.normal)
       assert.are.equal(valid_config1.keymaps.toggle.normal, result1.keymaps.toggle.normal)
-      
+
       -- Second config should have false
       assert.are.equal(false, result2.keymaps.toggle.normal)
-      
+
       -- Third config (invalid) should fall back to default
       assert.are.equal(config.default_config.keymaps.toggle.normal, result3.keymaps.toggle.normal)
     end)
