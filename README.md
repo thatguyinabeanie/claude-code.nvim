@@ -1,4 +1,3 @@
-
 # Claude code neovim plugin
 
 [![GitHub License](https://img.shields.io/github/license/greggh/claude-code.nvim?style=flat-square)](https://github.com/greggh/claude-code.nvim/blob/main/LICENSE)
@@ -110,7 +109,7 @@ return {
   end
 }
 
-```text
+```
 
 ### Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
@@ -124,8 +123,7 @@ use {
     require('claude-code').setup()
   end
 }
-
-```text
+```
 
 ### Using [vim-plug](https://github.com/junegunn/vim-plug)
 
@@ -173,7 +171,7 @@ The plugin integrates with the official `mcp-neovim-server` to enable Claude Cod
    ```bash
    # Generate MCP configuration
    :ClaudeMCPGenerateConfig
-   
+
    # Use with Claude Code
    claude --mcp-config ~/.config/claude-code/neovim-mcp.json "refactor this function"
    ```
@@ -219,7 +217,7 @@ The `mcp-neovim-server` exposes these resources:
 
 You can also run the MCP server standalone:
 
-```bash
+````bash
 
 # Start standalone mcp server
 ./bin/claude-code-mcp-server
@@ -346,10 +344,11 @@ Just use the new seamless commands - everything is handled automatically:
 
 " Or use the wrapper from terminal
 $ claude-nvim "Help me debug this error"
-```
+````
 
 The plugin automatically:
-- ✅ Starts a server socket if needed  
+
+- ✅ Starts a server socket if needed
 - ✅ Installs mcp-neovim-server if missing
 - ✅ Manages all configuration
 - ✅ Connects Claude to your Neovim instance
@@ -359,11 +358,13 @@ The plugin automatically:
 If you prefer manual control:
 
 1. **Install MCP server:**
+
    ```bash
    npm install -g mcp-neovim-server
    ```
 
 2. **Start Neovim with socket:**
+
    ```bash
    nvim --listen /tmp/nvim
    ```
@@ -392,13 +393,13 @@ If you prefer manual control:
 
 The official `mcp-neovim-server` provides these tools:
 
-- `vim_buffer` - View buffer content  
+- `vim_buffer` - View buffer content
 - `vim_command` - Execute Vim commands (shell commands optional via ALLOW_SHELL_COMMANDS env var)
 - `vim_status` - Get current buffer, cursor position, mode, and file name
 - `vim_edit` - Edit buffer content (insert/replace/replaceAll modes)
 - `vim_window` - Window management (split, vsplit, close, navigation)
 - `vim_mark` - Set marks in buffers
-- `vim_register` - Set register content  
+- `vim_register` - Set register content
 - `vim_visual` - Make visual selections
 
 ## Usage
@@ -539,17 +540,20 @@ Note: Commands are automatically generated for each entry in your `command_varia
 Default key mappings:
 
 **Normal mode:**
+
 - `<leader>aa` - Toggle Claude Code terminal window
 - `<leader>ac` - Toggle Claude Code with --continue flag
 - `<leader>av` - Toggle Claude Code with --verbose flag
 - `<leader>ad` - Toggle Claude Code with --mcp-debug flag
 
 **Visual mode:**
+
 - `<leader>as` - Send visual selection to Claude Code
 - `<leader>ae` - Explain visual selection with Claude Code
 - `<leader>aw` - Toggle Claude Code with visual selection as context
 
 **Seamless mode (NEW!):**
+
 - `<leader>cc` - Launch Claude with MCP (normal/visual mode)
 - `<leader>ca` - Quick ask Claude (opens command prompt)
 
@@ -571,7 +575,7 @@ When Claude Code modifies files that are open in Neovim, they'll be automaticall
 For comprehensive tutorials and practical examples, see our [Tutorials Guide](docs/TUTORIALS.md). The guide covers:
 
 - **Resume Previous Conversations** - Continue where you left off with session management
-- **Understand New Codebases** - Quickly navigate and understand unfamiliar projects  
+- **Understand New Codebases** - Quickly navigate and understand unfamiliar projects
 - **Fix Bugs Efficiently** - Diagnose and resolve issues with Claude's help
 - **Refactor Code** - Modernize legacy code with confidence
 - **Work with Tests** - Generate and improve test coverage
@@ -635,7 +639,7 @@ The project includes comprehensive setup for development:
 - Linting and formatting tools
 - Weekly dependency updates workflow for Claude command-line tool and actions
 
-```bash
+````bash
 
 # Run tests
 make test
@@ -690,3 +694,4 @@ Made with ❤️ by [Gregg Housh](https://github.com/greggh)
 - Normal mode, cursor on line 10: `@myfile.lua#L10`
 - Visual mode, lines 5-7 selected: `@myfile.lua#L5-7`
 
+````
