@@ -232,7 +232,7 @@ jobs:
             echo "❌ claude-nvim wrapper not found or not executable"
             exit 1
           fi
-          
+
           # Test MCP module loading
           echo "Testing MCP module loading..."
           nvim --headless --noplugin -u tests/mcp-test-init.lua \
