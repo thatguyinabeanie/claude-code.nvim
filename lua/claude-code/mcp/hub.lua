@@ -413,7 +413,10 @@ function M.start_server(server_name)
   if server_name == 'mcp-neovim-server' then
     -- Check if mcp-neovim-server is installed
     if vim.fn.executable('mcp-neovim-server') == 0 then
-      notify('mcp-neovim-server is not installed. Install with: npm install -g mcp-neovim-server', vim.log.levels.ERROR)
+      notify(
+        'mcp-neovim-server is not installed. Install with: npm install -g mcp-neovim-server',
+        vim.log.levels.ERROR
+      )
       return false
     end
 
@@ -432,7 +435,10 @@ function M.start_server(server_name)
 
     if success then
       running_servers[server_name] = true
-      notify('MCP server configured. Use "claude --mcp-config ' .. config_path .. '" to connect', vim.log.levels.INFO)
+      notify(
+        'MCP server configured. Use "claude --mcp-config ' .. config_path .. '" to connect',
+        vim.log.levels.INFO
+      )
       return true
     else
       notify('Failed to configure MCP server', vim.log.levels.ERROR)
