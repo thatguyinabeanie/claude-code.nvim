@@ -354,6 +354,29 @@ function M.register_commands(claude_code)
     desc = 'Ask Claude a quick question and show response in buffer',
     nargs = '+',
   })
+
+  -- MCP Server Commands
+  vim.api.nvim_create_user_command('ClaudeCodeMCPStart', function()
+    local hub = require('claude-code.mcp.hub')
+    hub.start_server('mcp-neovim-server')
+  end, {
+    desc = 'Start the MCP server',
+  })
+
+  vim.api.nvim_create_user_command('ClaudeCodeMCPStop', function()
+    local hub = require('claude-code.mcp.hub')
+    hub.stop_server('mcp-neovim-server')
+  end, {
+    desc = 'Stop the MCP server',
+  })
+
+  vim.api.nvim_create_user_command('ClaudeCodeMCPStatus', function()
+    local hub = require('claude-code.mcp.hub')
+    local status = hub.server_status('mcp-neovim-server')
+    vim.notify(status, vim.log.levels.INFO)
+  end, {
+    desc = 'Show MCP server status',
+  })
 end
 
 return M
