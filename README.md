@@ -196,16 +196,16 @@ The `mcp-neovim-server` provides these tools to Claude Code:
 
 The `mcp-neovim-server` exposes these resources:
 
-- **`neovim://current-buffer`** - Content of the currently active buffer
-- **`neovim://buffers`** - List of all open buffers with metadata
-- **`neovim://project`** - Project file structure
-- **`neovim://git-status`** - Current git repository status
-- **`neovim://lsp-diagnostics`** - LSP diagnostics for current buffer
-- **`neovim://options`** - Current Neovim configuration and options
-- **`neovim://related-files`** - Files related through imports/requires (NEW!)
-- **`neovim://recent-files`** - Recently accessed project files (NEW!)
-- **`neovim://workspace-context`** - Enhanced context with all related information (NEW!)
-- **`neovim://search-results`** - Current search results and quickfix list (NEW!)
+- **`neovim://current-buffer`** - Content of the currently active buffer (config key: `current_buffer`)
+- **`neovim://buffers`** - List of all open buffers with metadata (config key: `buffer_list`)
+- **`neovim://project`** - Project file structure (config key: `project_structure`)
+- **`neovim://git-status`** - Current git repository status (config key: `git_status`)
+- **`neovim://lsp-diagnostics`** - LSP diagnostics for current buffer (config key: `lsp_diagnostics`)
+- **`neovim://options`** - Current Neovim configuration and options (config key: `vim_options`)
+- **`neovim://related-files`** - Files related through imports/requires (config key: `related_files`) (NEW!)
+- **`neovim://recent-files`** - Recently accessed project files (config key: `recent_files`) (NEW!)
+- **`neovim://workspace-context`** - Enhanced context with all related information (config key: `workspace_context`) (NEW!)
+- **`neovim://search-results`** - Current search results and quickfix list (config key: `search_results`) (NEW!)
 
 ### Commands
 
@@ -217,15 +217,12 @@ The `mcp-neovim-server` exposes these resources:
 
 You can also run the MCP server standalone:
 
-````bash
-
+```bash
 # Start standalone mcp server
 ./bin/claude-code-mcp-server
-
 # Test the server
 echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | ./bin/claude-code-mcp-server
-
-```text
+```
 
 ## Configuration
 
@@ -325,8 +322,7 @@ require("claude-code").setup({
     scrolling = true,         -- Enable scrolling keymaps (<C-f/b>) for page up/down
   }
 })
-
-```text
+```
 
 ## Claude code integration
 
@@ -370,7 +366,8 @@ If you prefer manual control:
    ```
 
 3. **Use with Claude:**
-   ```bash
+
+  ```bash
    export NVIM_SOCKET_PATH=/tmp/nvim
    claude "Your prompt"
    ```
@@ -639,21 +636,29 @@ The project includes comprehensive setup for development:
 - Linting and formatting tools
 - Weekly dependency updates workflow for Claude command-line tool and actions
 
-````bash
+#### Run tests
 
-# Run tests
+```bash
 make test
+```
 
-# Check code quality
+#### Check code quality
+
+```bash
 make lint
+```
 
-# Set up pre-commit hooks
+#### Set up pre-commit hooks
+
+```bash
 scripts/setup-hooks.sh
+```
 
-# Format code
+#### Format code
+
+```bash
 make format
-
-```text
+```
 
 ## Community
 
@@ -693,5 +698,3 @@ Made with ❤️ by [Gregg Housh](https://github.com/greggh)
 
 - Normal mode, cursor on line 10: `@myfile.lua#L10`
 - Visual mode, lines 5-7 selected: `@myfile.lua#L5-7`
-
-````
