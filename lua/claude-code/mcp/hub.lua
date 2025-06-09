@@ -294,7 +294,6 @@ function M.setup(opts)
   vim.api.nvim_create_user_command('MCPHubGenerate', function()
     -- Let user select multiple servers
     local selected = {}
-    local servers = M.list_servers()
 
     local function select_next()
       M.select_servers(function(name)
@@ -379,12 +378,14 @@ function M.live_test()
   -- Verify generated config
   if gen_success and vim.fn.filereadable(test_path) == 1 then
     local file = io.open(test_path, 'r')
-    local content = file:read('*all')
-    file:close()
-    local config = vim.json.decode(content)
-    vim.print('   Config contains:')
-    for server_name, _ in pairs(config.mcpServers or {}) do
-      vim.print('     • ' .. server_name)
+    if file then
+      local content = file:read('*all')
+      file:close()
+      local config = vim.json.decode(content)
+      vim.print('   Config contains:')
+      for server_name, _ in pairs(config.mcpServers or {}) do
+        vim.print('     • ' .. server_name)
+      end
     end
     vim.fn.delete(test_path)
   end
@@ -400,6 +401,100 @@ function M.live_test()
   vim.print('  :MCPHubGenerate - Generate config with selected servers')
 
   return true
+end
+
+-- MCP Server Management Functions
+local running_servers = {}
+
+-- Start an MCP server
+function M.start_server(server_name)
+  -- For mcp-neovim-server, we don't actually start it directly
+  -- It should be started by Claude Code via MCP configuration
+  if server_name == 'mcp-neovim-server' then
+    -- Check if mcp-neovim-server is installed
+    if vim.fn.executable('mcp-neovim-server') == 0 then
+      notify(
+        'mcp-neovim-server is not installed. Install with: npm install -g mcp-neovim-server',
+        vim.log.levels.ERROR
+      )
+      return false
+    end
+
+    -- Ensure we have a server socket for MCP to connect to
+    local socket_path = vim.v.servername
+    if socket_path == '' then
+      -- Create a socket if none exists
+      socket_path = vim.fn.tempname() .. '.sock'
+      vim.fn.serverstart(socket_path)
+      notify('Started Neovim server socket at: ' .. socket_path, vim.log.levels.INFO)
+    end
+
+    -- Generate MCP configuration
+    local mcp = require('claude-code.mcp')
+    local success, config_path = mcp.generate_config(nil, 'claude-code')
+
+    if success then
+      running_servers[server_name] = true
+      notify(
+        'MCP server configured. Use "claude --mcp-config ' .. config_path .. '" to connect',
+        vim.log.levels.INFO
+      )
+      return true
+    else
+      notify('Failed to configure MCP server', vim.log.levels.ERROR)
+      return false
+    end
+  else
+    notify('Unknown server: ' .. server_name, vim.log.levels.ERROR)
+    return false
+  end
+end
+
+-- Stop an MCP server
+function M.stop_server(server_name)
+  if running_servers[server_name] then
+    running_servers[server_name] = nil
+    notify('MCP server configuration cleared', vim.log.levels.INFO)
+    return true
+  else
+    notify('MCP server is not configured', vim.log.levels.WARN)
+    return false
+  end
+end
+
+-- Get server status
+function M.server_status(server_name)
+  if server_name == 'mcp-neovim-server' then
+    local status_parts = {}
+
+    -- Check if server is installed
+    if vim.fn.executable('mcp-neovim-server') == 1 then
+      table.insert(status_parts, '✓ mcp-neovim-server is installed')
+    else
+      table.insert(status_parts, '✗ mcp-neovim-server is not installed')
+      table.insert(status_parts, '  Install with: npm install -g mcp-neovim-server')
+    end
+
+    -- Check if configured
+    if running_servers[server_name] then
+      table.insert(status_parts, '✓ MCP configuration is active')
+    else
+      table.insert(status_parts, '✗ MCP configuration is not active')
+    end
+
+    -- Check Neovim server socket
+    local socket_path = vim.v.servername
+    if socket_path ~= '' then
+      table.insert(status_parts, '✓ Neovim server socket: ' .. socket_path)
+    else
+      table.insert(status_parts, '✗ No Neovim server socket')
+      table.insert(status_parts, '  Run :ClaudeCodeMCPStart to create one')
+    end
+
+    return table.concat(status_parts, '\n')
+  else
+    return 'Unknown server: ' .. server_name
+  end
 end
 
 return M
