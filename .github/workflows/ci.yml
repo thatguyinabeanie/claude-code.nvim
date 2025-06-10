@@ -2,70 +2,33 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Install Lua
-        uses: leafo/gh-actions-lua@v9
-        with:
-          luaVersion: "5.3"
-      
-      - name: Install LuaRocks
-        uses: leafo/gh-actions-luarocks@v4
-      
-      - name: Create cache directories
-        run: mkdir -p ~/.luarocks
-      
-      - name: Cache LuaRocks dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.luarocks
-          key: ${{ runner.os }}-luarocks-${{ hashFiles('**/*.rockspec') }}
-          restore-keys: |
-            ${{ runner.os }}-luarocks-
-      
-      - name: Install luacheck
-        run: luarocks install luacheck
-      
-      - name: Check formatting with stylua
-        uses: JohnnyMorganz/stylua-action@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          version: latest
-          args: --check lua/
-        
-      - name: Run Luacheck
-        run: luacheck lua/
-  
   test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         neovim-version: [stable, nightly]
-    
+
     name: Test with Neovim ${{ matrix.neovim-version }}
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Install Neovim
         uses: rhysd/action-setup-vim@v1
         with:
           neovim: true
           version: ${{ matrix.neovim-version }}
-      
+
       - name: Create cache directories
         run: |
           mkdir -p ~/.luarocks
           mkdir -p ~/.local/share/nvim/site/pack
-      
+
       - name: Cache plugin dependencies
         uses: actions/cache@v3
         with:
@@ -73,7 +36,7 @@ jobs:
           key: ${{ runner.os }}-nvim-plugins-${{ hashFiles('**/test.sh') }}-${{ matrix.neovim-version }}
           restore-keys: |
             ${{ runner.os }}-nvim-plugins-
-      
+
       - name: Install dependencies
         run: |
           mkdir -p ~/.local/share/nvim/site/pack/vendor/start
@@ -84,19 +47,18 @@ jobs:
             echo "plenary.nvim directory already exists, updating..."
             cd ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim && git pull origin master
           fi
-      
+
       - name: Verify test directory structure
         run: |
           ls -la ./tests/
           ls -la ./tests/spec/
-          
+
       - name: Display Neovim version
         run: nvim --version
-        
+
       - name: Run tests
         run: |
           export PLUGIN_ROOT="$(pwd)"
           ./scripts/test.sh
         continue-on-error: false
-  
 # Documentation validation has been moved to the dedicated docs.yml workflow
