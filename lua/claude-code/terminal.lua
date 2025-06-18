@@ -338,6 +338,8 @@ local function create_new_instance(claude_code, config, git, instance_id, varian
   if config.window.position == 'current' or config.window.position == 'float' then
     vim.cmd('enew')
   end
+  -- Ensure buffer is not modified before creating terminal
+  vim.bo.modified = false
   vim.cmd('terminal ' .. terminal_cmd)
   vim.cmd 'setlocal bufhidden=hide'
 
