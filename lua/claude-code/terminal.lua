@@ -152,6 +152,40 @@ local function create_floating_window(config, existing_bufnr)
   return win_id
 end
 
+--- Check if current buffer is empty or scratch
+--- @return boolean True if buffer is empty/scratch
+--- @private
+local function is_empty_buffer()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local buf_name = vim.api.nvim_buf_get_name(bufnr)
+  local buf_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  local line_count = #buf_lines
+  local is_modified = vim.bo[bufnr].modified
+  local buftype = vim.bo[bufnr].buftype
+
+  -- Check if buffer is empty
+  local is_empty_content = line_count == 0 or (line_count == 1 and buf_lines[1] == '')
+
+  -- Buffer is considered empty if:
+  -- 1. No filename and not modified
+  -- 2. Scratch/nofile buffer type
+  -- 3. Content is empty
+  return (buf_name == '' and not is_modified and is_empty_content)
+    or (buftype == 'nofile' or buftype == 'scratch') and is_empty_content
+end
+
+--- Check if should use smart window management
+--- @param config table Plugin configuration
+--- @return boolean True if should use smart window management
+--- @private
+local function should_use_smart_window(config)
+  -- Only apply smart logic when position is not 'current' or 'float'
+  -- and when smart window management is enabled
+  return config.window.smart_window ~= false
+    and config.window.position ~= 'current'
+    and config.window.position ~= 'float'
+end
+
 --- Create a split window according to the specified position configuration
 --- @param position string Window position configuration
 --- @param config table Plugin configuration containing window settings
@@ -162,6 +196,24 @@ local function create_split(position, config, existing_bufnr)
   -- Special handling for 'float' - create a floating window
   if position == 'float' then
     return create_floating_window(config, existing_bufnr)
+  end
+
+  -- Smart window management: check if we should use current window
+  if should_use_smart_window(config) then
+    local win_count = #vim.api.nvim_list_wins()
+    -- Count only non-floating windows
+    local non_float_count = 0
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      local win_config = vim.api.nvim_win_get_config(win)
+      if win_config.relative == '' then
+        non_float_count = non_float_count + 1
+      end
+    end
+
+    -- If only one non-floating window and buffer is empty, use current window
+    if non_float_count == 1 and is_empty_buffer() then
+      position = 'current'
+    end
   end
 
   -- Special handling for 'current' - use the current window instead of creating a split

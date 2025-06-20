@@ -15,6 +15,7 @@ local M = {}
 -- @field start_in_normal_mode boolean Whether to start in normal mode instead of insert mode when opening Claude Code
 -- @field hide_numbers boolean Hide line numbers in the terminal window
 -- @field hide_signcolumn boolean Hide the sign column in the terminal window
+-- @field smart_window boolean Smart window management: use current window if it's the only one with an empty buffer
 
 --- ClaudeCodeRefresh class for file refresh configuration
 -- @table ClaudeCodeRefresh
@@ -79,6 +80,7 @@ M.default_config = {
     start_in_normal_mode = false, -- Whether to start in normal mode instead of insert mode
     hide_numbers = true, -- Hide line numbers in the terminal window
     hide_signcolumn = true, -- Hide the sign column in the terminal window
+    smart_window = true, -- Smart window management: use current window if it's the only one with an empty buffer
     -- Floating window specific settings
     float = {
       relative = 'editor', -- 'editor' or 'cursor'

@@ -40,6 +40,7 @@ This plugin provides:
 - ⚡ Real-time buffer updates when files are changed externally
 - 📊 Process status monitoring and instance management
 - 📱 Customizable window position and size
+- 🪟 **Smart window management** - Intelligently uses current window if it's the only one with an empty buffer
 - 🤖 Integration with which-key (if available)
 - 📂 Automatically uses git project root as working directory (when available)
 
@@ -274,6 +275,7 @@ require("claude-code").setup({
     enter_insert = true,    -- Whether to enter insert mode when opening Claude Code
     hide_numbers = true,    -- Hide line numbers in the terminal window
     hide_signcolumn = true, -- Hide the sign column in the terminal window
+    smart_window = true,    -- Smart window management: use current window if it's the only one with an empty buffer
     -- Floating window specific settings (when position = "float")
     float = {
       relative = "editor",  -- Window position relative to: "editor" or "cursor"
