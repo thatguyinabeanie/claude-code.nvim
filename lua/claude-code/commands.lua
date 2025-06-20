@@ -199,11 +199,11 @@ function M.register_commands(claude_code)
 
     -- Convert content to a single prompt string
     local prompt = table.concat(temp_content, '\n')
-    
+
     -- Launch Claude with the explanation request
     local plugin_dir = vim.fn.fnamemodify(debug.getinfo(1, 'S').source:sub(2), ':h:h:h')
     local claude_nvim = plugin_dir .. '/bin/claude-nvim'
-    
+
     -- Launch in terminal with the prompt
     vim.cmd('tabnew')
     vim.cmd('terminal ' .. vim.fn.shellescape(claude_nvim) .. ' ' .. vim.fn.shellescape(prompt))
@@ -260,7 +260,7 @@ function M.register_commands(claude_code)
       else
         prompt = context .. 'Please explain this code'
       end
-      
+
       -- Also save selection to temp file for better handling
       local tmpfile = vim.fn.tempname() .. '.txt'
       vim.fn.writefile(vim.split(selection, '\n'), tmpfile)
