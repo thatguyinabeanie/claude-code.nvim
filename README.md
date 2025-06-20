@@ -169,12 +169,19 @@ The plugin integrates with the official `mcp-neovim-server` to enable Claude Cod
 3. **Or manually configure Claude Code:**
 
    ```bash
-   # Generate MCP configuration
-   :ClaudeMCPGenerateConfig
+   # Start MCP configuration (creates Neovim socket if needed)
+   :ClaudeCodeMCPStart
 
    # Use with Claude Code
    claude --mcp-config ~/.config/claude-code/neovim-mcp.json "refactor this function"
    ```
+
+### Important notes
+
+- The MCP server runs as part of Claude Code, not as a separate process in Neovim
+- This avoids performance issues and lag in your editor
+- Use `:ClaudeCodeMCPStart` to prepare configuration, not to run a server
+- The actual MCP server is started by Claude when you run it with `--mcp-config`
 
 ### Available tools
 
@@ -209,9 +216,9 @@ The `mcp-neovim-server` exposes these resources:
 
 ### Commands
 
-- `:ClaudeCodeMCPStart` - Start the MCP server
-- `:ClaudeCodeMCPStop` - Stop the MCP server
-- `:ClaudeCodeMCPStatus` - Show server status and information
+- `:ClaudeCodeMCPStart` - Configure MCP server and ensure Neovim socket is ready
+- `:ClaudeCodeMCPStop` - Clear MCP server configuration
+- `:ClaudeCodeMCPStatus` - Show server status and configuration information
 
 ### Standalone usage
 

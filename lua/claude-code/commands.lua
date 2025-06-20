@@ -197,20 +197,17 @@ function M.register_commands(claude_code)
     table.insert(temp_content, '3. Any potential issues or improvements')
     table.insert(temp_content, '4. Key concepts or patterns used')
 
-    -- Save to temp file
-    local tmpfile = vim.fn.tempname() .. '.md'
-    vim.fn.writefile(temp_content, tmpfile)
+    -- Convert content to a single prompt string
+    local prompt = table.concat(temp_content, '\n')
 
-    -- Save original command and toggle with context
-    local original_cmd = claude_code.config.command
-    claude_code.config.command = string.format('%s --file "%s"', original_cmd, tmpfile)
-    claude_code.toggle()
-    claude_code.config.command = original_cmd
+    -- Launch Claude with the explanation request
+    local plugin_dir = vim.fn.fnamemodify(debug.getinfo(1, 'S').source:sub(2), ':h:h:h')
+    local claude_nvim = plugin_dir .. '/bin/claude-nvim'
 
-    -- Clean up temp file after delay
-    vim.defer_fn(function()
-      vim.fn.delete(tmpfile)
-    end, 10000)
+    -- Launch in terminal with the prompt
+    vim.cmd('tabnew')
+    vim.cmd('terminal ' .. vim.fn.shellescape(claude_nvim) .. ' ' .. vim.fn.shellescape(prompt))
+    vim.cmd('startinsert')
   end, { desc = 'Explain visual selection with Claude Code', range = true })
 
   -- MCP configuration helper
@@ -254,10 +251,17 @@ function M.register_commands(claude_code)
 
     -- Add selection context if available
     if selection then
+      -- Include selection in the prompt
       local context =
         string.format("Here's the selected code:\n\n```%s\n%s\n```\n\n", vim.bo.filetype, selection)
-      prompt = context .. 'Please explain this code'
-      -- Save selection to temp file
+      -- Prepend context to the prompt
+      if prompt and prompt ~= '' then
+        prompt = context .. prompt
+      else
+        prompt = context .. 'Please explain this code'
+      end
+
+      -- Also save selection to temp file for better handling
       local tmpfile = vim.fn.tempname() .. '.txt'
       vim.fn.writefile(vim.split(selection, '\n'), tmpfile)
       cmd = cmd .. ' --file ' .. vim.fn.shellescape(tmpfile)
@@ -356,6 +360,29 @@ function M.register_commands(claude_code)
   end, {
     desc = 'Ask Claude a quick question and show response in buffer',
     nargs = '+',
+  })
+
+  -- MCP Server Commands
+  vim.api.nvim_create_user_command('ClaudeCodeMCPStart', function()
+    local hub = require('claude-code.mcp.hub')
+    hub.start_server('mcp-neovim-server')
+  end, {
+    desc = 'Start the MCP server',
+  })
+
+  vim.api.nvim_create_user_command('ClaudeCodeMCPStop', function()
+    local hub = require('claude-code.mcp.hub')
+    hub.stop_server('mcp-neovim-server')
+  end, {
+    desc = 'Stop the MCP server',
+  })
+
+  vim.api.nvim_create_user_command('ClaudeCodeMCPStatus', function()
+    local hub = require('claude-code.mcp.hub')
+    local status = hub.server_status('mcp-neovim-server')
+    vim.notify(status, vim.log.levels.INFO)
+  end, {
+    desc = 'Show MCP server status',
   })
 end
 

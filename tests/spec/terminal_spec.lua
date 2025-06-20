@@ -7,7 +7,8 @@ local terminal = require('claude-code.terminal')
 
 describe('terminal module', function()
   -- Skip terminal tests in CI due to buffer mocking complexity
-  if os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE') then
+  local skip_tests = false
+  if skip_tests then
     pending('Skipping terminal tests in CI environment')
     return
   end
@@ -98,6 +99,11 @@ describe('terminal module', function()
       fn() -- Execute immediately in tests
     end
 
+    -- Mock vim.schedule
+    _G.vim.schedule = function(fn)
+      fn() -- Execute immediately in tests
+    end
+
     -- Mock vim.api.nvim_buf_delete
     _G.vim.api.nvim_buf_delete = function(bufnr, opts)
       return true
@@ -125,6 +131,7 @@ describe('terminal module', function()
         instances = {},
         current_instance = nil,
         saved_updatetime = nil,
+        floating_windows = {},
       },
     }
 
@@ -375,6 +382,55 @@ describe('terminal module', function()
       assert.is_false(split_cmd_found, 'No split command should be issued for current position')
       assert.is_true(enew_cmd_found, 'enew command should be issued for current position')
     end)
+
+    it('should clear buffer modified flag when creating terminal in current window', function()
+      -- Set window position to current
+      config.window.position = 'current'
+      
+      -- Track buffer option changes
+      local bo_changes = {}
+      _G.vim.bo = setmetatable({}, {
+        __newindex = function(t, k, v)
+          table.insert(bo_changes, { key = k, value = v })
+          rawset(t, k, v)
+        end,
+      })
+
+      -- Call toggle
+      terminal.toggle(claude_code, config, git)
+
+      -- Check that modified flag was set to false
+      local modified_flag_cleared = false
+      for _, change in ipairs(bo_changes) do
+        if change.key == 'modified' and change.value == false then
+          modified_flag_cleared = true
+          break
+        end
+      end
+
+      assert.is_true(modified_flag_cleared, 'Buffer modified flag should be cleared before creating terminal')
+
+      -- Verify the sequence: enew -> modified=false -> terminal
+      local enew_index = nil
+      local modified_index = nil
+      local terminal_index = nil
+
+      for i, cmd in ipairs(vim_cmd_calls) do
+        if cmd == 'enew' then
+          enew_index = i
+        elseif cmd:match('^terminal') then
+          terminal_index = i
+        end
+      end
+
+      -- Find when modified was set to false relative to vim commands
+      -- This is a bit tricky since bo changes happen between commands
+      -- We'll just verify that modified=false was set
+      assert.is_not_nil(enew_index, 'enew command should be called')
+      assert.is_not_nil(terminal_index, 'terminal command should be called')
+      assert.is_true(modified_flag_cleared, 'modified flag should be cleared')
+      assert.is_true(enew_index < terminal_index, 'enew should be called before terminal')
+    end)
   end)
 
   describe('floating window support', function()
@@ -457,6 +513,60 @@ describe('terminal module', function()
         'Floating window should be removed from tracking'
       )
     end)
+
+    it('should clear buffer modified flag when creating terminal in float window', function()
+      -- Set window position to float
+      config.window.position = 'float'
+      config.window.float = {
+        relative = 'editor',
+        width = 0.8,
+        height = 0.8,
+        row = 0.1,
+        col = 0.1,
+        border = 'rounded',
+      }
+      
+      -- Track buffer option changes
+      local bo_changes = {}
+      _G.vim.bo = setmetatable({}, {
+        __newindex = function(t, k, v)
+          table.insert(bo_changes, { key = k, value = v })
+          rawset(t, k, v)
+        end,
+      })
+
+      -- Call toggle
+      terminal.toggle(claude_code, config, git)
+
+      -- Check that modified flag was set to false
+      local modified_flag_cleared = false
+      for _, change in ipairs(bo_changes) do
+        if change.key == 'modified' and change.value == false then
+          modified_flag_cleared = true
+          break
+        end
+      end
+
+      assert.is_true(modified_flag_cleared, 'Buffer modified flag should be cleared before creating terminal')
+
+      -- Verify the sequence: enew -> modified=false -> terminal
+      local enew_index = nil
+      local terminal_index = nil
+
+      for i, cmd in ipairs(vim_cmd_calls) do
+        if cmd == 'enew' then
+          enew_index = i
+        elseif cmd:match('^terminal') then
+          terminal_index = i
+        end
+      end
+
+      -- Verify commands were called in the correct order
+      assert.is_not_nil(enew_index, 'enew command should be called')
+      assert.is_not_nil(terminal_index, 'terminal command should be called')
+      assert.is_true(modified_flag_cleared, 'modified flag should be cleared')
+      assert.is_true(enew_index < terminal_index, 'enew should be called before terminal')
+    end)
   end)
 
   describe('git root usage', function()
@@ -505,8 +615,9 @@ describe('terminal module', function()
     end)
 
     it('should enter insert mode when start_in_normal_mode is false', function()
-      -- Set start_in_normal_mode to false
+      -- Set start_in_normal_mode to false and enter_insert to true
       config.window.start_in_normal_mode = false
+      config.window.enter_insert = true
 
       -- Call toggle
       terminal.toggle(claude_code, config, git)
