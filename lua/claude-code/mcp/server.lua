@@ -17,6 +17,7 @@ local server = {
   tools = {},
   resources = {},
   request_id = 0,
+  pipes = {}, -- Track active pipes for cleanup
 }
 
 -- Generate unique request ID
@@ -289,6 +290,10 @@ function M.start()
     return false
   end
 
+  -- Store pipes for cleanup
+  server.pipes.stdin = stdin
+  server.pipes.stdout = stdout
+
   -- Platform-specific file descriptor validation for MCP communication
   -- MCP uses stdin/stdout for JSON-RPC message exchange per specification
   local stdin_fd = 0 -- Standard input file descriptor
@@ -384,6 +389,24 @@ end
 -- Stop the MCP server
 function M.stop()
   server.initialized = false
+
+  -- Clean up pipes
+  if server.pipes.stdin then
+    pcall(function()
+      server.pipes.stdin:close()
+    end)
+    server.pipes.stdin = nil
+  end
+
+  if server.pipes.stdout then
+    pcall(function()
+      server.pipes.stdout:close()
+    end)
+    server.pipes.stdout = nil
+  end
+
+  -- Clear pipes table
+  server.pipes = {}
 end
 
 -- Get server info

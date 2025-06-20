@@ -254,6 +254,9 @@ function M.register_commands(claude_code)
 
     -- Add selection context if available
     if selection then
+      local context =
+        string.format("Here's the selected code:\n\n```%s\n%s\n```\n\n", vim.bo.filetype, selection)
+      prompt = context .. 'Please explain this code'
       -- Save selection to temp file
       local tmpfile = vim.fn.tempname() .. '.txt'
       vim.fn.writefile(vim.split(selection, '\n'), tmpfile)

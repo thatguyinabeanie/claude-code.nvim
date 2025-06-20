@@ -68,6 +68,16 @@ local function run_with_args(args)
 end
 
 describe('MCP Integration with mcp-neovim-server', function()
+  after_each(function()
+    -- Clean up any MCP state
+    if mcp and mcp.stop then
+      pcall(mcp.stop)
+    end
+
+    -- Reset package loaded state
+    package.loaded['claude-code.mcp'] = nil
+  end)
+
   it('starts MCP server with --start-mcp-server', function()
     local result = run_with_args({ '--start-mcp-server' })
     assert.is_true(result.started)
