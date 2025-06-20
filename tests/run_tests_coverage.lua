@@ -45,18 +45,18 @@ local original_print = print
 _G.print = function(...)
   original_print(...)
   last_output_time = vim.loop.now()
-  
-  local output = table.concat({...}, " ")
+
+  local output = table.concat({ ... }, ' ')
   -- Check for test completion patterns
-  if output:match("Success:%s*(%d+)") then
+  if output:match('Success:%s*(%d+)') then
     tests_started = true
-    test_results.success = tonumber(output:match("Success:%s*(%d+)")) or 0
+    test_results.success = tonumber(output:match('Success:%s*(%d+)')) or 0
   end
-  if output:match("Failed%s*:%s*(%d+)") then
-    test_results.failed = tonumber(output:match("Failed%s*:%s*(%d+)")) or 0
+  if output:match('Failed%s*:%s*(%d+)') then
+    test_results.failed = tonumber(output:match('Failed%s*:%s*(%d+)')) or 0
   end
-  if output:match("Errors%s*:%s*(%d+)") then
-    test_results.errors = tonumber(output:match("Errors%s*:%s*(%d+)")) or 0
+  if output:match('Errors%s*:%s*(%d+)') then
+    test_results.errors = tonumber(output:match('Errors%s*:%s*(%d+)')) or 0
   end
 end
 
@@ -64,15 +64,21 @@ end
 local function check_completion()
   local now = vim.loop.now()
   local idle_time = now - last_output_time
-  
+
   -- If we've seen test output and been idle for 2 seconds, tests are done
   if tests_started and idle_time > 2000 then
     -- Restore original print
     _G.print = original_print
-    
-    print(string.format("\nTest run complete: Success: %d, Failed: %d, Errors: %d",
-      test_results.success, test_results.failed, test_results.errors))
-    
+
+    print(
+      string.format(
+        '\nTest run complete: Success: %d, Failed: %d, Errors: %d',
+        test_results.success,
+        test_results.failed,
+        test_results.errors
+      )
+    )
+
     if test_results.failed > 0 or test_results.errors > 0 then
       vim.cmd('cquit 1')
     else
@@ -80,21 +86,25 @@ local function check_completion()
     end
     return true
   end
-  
+
   return false
 end
 
 -- Start checking for completion
 local check_timer = vim.loop.new_timer()
-check_timer:start(500, 500, vim.schedule_wrap(function()
-  if check_completion() then
-    check_timer:stop()
-  end
-end))
+check_timer:start(
+  500,
+  500,
+  vim.schedule_wrap(function()
+    if check_completion() then
+      check_timer:stop()
+    end
+  end)
+)
 
 -- Failsafe exit after 30 seconds
 vim.defer_fn(function()
-  print("\nTest timeout - exiting")
+  print('\nTest timeout - exiting')
   vim.cmd('cquit 1')
 end, 30000)
 
@@ -102,5 +112,5 @@ end, 30000)
 print('Starting test run with coverage...')
 require('plenary.test_harness').test_directory('tests/spec/', {
   minimal_init = 'tests/minimal-init.lua',
-  sequential = true,  -- Run tests sequentially to avoid race conditions in CI
+  sequential = true, -- Run tests sequentially to avoid race conditions in CI
 })

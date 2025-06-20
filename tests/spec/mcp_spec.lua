@@ -19,6 +19,21 @@ describe('MCP Integration', function()
     end
   end)
 
+  after_each(function()
+    -- Clean up any MCP state
+    if mcp and mcp.stop then
+      pcall(mcp.stop)
+    end
+
+    -- Reset package loaded state
+    package.loaded['claude-code.mcp'] = nil
+    package.loaded['claude-code.mcp.init'] = nil
+    package.loaded['claude-code.mcp.tools'] = nil
+    package.loaded['claude-code.mcp.resources'] = nil
+    package.loaded['claude-code.mcp.server'] = nil
+    package.loaded['claude-code.mcp.hub'] = nil
+  end)
+
   describe('Module Loading', function()
     it('should load MCP module without errors', function()
       assert.is_not_nil(mcp)
@@ -108,6 +123,11 @@ describe('MCP Tools', function()
     end
   end)
 
+  after_each(function()
+    -- Clean up tools module
+    package.loaded['claude-code.mcp.tools'] = nil
+  end)
+
   it('should load tools module', function()
     assert.is_not_nil(tools)
     assert.is_table(tools)
@@ -170,6 +190,11 @@ describe('MCP Resources', function()
     end
   end)
 
+  after_each(function()
+    -- Clean up resources module
+    package.loaded['claude-code.mcp.resources'] = nil
+  end)
+
   it('should load resources module', function()
     assert.is_not_nil(resources)
     assert.is_table(resources)
@@ -222,6 +247,11 @@ describe('MCP Hub', function()
     if ok then
       hub = module
     end
+  end)
+
+  after_each(function()
+    -- Clean up hub module
+    package.loaded['claude-code.mcp.hub'] = nil
   end)
 
   it('should load hub module', function()

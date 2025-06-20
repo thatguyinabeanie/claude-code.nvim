@@ -57,6 +57,9 @@ end
 -- CI environment detection and adjustments
 local is_ci = os.getenv('CI') or os.getenv('GITHUB_ACTIONS') or os.getenv('CLAUDE_CODE_TEST_MODE')
 if is_ci then
+  -- Load MCP mock for consistent testing
+  local mcp_mock = require('tests.mcp_mock')
+  mcp_mock.setup_mock()
   print('🔧 CI environment detected, applying CI-specific settings...')
 
   -- Mock vim functions that might not work properly in CI
@@ -111,7 +114,7 @@ if is_ci then
       return true
     end,
   }
-  
+
   package.loaded['claude-code.mcp.tools'] = {
     tool1 = { name = 'tool1', handler = function() end },
     tool2 = { name = 'tool2', handler = function() end },

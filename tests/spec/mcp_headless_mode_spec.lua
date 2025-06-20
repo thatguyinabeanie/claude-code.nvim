@@ -68,7 +68,7 @@ describe('MCP External Server Integration', function()
       -- Test socket detection logic
       -- In headless mode, servername might be empty or have a value
       local servername = vim.v.servername
-      
+
       -- Should be able to read servername (may be empty string)
       assert.is_string(servername)
     end)
@@ -80,18 +80,18 @@ describe('MCP External Server Integration', function()
         local possible_sockets = {
           vim.env.NVIM,
           vim.env.NVIM_LISTEN_ADDRESS,
-          vim.v.servername
+          vim.v.servername,
         }
-        
+
         for _, socket in ipairs(possible_sockets) do
           if socket and socket ~= '' then
             return socket
           end
         end
-        
+
         return nil
       end
-      
+
       -- Should handle case where no socket is found
       local socket = find_nvim_socket()
       -- In headless test mode, this might be nil

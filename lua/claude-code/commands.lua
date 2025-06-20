@@ -251,18 +251,25 @@ function M.register_commands(claude_code)
 
     -- Add selection context if available
     if selection then
-      -- Include selection in the prompt instead of using --file
-      local context = string.format(
-        "Here's the selected code:\n\n```%s\n%s\n```\n\n",
-        vim.bo.filetype,
-        selection
-      )
+      -- Include selection in the prompt
+      local context =
+        string.format("Here's the selected code:\n\n```%s\n%s\n```\n\n", vim.bo.filetype, selection)
       -- Prepend context to the prompt
       if prompt and prompt ~= '' then
         prompt = context .. prompt
       else
-        prompt = context .. "Please explain this code"
+        prompt = context .. 'Please explain this code'
       end
+      
+      -- Also save selection to temp file for better handling
+      local tmpfile = vim.fn.tempname() .. '.txt'
+      vim.fn.writefile(vim.split(selection, '\n'), tmpfile)
+      cmd = cmd .. ' --file ' .. vim.fn.shellescape(tmpfile)
+
+      -- Clean up temp file after a delay
+      vim.defer_fn(function()
+        vim.fn.delete(tmpfile)
+      end, 10000)
     end
 
     -- Add the prompt

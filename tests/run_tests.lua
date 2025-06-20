@@ -32,8 +32,46 @@ if #test_files > 0 then
   end
 end
 
--- Run the tests and let plenary handle the exit
-require('plenary.test_harness').test_directory('tests/spec/', {
-  minimal_init = 'tests/minimal-init.lua',
-  sequential = true,  -- Run tests sequentially to avoid race conditions in CI
-})
+-- Add better error handling and diagnostics
+local original_error = error
+_G.error = function(msg, level)
+  print(string.format('\n❌ ERROR: %s\n', tostring(msg)))
+  print(debug.traceback())
+  original_error(msg, level)
+end
+
+-- Add test lifecycle logging
+local test_count = 0
+local original_it = _G.it
+if original_it then
+  _G.it = function(name, fn)
+    return original_it(name, function()
+      test_count = test_count + 1
+      print(string.format('\n🧪 Test #%d: %s', test_count, name))
+      local start_time = vim.loop.hrtime()
+
+      local ok, err = pcall(fn)
+
+      local elapsed = (vim.loop.hrtime() - start_time) / 1e9
+      if ok then
+        print(string.format('✅ Passed (%.3fs)', elapsed))
+      else
+        print(string.format('❌ Failed (%.3fs): %s', elapsed, tostring(err)))
+        error(err)
+      end
+    end)
+  end
+end
+
+-- Run the tests with enhanced error handling
+local ok, err = pcall(function()
+  require('plenary.test_harness').test_directory('tests/spec/', {
+    minimal_init = 'tests/minimal-init.lua',
+    sequential = true, -- Run tests sequentially to avoid race conditions in CI
+  })
+end)
+
+if not ok then
+  print(string.format('\n💥 Test suite failed with error: %s', tostring(err)))
+  vim.cmd('cquit 1')
+end

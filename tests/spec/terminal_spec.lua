@@ -142,6 +142,21 @@ describe('terminal module', function()
     }
   end)
 
+  after_each(function()
+    -- Reset all mocked functions to prevent test interference
+    vim_cmd_calls = {}
+    win_ids = {}
+
+    -- Clear any claude_code instances
+    if claude_code and claude_code.claude_code then
+      claude_code.claude_code.instances = {}
+      claude_code.claude_code.current_instance = nil
+    end
+
+    -- Reset package loaded state
+    package.loaded['claude-code.terminal'] = nil
+  end)
+
   describe('toggle with multi-instance enabled', function()
     it('should create new instance when none exists', function()
       -- No instances exist
