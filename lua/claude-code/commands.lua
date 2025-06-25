@@ -56,7 +56,7 @@ function M.register_commands(claude_code)
 
   vim.api.nvim_create_user_command('ClaudeCodeWithWorkspace', function()
     claude_code.toggle_with_context('workspace')
-  end, { desc = 'Toggle Claude Code with enhanced workspace context including related files' })
+  end, { desc = 'Toggle Claude Code with workspace context including related files' })
 
   vim.api.nvim_create_user_command('ClaudeCodeWithProjectTree', function()
     claude_code.toggle_with_context('project_tree')
@@ -210,20 +210,86 @@ function M.register_commands(claude_code)
     vim.cmd('startinsert')
   end, { desc = 'Explain visual selection with Claude Code', range = true })
 
-  -- MCP configuration helper
+  -- MCP configuration commands
   vim.api.nvim_create_user_command('ClaudeCodeMCPConfig', function(opts)
-    local config_type = opts.args or 'claude-code'
+    local output_path = opts.args and opts.args ~= '' and opts.args or nil
     local mcp_module = require('claude-code.mcp')
-    local success = mcp_module.setup_claude_integration(config_type)
+    local success, path = mcp_module.generate_config(output_path)
     if not success then
       vim.notify('Failed to generate MCP configuration', vim.log.levels.ERROR)
     end
   end, {
-    desc = 'Generate MCP configuration for Claude Code CLI',
+    desc = 'Generate standard MCP configuration file',
     nargs = '?',
-    complete = function()
-      return { 'claude-code', 'workspace', 'generic' }
-    end,
+  })
+
+  vim.api.nvim_create_user_command('ClaudeCodeMCPDetect', function()
+    local mcp_module = require('claude-code.mcp')
+    local config_path = mcp_module.detect_config()
+    if config_path then
+      vim.notify('Found MCP config: ' .. config_path, vim.log.levels.INFO)
+    else
+      vim.notify(
+        'No MCP configuration found. Use :ClaudeCodeMCPConfig to create one.',
+        vim.log.levels.INFO
+      )
+    end
+  end, {
+    desc = 'Detect existing MCP configuration files',
+  })
+  
+  vim.api.nvim_create_user_command('ClaudeCodeMCPShow', function()
+    local mcp_module = require('claude-code.mcp')
+    local config, loaded_paths = mcp_module.get_merged_config()
+    
+    if not config then
+      vim.notify('No MCP configuration found', vim.log.levels.INFO)
+      return
+    end
+    
+    -- Create a buffer to show the merged config
+    local buf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_set_option_value('buftype', 'nofile', { buf = buf })
+    vim.api.nvim_set_option_value('filetype', 'json', { buf = buf })
+    
+    -- Format the output
+    local lines = {
+      '-- Merged MCP Configuration --',
+      '-- Loaded from:',
+    }
+    
+    for _, path in ipairs(loaded_paths) do
+      table.insert(lines, '--   • ' .. path)
+    end
+    
+    table.insert(lines, '')
+    
+    -- Add the JSON config
+    local json_str = vim.json.encode(config)
+    -- Pretty print the JSON
+    local formatted = vim.fn.system('python3 -m json.tool', json_str)
+    if vim.v.shell_error == 0 then
+      for line in formatted:gmatch('[^\n]+') do
+        table.insert(lines, line)
+      end
+    else
+      table.insert(lines, json_str)
+    end
+    
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    
+    -- Open in a split
+    vim.cmd('split')
+    vim.api.nvim_win_set_buf(0, buf)
+    
+    -- Add keybinding to close
+    vim.api.nvim_buf_set_keymap(buf, 'n', 'q', ':bd<CR>', {
+      noremap = true,
+      silent = true,
+      desc = 'Close MCP config view',
+    })
+  end, {
+    desc = 'Show merged MCP configuration from all sources',
   })
 
   -- Seamless Claude invocation with MCP
@@ -364,17 +430,10 @@ function M.register_commands(claude_code)
 
   -- MCP Server Commands
   vim.api.nvim_create_user_command('ClaudeCodeMCPStart', function()
-    local hub = require('claude-code.mcp.hub')
-    hub.start_server('mcp-neovim-server')
+    local mcp_module = require('claude-code.mcp')
+    mcp_module.setup_claude_integration()
   end, {
-    desc = 'Start the MCP server',
-  })
-
-  vim.api.nvim_create_user_command('ClaudeCodeMCPStop', function()
-    local hub = require('claude-code.mcp.hub')
-    hub.stop_server('mcp-neovim-server')
-  end, {
-    desc = 'Stop the MCP server',
+    desc = 'Setup MCP integration and display instructions',
   })
 
   vim.api.nvim_create_user_command('ClaudeCodeMCPStatus', function()

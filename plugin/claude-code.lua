@@ -7,4 +7,12 @@ if vim.g.loaded_claude_code then
 end
 vim.g.loaded_claude_code = 1
 
--- Don't auto-setup here - let lazy.nvim handle it or user can call setup manually
+-- Auto-setup with MCP properly configured
+-- Important: MCP server runs as part of Claude Code, NOT in Neovim
+-- This avoids the performance issues you're experiencing
+require('claude-code').setup({
+  mcp = {
+    auto_start = false,  -- Don't auto-start to avoid lag
+    auto_server_start = true  -- Just prepare the socket
+  }
+})

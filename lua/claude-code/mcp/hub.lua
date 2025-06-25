@@ -414,7 +414,7 @@ function M.start_server(server_name)
     -- Check if mcp-neovim-server is installed
     if vim.fn.executable('mcp-neovim-server') == 0 then
       notify(
-        'mcp-neovim-server is not installed. Install with: npm install -g mcp-neovim-server',
+        'mcp-neovim-server is not installed. Install with: npm install -g github:thatguyinabeanie/mcp-neovim-server',
         vim.log.levels.ERROR
       )
       return false
@@ -472,7 +472,7 @@ function M.server_status(server_name)
       table.insert(status_parts, '✓ mcp-neovim-server is installed')
     else
       table.insert(status_parts, '✗ mcp-neovim-server is not installed')
-      table.insert(status_parts, '  Install with: npm install -g mcp-neovim-server')
+      table.insert(status_parts, '  Install with: npm install -g github:thatguyinabeanie/mcp-neovim-server')
     end
 
     -- Check if configured

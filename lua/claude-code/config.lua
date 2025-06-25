@@ -184,6 +184,16 @@ M.default_config = {
   cli_notification = {
     enabled = false, -- Show CLI detection notifications (disabled by default)
   },
+  -- MCP startup check settings
+  mcp_startup_check = {
+    enabled = true, -- Check for mcp-neovim-server configuration on startup
+    auto_configure = true, -- Automatically configure mcp-neovim-server if not found (no prompt)
+    auto_prompt = false, -- Prompt before creating config (only if auto_configure is false)
+    notify_missing = true, -- Show notification if mcp-neovim-server is not configured
+    notify_not_installed = true, -- Show notification if mcp-neovim-server is not installed
+  },
+  -- Auto-installation settings
+  auto_install_mcp_server = true, -- Automatically install mcp-neovim-server if not found
 }
 
 --- Validate window configuration

@@ -151,11 +151,31 @@ claude-nvim "Help me with this code"
 
 ## MCP Server Integration
 
-The plugin integrates with the official `mcp-neovim-server` to enable Claude Code to directly interact with your Neovim instance via the Model Context Protocol (MCP).
+The plugin integrates with the enhanced `mcp-neovim-server` to enable Claude Code to directly interact with your Neovim instance via the Model Context Protocol (MCP).
 
 ### Quick start
 
-1. **The plugin automatically installs `mcp-neovim-server` if needed**
+1. **Zero-configuration setup (enabled by default)**
+   - On startup, automatically configures `mcp-neovim-server` if not already set up
+   - Intelligently adds to existing config files (`.claude.json`, `.mcp.json`, etc.)
+   - Creates Neovim socket automatically if needed
+   - No prompts or manual steps required!
+
+   To disable automatic configuration:
+
+   ```lua
+   require('claude-code').setup({
+     mcp_startup_check = {
+       auto_configure = false, -- Disable automatic configuration
+     }
+   })
+   ```
+
+   Manual install if needed:
+
+   ```bash
+   npm install -g github:thatguyinabeanie/mcp-neovim-server
+   ```
 
 2. **Use the seamless wrapper script:**
 
@@ -166,22 +186,58 @@ The plugin integrates with the official `mcp-neovim-server` to enable Claude Cod
 
    The wrapper automatically connects Claude to your running Neovim instance.
 
-3. **Or manually configure Claude Code:**
+3. **Or manually configure:**
 
    ```bash
-   # Start MCP configuration (creates Neovim socket if needed)
-   :ClaudeCodeMCPStart
+   # Setup MCP integration (adds to existing config if found)
+   :ClaudeCodeMCPConfig
+
+   # View merged configuration from all sources
+   :ClaudeCodeMCPShow
 
    # Use with Claude Code
-   claude --mcp-config ~/.config/claude-code/neovim-mcp.json "refactor this function"
+   claude --mcp-config .claude.json "refactor this function"
    ```
+
+### Smart Configuration
+
+The plugin intelligently manages MCP configurations:
+
+- **Detects existing configs** from multiple sources (global and project-level)
+- **Adds to existing files** rather than creating new ones when possible
+- **Merges configurations** from all sources for maximum compatibility
+
+### Configuration File Precedence
+
+#### Loading Order (all files are loaded and merged):
+
+1. **Global configs** (lower priority):
+   - `~/.claude.json` - Claude Code CLI global config
+   - `~/.mcp.json` - Generic MCP global config
+   - `~/.cursor/mcp.json` - Cursor global config
+   - `~/Library/Application Support/Claude/claude_desktop_config.json` - Claude Desktop (macOS)
+
+2. **Project configs** (higher priority, override global):
+   - `.vscode/mcp.json` - VS Code workspace config
+   - `.cursor/mcp.json` - Cursor workspace config
+   - `.mcp.json` - Generic MCP project config
+   - `.claude.json` - Claude Code CLI project config
+
+#### Auto-configuration Priority:
+
+When adding `mcp-neovim-server` to an existing file:
+1. `.claude.json` - Preferred for Claude Code integration
+2. `.mcp.json` - Generic MCP config
+3. `.cursor/mcp.json` - Cursor editor config
+4. `.vscode/mcp.json` - VS Code config
+
+If no config exists, creates `.claude.json` by default.
 
 ### Important notes
 
-- The MCP server runs as part of Claude Code, not as a separate process in Neovim
+- The MCP server (`mcp-neovim-server`) runs as part of Claude Code, not inside Neovim
 - This avoids performance issues and lag in your editor
-- Use `:ClaudeCodeMCPStart` to prepare configuration, not to run a server
-- The actual MCP server is started by Claude when you run it with `--mcp-config`
+- Use `:ClaudeCodeMCPStart` to prepare configuration
 
 ### Available tools
 
@@ -195,24 +251,26 @@ The `mcp-neovim-server` provides these tools to Claude Code:
 - **`vim_mark`** - Set marks in buffers
 - **`vim_register`** - Set register content
 - **`vim_visual`** - Make visual selections
-- **`analyze_related`** - Analyze files related through imports/requires (NEW!)
-- **`find_symbols`** - Search workspace symbols using LSP (NEW!)
-- **`search_files`** - Find files by pattern with optional content preview (NEW!)
+- **`vim_analyze_related`** - Analyze files related through imports/requires
+- **`vim_find_symbols`** - Search workspace symbols using LSP
+- **`vim_search_files`** - Search for files in the project by pattern
+- **`vim_get_selection`** - Get current or last visual selection with context
 
 ### Available resources
 
-The `mcp-neovim-server` exposes these resources:
+The `mcp-neovim-server` provides these resources:
 
-- **`neovim://current-buffer`** - Content of the currently active buffer (config key: `current_buffer`)
-- **`neovim://buffers`** - List of all open buffers with metadata (config key: `buffer_list`)
-- **`neovim://project`** - Project file structure (config key: `project_structure`)
-- **`neovim://git-status`** - Current git repository status (config key: `git_status`)
-- **`neovim://lsp-diagnostics`** - LSP diagnostics for current buffer (config key: `lsp_diagnostics`)
-- **`neovim://options`** - Current Neovim configuration and options (config key: `vim_options`)
-- **`neovim://related-files`** - Files related through imports/requires (config key: `related_files`) (NEW!)
-- **`neovim://recent-files`** - Recently accessed project files (config key: `recent_files`) (NEW!)
-- **`neovim://workspace-context`** - Enhanced context with all related information (config key: `workspace_context`) (NEW!)
-- **`neovim://search-results`** - Current search results and quickfix list (config key: `search_results`) (NEW!)
+- **`nvim://session`** - Current neovim session
+- **`nvim://buffers`** - List of all open buffers
+- **`nvim://project-structure`** - File tree of current working directory
+- **`nvim://git-status`** - Current git repository status
+- **`nvim://lsp-diagnostics`** - All LSP diagnostics in JSON format
+- **`nvim://vim-options`** - Current Neovim configuration and options
+- **`nvim://related-files`** - Files related through imports/requires
+- **`nvim://recent-files`** - Recently accessed files in project
+- **`nvim://visual-selection`** - Current visual selection with context
+- **`nvim://workspace-context`** - Comprehensive workspace information
+- **`nvim://search-results`** - Quickfix and location list contents
 
 ### Commands
 
@@ -263,7 +321,7 @@ require("claude-code").setup({
       vim_options = true,       -- Expose Neovim configuration
       related_files = true,     -- Expose files related through imports
       recent_files = true,      -- Expose recently accessed files
-      workspace_context = true, -- Expose enhanced workspace context
+      workspace_context = true, -- Expose comprehensive workspace context
       search_results = true     -- Expose search results and quickfix
     }
   },
@@ -351,7 +409,7 @@ Just use the new seamless commands - everything is handled automatically:
 
 " Or use the wrapper from terminal
 $ claude-nvim "Help me debug this error"
-````
+```
 
 The plugin automatically:
 
@@ -378,10 +436,10 @@ If you prefer manual control:
 
 3. **Use with Claude:**
 
-  ```bash
-   export NVIM_SOCKET_PATH=/tmp/nvim
-   claude "Your prompt"
-   ```
+```bash
+ export NVIM_SOCKET_PATH=/tmp/nvim
+ claude "Your prompt"
+```
 
 ### Available commands
 
@@ -622,7 +680,7 @@ This plugin provides two complementary ways to interact with Claude Code:
 
 1. Runs a pure Lua MCP server exposing Neovim functionality
 2. Provides tools for Claude Code to directly edit buffers and run commands
-3. Exposes enhanced resources including related files and workspace context
+3. Exposes resources including related files and workspace context
 4. Enables programmatic access to your development environment
 
 ## Contributing
