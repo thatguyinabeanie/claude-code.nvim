@@ -429,6 +429,32 @@ function M.register_commands(claude_code)
   })
 
   -- MCP Server Commands
+  vim.api.nvim_create_user_command('ClaudeCodeMCPInstall', function()
+    -- Run the install script
+    local plugin_dir = vim.fn.fnamemodify(debug.getinfo(1, 'S').source:sub(2), ':h:h:h')
+    local install_script = plugin_dir .. '/scripts/install-mcp-server.sh'
+    
+    if vim.fn.filereadable(install_script) == 1 then
+      vim.notify('Installing mcp-neovim-server...', vim.log.levels.INFO)
+      vim.fn.jobstart({'bash', install_script}, {
+        on_exit = function(_, exit_code)
+          if exit_code == 0 then
+            vim.notify('Successfully installed mcp-neovim-server', vim.log.levels.INFO)
+            -- Trigger MCP setup
+            local mcp = require('claude-code.mcp')
+            mcp.setup(require('claude-code').get_config())
+          else
+            vim.notify('Failed to install mcp-neovim-server. See :messages for details.', vim.log.levels.ERROR)
+          end
+        end,
+      })
+    else
+      vim.notify('Install script not found. Please run: npm install -g github:thatguyinabeanie/mcp-neovim-server', vim.log.levels.ERROR)
+    end
+  end, {
+    desc = 'Install mcp-neovim-server',
+  })
+  
   vim.api.nvim_create_user_command('ClaudeCodeMCPStart', function()
     local mcp_module = require('claude-code.mcp')
     mcp_module.setup_claude_integration()

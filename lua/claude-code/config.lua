@@ -192,8 +192,6 @@ M.default_config = {
     notify_missing = true, -- Show notification if mcp-neovim-server is not configured
     notify_not_installed = true, -- Show notification if mcp-neovim-server is not installed
   },
-  -- Auto-installation settings
-  auto_install_mcp_server = true, -- Automatically install mcp-neovim-server if not found
 }
 
 --- Validate window configuration

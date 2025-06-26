@@ -96,7 +96,7 @@ See [CHANGELOG.md](CHANGELOG.md) for version history and updates.
 
 ## Installation
 
-### Using [lazy.nvim](https://github.com/folke/lazy.nvim)
+### Using [lazy.nvim](https://github.com/folke/lazy.nvim) (Recommended)
 
 ```lua
 return {
@@ -104,12 +104,14 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim", -- Required for git operations
   },
+  build = "bash scripts/install-mcp-server.sh",
   config = function()
     require("claude-code").setup()
   end
 }
-
 ```
+
+The `build` step automatically installs `mcp-neovim-server` when you first install the plugin.
 
 ### Using [packer.nvim](https://github.com/wbthomason/packer.nvim)
 
@@ -119,6 +121,7 @@ use {
   requires = {
     'nvim-lua/plenary.nvim', -- Required for git operations
   },
+  run = 'bash scripts/install-mcp-server.sh',
   config = function()
     require('claude-code').setup()
   end
@@ -129,7 +132,7 @@ use {
 
 ```vim
 Plug 'nvim-lua/plenary.nvim'
-Plug 'greggh/claude-code.nvim'
+Plug 'greggh/claude-code.nvim', { 'do': 'bash scripts/install-mcp-server.sh' }
 " After installing, add this to your init.vim:
 " lua require('claude-code').setup()
 ```
@@ -171,8 +174,14 @@ The plugin integrates with the enhanced `mcp-neovim-server` to enable Claude Cod
    })
    ```
 
-   Manual install if needed:
+   If the `build` step didn't run during plugin installation, you can manually install:
 
+   ```vim
+   " From within Neovim
+   :ClaudeCodeMCPInstall
+   ```
+   
+   Or from the command line:
    ```bash
    npm install -g github:thatguyinabeanie/mcp-neovim-server
    ```

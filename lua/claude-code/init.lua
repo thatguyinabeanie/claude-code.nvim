@@ -250,10 +250,6 @@ function M.setup(user_config)
 
   -- Auto-start Neovim server socket for MCP connection
   setup_mcp_server_socket(M.config)
-  
-  -- Auto-install MCP server if needed
-  local installer = require('claude-code.installer')
-  installer.auto_install(M.config)
 
   -- Show configurable startup notification
   if M.config.startup_notification and M.config.startup_notification.enabled then
