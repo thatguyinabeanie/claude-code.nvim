@@ -10,45 +10,15 @@ M.registry = {
   config_path = vim.fn.stdpath('data') .. '/claude-code/mcp-hub',
 }
 
--- Helper to get the plugin's MCP server path
-local function get_mcp_server_path()
-  -- Try to find the plugin directory
-  local plugin_paths = {
-    vim.fn.stdpath('data') .. '/lazy/claude-code.nvim/bin/claude-code-mcp-server',
-    vim.fn.stdpath('data') .. '/site/pack/*/start/claude-code.nvim/bin/claude-code-mcp-server',
-    vim.fn.stdpath('data') .. '/site/pack/*/opt/claude-code.nvim/bin/claude-code-mcp-server',
-  }
-
-  -- Add development path from environment variable if set
-  local dev_path = os.getenv('CLAUDE_CODE_DEV_PATH')
-  if dev_path then
-    table.insert(plugin_paths, 1, vim.fn.expand(dev_path) .. '/bin/claude-code-mcp-server')
-  end
-
-  for _, path in ipairs(plugin_paths) do
-    -- Handle wildcards in path
-    local expanded = vim.fn.glob(path, false, true)
-    if type(expanded) == 'table' and #expanded > 0 then
-      return expanded[1]
-    elseif type(expanded) == 'string' and vim.fn.filereadable(expanded) == 1 then
-      return expanded
-    elseif vim.fn.filereadable(path) == 1 then
-      return path
-    end
-  end
-
-  -- Fallback
-  return 'claude-code-mcp-server'
-end
 
 -- Default MCP Hub servers
 M.default_servers = {
   ['claude-code-neovim'] = {
-    command = get_mcp_server_path(),
-    description = 'Native Neovim integration for Claude Code',
-    homepage = 'https://github.com/greggh/claude-code.nvim',
-    tags = { 'neovim', 'editor', 'native' },
-    native = true,
+    command = 'mcp-neovim-server',
+    description = 'Official Neovim MCP server integration',
+    homepage = 'https://github.com/modelcontextprotocol/servers',
+    tags = { 'neovim', 'editor', 'official' },
+    native = false,
   },
   ['filesystem'] = {
     command = 'npx',

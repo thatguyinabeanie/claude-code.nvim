@@ -23,18 +23,21 @@ fi
 echo "📍 Testing from: $(pwd)"
 echo "🔧 Using Neovim: $(command -v "$NVIM")"
 
-# Make MCP server executable
-chmod +x ./bin/claude-code-mcp-server
+# Check if mcp-neovim-server is available
+if ! command -v mcp-neovim-server &> /dev/null; then
+    echo "❌ mcp-neovim-server not found. Please install with: npm install -g mcp-neovim-server"
+    exit 1
+fi
 
 # Test 1: MCP Server Startup
 echo ""
 echo "Test 1: MCP Server Startup"
 echo "---------------------------"
 
-if ./bin/claude-code-mcp-server --help >/dev/null 2>&1; then
-  echo "✅ MCP server executable runs"
+if mcp-neovim-server --help >/dev/null 2>&1; then
+  echo "✅ mcp-neovim-server is available"
 else
-  echo "❌ MCP server executable failed"
+  echo "❌ mcp-neovim-server failed"
   exit 1
 fi
 

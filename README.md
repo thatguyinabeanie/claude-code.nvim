@@ -225,10 +225,10 @@ The `mcp-neovim-server` exposes these resources:
 You can also run the MCP server standalone:
 
 ```bash
-# Start standalone mcp server
-./bin/claude-code-mcp-server
+# Start standalone mcp server (requires npm install -g mcp-neovim-server)
+mcp-neovim-server
 # Test the server
-echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | ./bin/claude-code-mcp-server
+echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | mcp-neovim-server
 ```
 
 ## Configuration
