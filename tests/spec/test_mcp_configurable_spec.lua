@@ -17,13 +17,13 @@ describe('test_mcp.sh Configurability', function()
 
       assert.is_true(#content > 0, 'test_mcp.sh should exist and be readable')
 
-      -- Should support environment variable override
-      assert.is_truthy(content:match('SERVER='), 'Should have SERVER variable definition')
+      -- Should check for mcp-neovim-server availability
+      assert.is_truthy(content:match('mcp%-neovim%-server'), 'Should check for mcp-neovim-server')
 
-      -- Should have fallback to default server
+      -- Should have command availability check
       assert.is_truthy(
-        content:match('mcp%-neovim%-server') or content:match('SERVER='),
-        'Should have server configuration'
+        content:match('command %-v mcp%-neovim%-server'),
+        'Should check if mcp-neovim-server command is available'
       )
     end)
 
@@ -91,7 +91,7 @@ describe('test_mcp.sh Configurability', function()
 
       -- Test with mcp-neovim-server command
       local default_cmd = 'mcp-neovim-server'
-      local exists, err = validate_server_path(default_path)
+      local exists, err = validate_server_path(default_cmd)
 
       -- The validation function works correctly (actual file existence may vary)
       assert.is_boolean(exists)

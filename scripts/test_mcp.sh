@@ -51,7 +51,7 @@ $NVIM --headless --noplugin -u tests/minimal-init.lua \
   -c "qa!"
 
 $NVIM --headless --noplugin -u tests/minimal-init.lua \
-  -c "lua pcall(require, 'claude-code.mcp.hub') and print('✅ MCP Hub module loads') or error('❌ MCP Hub module failed to load')" \
+  -c "lua pcall(require, 'claude-code.mcp_hub') and print('✅ MCP Hub module loads') or error('❌ MCP Hub module failed to load')" \
   -c "qa!"
 
 $NVIM --headless --noplugin -u tests/minimal-init.lua \
@@ -64,11 +64,11 @@ echo "Test 3: Tools and Resources"
 echo "---------------------------"
 
 $NVIM --headless --noplugin -u tests/minimal-init.lua \
-  -c "lua local tools = require('claude-code.mcp.tools'); local count = 0; for _ in pairs(tools) do count = count + 1 end; print('Tools found: ' .. count); assert(count >= 8, 'Expected at least 8 tools')" \
+  -c "lua local tools = require('claude-code.mcp_tools'); local count = 0; for _ in pairs(tools) do count = count + 1 end; print('Tools found: ' .. count); assert(count >= 8, 'Expected at least 8 tools')" \
   -c "qa!"
 
 $NVIM --headless --noplugin -u tests/minimal-init.lua \
-  -c "lua local resources = require('claude-code.mcp.resources'); local count = 0; for _ in pairs(resources) do count = count + 1 end; print('Resources found: ' .. count); assert(count >= 6, 'Expected at least 6 resources')" \
+  -c "lua local resources = require('claude-code.mcp_resources'); local count = 0; for _ in pairs(resources) do count = count + 1 end; print('Resources found: ' .. count); assert(count >= 6, 'Expected at least 6 resources')" \
   -c "qa!"
 
 # Test 4: Configuration Generation
@@ -120,11 +120,11 @@ echo "Test 5: MCP Hub"
 echo "---------------"
 
 $NVIM --headless --noplugin -u tests/minimal-init.lua \
-  -c "lua local hub = require('claude-code.mcp.hub'); local servers = hub.list_servers(); print('Servers found: ' .. #servers); assert(#servers > 0, 'Expected at least one server')" \
+  -c "lua local hub = require('claude-code.mcp_hub'); local servers = hub.list_servers(); print('Servers found: ' .. #servers); assert(#servers > 0, 'Expected at least one server')" \
   -c "qa!"
 
 $NVIM --headless --noplugin -u tests/minimal-init.lua \
-  -c "lua local hub = require('claude-code.mcp.hub'); assert(hub.get_server('claude-code-neovim'), 'Expected claude-code-neovim server')" \
+  -c "lua local hub = require('claude-code.mcp_hub'); assert(hub.get_server('claude-code-neovim'), 'Expected claude-code-neovim server')" \
   -c "qa!"
 
 # Test 6: Live Test Script
