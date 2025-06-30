@@ -43,42 +43,174 @@ For significant changes, please open an issue first to discuss your proposed cha
 
 ## Development setup
 
-For detailed instructions on setting up a development environment, required tools, and testing procedures, please refer to the [DEVELOPMENT.md](DEVELOPMENT.md) file. This comprehensive guide includes:
+### Requirements
 
-- Installation instructions for all required development tools on various platforms
-- Detailed explanation of the project structure
-- Testing processes and guidelines
-- Troubleshooting common issues
+#### Core dependencies
 
-To set up a development environment:
+- **Neovim**: Version 0.10.0 or higher
+  - Required for `vim.system()`, splitkeep, and modern LSP features
+- **Git**: For version control
+- **Make**: For running development commands
 
-1. Read the [DEVELOPMENT.md](DEVELOPMENT.md) guide to ensure you have all necessary tools installed
-2. Clone your fork of the repository
+#### Development tools
+
+- **stylua**: Lua code formatter
+- **luacheck**: Lua linter
+- **ripgrep**: Used for searching (optional but recommended)
+- **fd**: Used for finding files (optional but recommended)
+
+### Installation instructions
+
+#### Linux
+
+##### Ubuntu/Debian
+
+```bash
+# Install neovim (from ppa for latest version)
+sudo add-apt-repository ppa:neovim-ppa/unstable
+sudo apt-get update
+sudo apt-get install neovim
+
+# Install luarocks and other dependencies
+sudo apt-get install luarocks ripgrep fd-find git make
+
+# Install luacheck
+sudo luarocks install luacheck
+
+# Install stylua
+curl -L -o stylua.zip $(curl -s https://api.github.com/repos/JohnnyMorganz/StyLua/releases/latest | grep -o "https://.*stylua-linux-x86_64.zip")
+unzip stylua.zip
+chmod +x stylua
+sudo mv stylua /usr/local/bin/
+```
+
+##### Arch Linux
+
+```bash
+# Install dependencies
+sudo pacman -S neovim luarocks ripgrep fd git make
+
+# Install luacheck
+sudo luarocks install luacheck
+
+# Install stylua (from aur)
+yay -S stylua
+```
+
+##### Fedora
+
+```bash
+# Install dependencies
+sudo dnf install neovim luarocks ripgrep fd-find git make
+
+# Install luacheck
+sudo luarocks install luacheck
+
+# Install stylua
+curl -L -o stylua.zip $(curl -s https://api.github.com/repos/JohnnyMorganz/StyLua/releases/latest | grep -o "https://.*stylua-linux-x86_64.zip")
+unzip stylua.zip
+chmod +x stylua
+sudo mv stylua /usr/local/bin/
+```
+
+#### macOS
+
+```bash
+# Install homebrew if not already installed
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install dependencies
+brew install neovim luarocks ripgrep fd git make
+
+# Install luacheck
+luarocks install luacheck
+
+# Install stylua
+brew install stylua
+```
+
+#### Windows
+
+##### Using Scoop
+
+```powershell
+# Install scoop if not already installed
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+
+# Install dependencies
+scoop install neovim git make ripgrep fd
+
+# Install luarocks
+scoop install luarocks
+
+# Install luacheck
+luarocks install luacheck
+
+# Install stylua
+scoop install stylua
+```
+
+##### Using Chocolatey
+
+```powershell
+# Install chocolatey if not already installed
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+# Install dependencies
+choco install neovim git make ripgrep fd
+
+# Install luarocks
+choco install luarocks
+
+# Install luacheck
+luarocks install luacheck
+
+# Install stylua (download from github)
+# Visit https://github.com/johnnymorganz/stylua/releases
+```
+
+### Setting up the development environment
+
+1. Clone your fork of the repository:
 
    ```bash
-   git clone https://github.com/greggh/claude-code.nvim.git
+   git clone https://github.com/YOUR_USERNAME/claude-code.nvim.git
+   cd claude-code.nvim
+   ```
+
+2. Set up Git hooks for automatic code formatting:
+
+   ```bash
+   ./scripts/setup-hooks.sh
    ```
 
 3. Link the repository to your Neovim plugins directory or use your plugin manager's development mode
 
 4. Make sure you have the Claude Code command-line tool installed and properly configured
 
-5. Set up the Git hooks for automatic code formatting:
+### Development workflow
 
-   ```bash
-   ./scripts/setup-hooks.sh
-   ```
+#### Common development tasks
 
-This will set up pre-commit hooks to automatically format Lua code using StyLua before each commit.
+- **Run tests**: `make test`
+- **Run linting**: `make lint`
+- **Format code**: `make format`
+- **View available commands**: `make help`
 
-### Development dependencies
+#### Pre-commit hooks
 
-The [DEVELOPMENT.md](DEVELOPMENT.md) file contains detailed information about:
+The pre-commit hook automatically runs:
 
-- [StyLua](https://github.com/JohnnyMorganz/StyLua) - For automatic code formatting
-- [LuaCheck](https://github.com/mpeterv/luacheck) - For static analysis (linting)
-- [LDoc](https://github.com/lunarmodules/LDoc) - For documentation generation (optional)
-- Other tools and their installation instructions for different platforms
+1. Code formatting with stylua
+2. Linting with luacheck
+3. Basic tests
+
+If you need to bypass these checks, use:
+
+```bash
+git commit --no-verify
+```
 
 ## Coding standards
 
@@ -114,18 +246,34 @@ Before submitting your changes, please test them thoroughly:
 You can run the test suite using the Makefile:
 
 ```bash
-
 # Run all tests
 make test
+
+# Run with verbose output
+make test-debug
 
 # Run specific test groups
 make test-basic    # Run basic functionality tests
 make test-config   # Run configuration tests
-make test-plenary  # Run plenary tests
-
-```text
+make test-mcp      # Run MCP integration tests
+```
 
 See `test/README.md` and `tests/README.md` for more details on the different test types.
+
+### Writing tests
+
+Tests are written in Lua using a simple BDD-style API:
+
+```lua
+local test = require("tests.run_tests")
+
+test.describe("Feature name", function()
+  test.it("should do something", function()
+    -- Test code
+    test.expect(result).to_be(expected)
+  end)
+end)
+```
 
 ### Manual testing
 
@@ -133,6 +281,51 @@ See `test/README.md` and `tests/README.md` for more details on the different tes
 - Test with different configurations
 - Test the integration with the Claude Code command-line tool
 - Use the minimal test configuration (`tests/minimal-init.lua`) to verify your changes in isolation
+
+### Project structure
+
+```
+.
+├── .github/            # GitHub-specific files and workflows
+├── .githooks/          # Git hooks for pre-commit validation
+├── lua/                # Main Lua source code
+│   └── claude-code/    # Project-specific modules
+├── test/               # Basic test modules
+├── tests/              # Extended test suites
+├── .luacheckrc         # LuaCheck configuration
+├── stylua.toml         # StyLua configuration
+├── Makefile            # Common commands
+├── CHANGELOG.md        # Project version history
+└── README.md           # Project overview
+```
+
+### Continuous integration
+
+This project uses GitHub Actions for CI:
+
+- **Triggers**: Push to main branch, Pull Requests to main
+- **Jobs**: Install dependencies, Run linting, Run tests
+- **Platforms**: Ubuntu Linux (primary)
+
+### Troubleshooting
+
+#### Common issues
+
+- **stylua not found**: Make sure it's installed and in your PATH
+- **luacheck errors**: Run `make lint` to see specific issues
+- **Test failures**: Use `make test-debug` for detailed output
+- **Module not found errors**: Check that you're using the correct module name and path
+- **Plugin functionality not loading**: Verify your Neovim version is 0.10.0 or higher
+
+#### Getting help
+
+If you encounter issues:
+
+1. Check the error messages carefully
+2. Verify all dependencies are correctly installed
+3. Check that your Neovim version is 0.10.0 or higher
+4. Review the project's issues on GitHub for similar problems
+5. Open a new issue with detailed reproduction steps if needed
 
 ## Documentation
 

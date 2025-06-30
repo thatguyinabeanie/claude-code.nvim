@@ -9,7 +9,7 @@
 [![Version](https://img.shields.io/badge/Version-0.4.2-blue?style=flat-square)](https://github.com/greggh/claude-code.nvim/releases/tag/v0.4.2)
 [![Discussions](https://img.shields.io/github/discussions/greggh/claude-code.nvim?style=flat-square&logo=github)](https://github.com/greggh/claude-code.nvim/discussions)
 
-_A seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim with context-aware commands and pure Lua MCP server_
+_A seamless integration between [Claude Code](https://github.com/anthropics/claude-code) AI assistant and Neovim with context-aware commands and enhanced MCP server_
 
 [Features](#features) •
 [Requirements](#requirements) •
@@ -27,7 +27,7 @@ This plugin provides:
 
 - **Context-aware commands** that automatically pass file content, selections, and workspace context to Claude Code
 - **Traditional terminal interface** for interactive conversations
-- **Native MCP (Model Context Protocol) server** that allows Claude Code to directly read and edit your Neovim buffers, execute commands, and access project context
+- **Enhanced MCP (Model Context Protocol) server** that allows Claude Code to directly read and edit your Neovim buffers, execute commands, and access project context
 
 ## Features
 
@@ -620,7 +620,7 @@ This plugin provides two complementary ways to interact with Claude Code:
 
 ### Mcp server
 
-1. Runs a pure Lua MCP server exposing Neovim functionality
+1. Uses an enhanced fork of mcp-neovim-server with additional features
 2. Provides tools for Claude Code to directly edit buffers and run commands
 3. Exposes enhanced resources including related files and workspace context
 4. Enables programmatic access to your development environment
@@ -635,13 +635,13 @@ MIT License - See [LICENSE](LICENSE) for more information.
 
 ## Development
 
-For a complete guide on setting up a development environment, installing all required tools, and understanding the project structure, please refer to [DEVELOPMENT.md](DEVELOPMENT.md).
+For a complete guide on setting up a development environment, installing all required tools, and understanding the project structure, please refer to [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Development setup
 
 The project includes comprehensive setup for development:
 
-- Complete installation instructions for all platforms in [DEVELOPMENT.md](DEVELOPMENT.md)
+- Complete installation instructions for all platforms in [CONTRIBUTING.md](CONTRIBUTING.md)
 - Pre-commit hooks for code quality
 - Testing framework with 44 comprehensive tests
 - Linting and formatting tools

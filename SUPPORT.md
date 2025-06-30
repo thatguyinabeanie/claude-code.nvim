@@ -29,7 +29,7 @@ Before creating a new issue:
 For help with using Claude Code:
 
 - Read the [README.md](README.md) for basic usage and installation
-- Check the [DEVELOPMENT.md](DEVELOPMENT.md) for development information
+- Check the [CONTRIBUTING.md](CONTRIBUTING.md) for development information
 - See the [doc/claude-code.txt](doc/claude-code.txt) for Neovim help documentation
 
 ## Claude code file

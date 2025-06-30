@@ -1,7 +1,15 @@
 
-# Pure lua mcp server implementation analysis
+# Pure lua mcp server implementation analysis (DEPRECATED)
 
-## Is it feasible? YES
+**⚠️ IMPORTANT: This approach has been DEPRECATED due to performance issues**
+
+This document describes our original plan for a native Lua MCP implementation. However, we discovered that running the MCP server within Neovim caused severe performance degradation, making the editor unusably slow. We have since moved to using a forked version of the external `mcp-neovim-server` for better performance.
+
+---
+
+## Original analysis (for historical reference)
+
+### Is it feasible? YES (but not performant)
 
 MCP is just JSON-RPC 2.0 over stdio, which Neovim's Lua can handle natively.
 

@@ -23,13 +23,44 @@ Claude Code Plugin provides seamless integration between the Claude Code AI assi
 - `/tests`: Test files for plugin functionality
 - `/doc`: Vim help documentation
 
+## MCP Server Architecture History
+
+**IMPORTANT ARCHITECTURAL DECISION CONTEXT:**
+
+This project originally attempted to implement a native pure Lua MCP (Model Context Protocol) server within Neovim to replace the external `mcp-neovim-server`. The goals were:
+
+- Eliminate external Node.js dependency
+- Add additional features not available in the original `mcp-neovim-server`
+- Provide tighter integration with Neovim's internal state
+
+**Why we moved away from the native Lua implementation:**
+
+The native Lua MCP server caused severe performance degradation in Neovim because:
+- Neovim had to run both the editor and the MCP server simultaneously
+- This created significant resource contention and blocking operations
+- User experience became unacceptably slow and sluggish
+- The performance cost outweighed the benefits of native integration
+
+**Current approach:**
+
+We now use a **forked version of `mcp-neovim-server`** that includes the additional features we needed. This fork:
+- Runs as an external process (no performance impact on Neovim)
+- Maintains the same MCP protocol compatibility
+- Includes enhanced features not in the upstream version
+- Is a work in progress with plans to contribute changes back to upstream
+
+**Future plans:**
+- Merge our enhancements into the main `mcp-neovim-server` repository
+- Publish improvements for the broader community
+- Continue using external MCP server approach for optimal performance
+
 ## Current focus
 
-- Integrating nvim-toolkit for shared utilities
-- Adding hooks-util as git submodule for development workflow
+- Using forked mcp-neovim-server with enhanced features
 - Enhancing bidirectional communication with Claude Code command-line tool
 - Implementing better context synchronization
 - Adding buffer-specific context management
+- Contributing improvements back to upstream mcp-neovim-server
 
 ## Multi-instance support
 
