@@ -9,7 +9,7 @@ local M = {}
 --- @type table<string, function> List of available commands and their handlers
 M.commands = {}
 
-local mcp = require('claude-code.mcp')
+local mcp = require('claude-code.claude_mcp')
 
 --- Register commands for the claude-code plugin
 --- @param claude_code table The main plugin module
