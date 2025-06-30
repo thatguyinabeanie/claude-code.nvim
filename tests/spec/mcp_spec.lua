@@ -5,15 +5,14 @@ describe('MCP Integration', function()
 
   before_each(function()
     -- Reset package loaded state
-    package.loaded['claude-code.mcp'] = nil
-    package.loaded['claude-code.mcp.init'] = nil
-    package.loaded['claude-code.mcp.tools'] = nil
-    package.loaded['claude-code.mcp.resources'] = nil
-    package.loaded['claude-code.mcp.server'] = nil
-    package.loaded['claude-code.mcp.hub'] = nil
+    package.loaded['claude-code.claude_mcp'] = nil
+    package.loaded['claude-code.mcp_tools'] = nil
+    package.loaded['claude-code.mcp_resources'] = nil
+    package.loaded['claude-code.mcp_internal_server'] = nil
+    package.loaded['claude-code.mcp_hub'] = nil
 
     -- Load the MCP module
-    local ok, module = pcall(require, 'claude-code.mcp')
+    local ok, module = pcall(require, 'claude-code.claude_mcp')
     if ok then
       mcp = module
     end

@@ -1,6 +1,6 @@
-local server = require('claude-code.mcp.server')
-local tools = require('claude-code.mcp.tools')
-local resources = require('claude-code.mcp.resources')
+local server = require('claude-code.mcp_internal_server')
+local tools = require('claude-code.mcp_tools')
+local resources = require('claude-code.mcp_resources')
 local utils = require('claude-code.utils')
 
 local M = {}

@@ -143,7 +143,7 @@ local function setup_mcp_integration(mcp_config)
     return
   end
 
-  local ok, mcp = pcall(require, 'claude-code.mcp')
+  local ok, mcp = pcall(require, 'claude-code.claude_mcp')
   if not ok then
     -- MCP module failed to load, but don't error out in tests
     if
@@ -162,7 +162,7 @@ local function setup_mcp_integration(mcp_config)
   mcp.setup(mcp_config)
 
   -- Initialize MCP Hub integration
-  local hub_ok, hub = pcall(require, 'claude-code.mcp.hub')
+  local hub_ok, hub = pcall(require, 'claude-code.mcp_hub')
   if hub_ok and hub and type(hub.setup) == 'function' then
     hub.setup()
   end
