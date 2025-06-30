@@ -72,19 +72,19 @@ end
 --- @private
 local function create_float(config, existing_bufnr)
   local float_config = config.window.float or {}
-  
+
   -- Get editor dimensions (accounting for command line, status line, etc.)
   local editor_width = vim.o.columns
   local editor_height = vim.o.lines - vim.o.cmdheight - 1 -- Subtract command line and status line
-  
+
   -- Calculate dimensions
   local width = calculate_float_dimension(float_config.width, editor_width)
   local height = calculate_float_dimension(float_config.height, editor_height)
-  
+
   -- Calculate position
   local row = calculate_float_position(float_config.row, height, editor_height)
   local col = calculate_float_position(float_config.col, width, editor_width)
-  
+
   -- Create floating window configuration
   local win_config = {
     relative = float_config.relative or 'editor',
@@ -95,7 +95,7 @@ local function create_float(config, existing_bufnr)
     border = float_config.border or 'rounded',
     style = 'minimal',
   }
-  
+
   -- Create buffer if we don't have an existing one
   local bufnr = existing_bufnr
   if not bufnr then
@@ -108,7 +108,7 @@ local function create_float(config, existing_bufnr)
       bufnr = vim.api.nvim_create_buf(false, true) -- unlisted, scratch
     end
   end
-  
+
   -- Create and return the floating window
   return vim.api.nvim_open_win(bufnr, true, win_config)
 end
@@ -128,7 +128,17 @@ local function build_command_with_git_root(config, git, base_cmd)
       local separator = config.shell.separator
       local pushd_cmd = config.shell.pushd_cmd
       local popd_cmd = config.shell.popd_cmd
-      return pushd_cmd .. ' ' .. quoted_root .. ' ' .. separator .. ' ' .. base_cmd .. ' ' .. separator .. ' ' .. popd_cmd
+      return pushd_cmd
+        .. ' '
+        .. quoted_root
+        .. ' '
+        .. separator
+        .. ' '
+        .. base_cmd
+        .. ' '
+        .. separator
+        .. ' '
+        .. popd_cmd
     end
   end
   return base_cmd
@@ -143,7 +153,7 @@ local function configure_window_options(win_id, config)
     vim.api.nvim_win_set_option(win_id, 'number', false)
     vim.api.nvim_win_set_option(win_id, 'relativenumber', false)
   end
-  
+
   if config.window.hide_signcolumn then
     vim.api.nvim_win_set_option(win_id, 'signcolumn', 'no')
   end
@@ -153,7 +163,7 @@ end
 --- @param instance_id string Instance identifier
 --- @param config table Plugin configuration
 --- @return string Buffer name
---- @private  
+--- @private
 local function generate_buffer_name(instance_id, config)
   if config.git.multi_instance then
     return 'claude-code-' .. instance_id:gsub('[^%w%-_]', '-')
@@ -207,10 +217,7 @@ function M.force_insert_mode(claude_code, config)
   -- Check if current buffer is any of our Claude instances
   local is_claude_instance = false
   for _, bufnr in pairs(claude_code.claude_code.instances) do
-    if bufnr
-      and bufnr == current_bufnr
-      and vim.api.nvim_buf_is_valid(bufnr)
-    then
+    if bufnr and bufnr == current_bufnr and vim.api.nvim_buf_is_valid(bufnr) then
       is_claude_instance = true
       break
     end
@@ -233,130 +240,167 @@ function M.force_insert_mode(claude_code, config)
   end
 end
 
+--- Determine instance ID based on configuration
+--- @param config table Plugin configuration
+--- @param git table Git module
+--- @return string instance_id Instance identifier
+--- @private
+local function get_instance_id(config, git)
+  if config.git.multi_instance then
+    if config.git.use_git_root then
+      return get_instance_identifier(git)
+    else
+      return vim.fn.getcwd()
+    end
+  else
+    -- Use a fixed ID for single instance mode
+    return 'global'
+  end
+end
+
+--- Check if buffer is a valid terminal
+--- @param bufnr number Buffer number
+--- @return boolean is_valid True if buffer is a valid terminal
+--- @private
+local function is_valid_terminal_buffer(bufnr)
+  if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+    return false
+  end
+
+  local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
+  local terminal_job_id = nil
+  pcall(function()
+    terminal_job_id = vim.api.nvim_buf_get_var(bufnr, 'terminal_job_id')
+  end)
+
+  return buftype == 'terminal'
+    and terminal_job_id
+    and vim.fn.jobwait({ terminal_job_id }, 0)[1] == -1
+end
+
+--- Handle existing instance (toggle visibility)
+--- @param bufnr number Buffer number
+--- @param config table Plugin configuration
+--- @private
+local function handle_existing_instance(bufnr, config)
+  local win_ids = vim.fn.win_findbuf(bufnr)
+  if #win_ids > 0 then
+    -- Claude Code is visible, close the window
+    for _, win_id in ipairs(win_ids) do
+      vim.api.nvim_win_close(win_id, true)
+    end
+  else
+    -- Claude Code buffer exists but is not visible, open it in a split or float
+    if config.window.position == 'float' then
+      create_float(config, bufnr)
+    else
+      create_split(config.window.position, config, bufnr)
+    end
+    -- Force insert mode more aggressively unless configured to start in normal mode
+    if not config.window.start_in_normal_mode then
+      vim.schedule(function()
+        vim.cmd 'stopinsert | startinsert'
+      end)
+    end
+  end
+end
+
+--- Create new Claude Code instance
+--- @param claude_code table The main plugin module
+--- @param config table Plugin configuration
+--- @param git table Git module
+--- @param instance_id string Instance identifier
+--- @private
+local function create_new_instance(claude_code, config, git, instance_id)
+  if config.window.position == 'float' then
+    -- For floating window, create buffer first with terminal
+    local new_bufnr = vim.api.nvim_create_buf(false, true) -- unlisted, scratch
+    vim.api.nvim_buf_set_option(new_bufnr, 'bufhidden', 'hide')
+
+    -- Create the floating window
+    local win_id = create_float(config, new_bufnr)
+
+    -- Set current buffer to run terminal command
+    vim.api.nvim_win_set_buf(win_id, new_bufnr)
+
+    -- Determine command
+    local cmd = build_command_with_git_root(config, git, config.command)
+
+    -- Run terminal in the buffer
+    vim.fn.termopen(cmd)
+
+    -- Create a unique buffer name
+    local buffer_name = generate_buffer_name(instance_id, config)
+    vim.api.nvim_buf_set_name(new_bufnr, buffer_name)
+
+    -- Configure window options
+    configure_window_options(win_id, config)
+
+    -- Store buffer number for this instance
+    claude_code.claude_code.instances[instance_id] = new_bufnr
+
+    -- Enter insert mode if configured
+    if config.window.enter_insert and not config.window.start_in_normal_mode then
+      vim.cmd 'startinsert'
+    end
+  else
+    -- Regular split window
+    create_split(config.window.position, config)
+
+    -- Determine if we should use the git root directory
+    local base_cmd = build_command_with_git_root(config, git, config.command)
+    local cmd = 'terminal ' .. base_cmd
+
+    vim.cmd(cmd)
+    vim.cmd 'setlocal bufhidden=hide'
+
+    -- Create a unique buffer name
+    local buffer_name = generate_buffer_name(instance_id, config)
+    vim.cmd('file ' .. buffer_name)
+
+    -- Configure window options using helper function
+    local current_win = vim.api.nvim_get_current_win()
+    configure_window_options(current_win, config)
+
+    -- Store buffer number for this instance
+    claude_code.claude_code.instances[instance_id] = vim.fn.bufnr('%')
+
+    -- Automatically enter insert mode in terminal unless configured to start in normal mode
+    if config.window.enter_insert and not config.window.start_in_normal_mode then
+      vim.cmd 'startinsert'
+    end
+  end
+end
+
 --- Toggle the Claude Code terminal window
 --- @param claude_code table The main plugin module
 --- @param config table The plugin configuration
 --- @param git table The git module
 function M.toggle(claude_code, config, git)
   -- Determine instance ID based on config
-  local instance_id
-  if config.git.multi_instance then
-    if config.git.use_git_root then
-      instance_id = get_instance_identifier(git)
-    else
-      instance_id = vim.fn.getcwd()
-    end
-  else
-    -- Use a fixed ID for single instance mode
-    instance_id = "global"
-  end
-
+  local instance_id = get_instance_id(config, git)
   claude_code.claude_code.current_instance = instance_id
 
   -- Check if this Claude Code instance is already running
   local bufnr = claude_code.claude_code.instances[instance_id]
-  if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-    -- Validate the buffer is still a valid terminal
-    local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
-    local terminal_job_id = nil
-    pcall(function()
-      terminal_job_id = vim.api.nvim_buf_get_var(bufnr, 'terminal_job_id')
-    end)
-    local is_valid_terminal = buftype == 'terminal' and terminal_job_id and vim.fn.jobwait({terminal_job_id}, 0)[1] == -1
-    
-    if not is_valid_terminal then
-      -- Buffer is no longer a valid terminal, reset
-      claude_code.claude_code.instances[instance_id] = nil
-      bufnr = nil
-    end
+
+  -- Validate existing buffer
+  if bufnr and not is_valid_terminal_buffer(bufnr) then
+    -- Buffer is no longer a valid terminal, reset
+    claude_code.claude_code.instances[instance_id] = nil
+    bufnr = nil
   end
-  
+
   if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-    -- Check if there's a window displaying this Claude Code buffer
-    local win_ids = vim.fn.win_findbuf(bufnr)
-    if #win_ids > 0 then
-      -- Claude Code is visible, close the window
-      for _, win_id in ipairs(win_ids) do
-        vim.api.nvim_win_close(win_id, true)
-      end
-    else
-      -- Claude Code buffer exists but is not visible, open it in a split or float
-      if config.window.position == 'float' then
-        create_float(config, bufnr)
-      else
-        create_split(config.window.position, config, bufnr)
-      end
-      -- Force insert mode more aggressively unless configured to start in normal mode
-      if not config.window.start_in_normal_mode then
-        vim.schedule(function()
-          vim.cmd 'stopinsert | startinsert'
-        end)
-      end
-    end
+    -- Handle existing instance (toggle visibility)
+    handle_existing_instance(bufnr, config)
   else
     -- Prune invalid buffer entries
     if bufnr and not vim.api.nvim_buf_is_valid(bufnr) then
       claude_code.claude_code.instances[instance_id] = nil
     end
-    -- Claude Code is not running, start it in a new split or float
-    if config.window.position == 'float' then
-      -- For floating window, create buffer first with terminal
-      local new_bufnr = vim.api.nvim_create_buf(false, true) -- unlisted, scratch
-      vim.api.nvim_buf_set_option(new_bufnr, 'bufhidden', 'hide')
-      
-      -- Create the floating window
-      local win_id = create_float(config, new_bufnr)
-      
-      -- Set current buffer to run terminal command
-      vim.api.nvim_win_set_buf(win_id, new_bufnr)
-      
-      -- Determine command
-      local cmd = build_command_with_git_root(config, git, config.command)
-      
-      -- Run terminal in the buffer
-      vim.fn.termopen(cmd)
-      
-      -- Create a unique buffer name
-      local buffer_name = generate_buffer_name(instance_id, config)
-      vim.api.nvim_buf_set_name(new_bufnr, buffer_name)
-      
-      -- Configure window options
-      configure_window_options(win_id, config)
-      
-      -- Store buffer number for this instance
-      claude_code.claude_code.instances[instance_id] = new_bufnr
-      
-      -- Enter insert mode if configured
-      if config.window.enter_insert and not config.window.start_in_normal_mode then
-        vim.cmd 'startinsert'
-      end
-    else
-      -- Regular split window
-      create_split(config.window.position, config)
-
-      -- Determine if we should use the git root directory
-      local base_cmd = build_command_with_git_root(config, git, config.command)
-      local cmd = 'terminal ' .. base_cmd
-
-      vim.cmd(cmd)
-      vim.cmd 'setlocal bufhidden=hide'
-      
-      -- Create a unique buffer name
-      local buffer_name = generate_buffer_name(instance_id, config)
-      vim.cmd('file ' .. buffer_name)
-
-      -- Configure window options using helper function
-      local current_win = vim.api.nvim_get_current_win()
-      configure_window_options(current_win, config)
-
-      -- Store buffer number for this instance
-      claude_code.claude_code.instances[instance_id] = vim.fn.bufnr('%')
-
-      -- Automatically enter insert mode in terminal unless configured to start in normal mode
-      if config.window.enter_insert and not config.window.start_in_normal_mode then
-        vim.cmd 'startinsert'
-      end
-    end
+    -- Create new instance
+    create_new_instance(claude_code, config, git, instance_id)
   end
 end
 

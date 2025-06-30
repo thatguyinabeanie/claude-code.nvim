@@ -367,7 +367,8 @@ describe('terminal module', function()
       local custom_cmd_found = false
 
       for _, cmd in ipairs(vim_cmd_calls) do
-        if cmd:match('terminal enter /test/git/root ; ' .. config.command .. ' ; exit') then
+        -- The path should now be shell-escaped in the command
+        if cmd:match('terminal enter .*/test/git/root.* ; ' .. config.command .. ' ; exit') then
           custom_cmd_found = true
           break
         end
