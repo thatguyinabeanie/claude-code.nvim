@@ -47,7 +47,7 @@ echo "Test 2: Module Loading"
 echo "----------------------"
 
 $NVIM --headless --noplugin -u tests/minimal-init.lua \
-  -c "lua pcall(require, 'claude-code.mcp') and print('✅ MCP module loads') or error('❌ MCP module failed to load')" \
+  -c "lua pcall(require, 'claude-code.claude_mcp') and print('✅ MCP module loads') or error('❌ MCP module failed to load')" \
   -c "qa!"
 
 $NVIM --headless --noplugin -u tests/minimal-init.lua \
@@ -78,7 +78,7 @@ echo "--------------------------------"
 
 # Test Claude Code format
 $NVIM --headless --noplugin -u tests/minimal-init.lua \
-  -c "lua require('claude-code.mcp').generate_config('test-claude-config.json', 'claude-code')" \
+  -c "lua require('claude-code.claude_mcp').generate_config('test-claude-config.json', 'claude-code')" \
   -c "qa!"
 
 if [ -f "test-claude-config.json" ]; then
@@ -97,7 +97,7 @@ fi
 
 # Test workspace format
 $NVIM --headless --noplugin -u tests/minimal-init.lua \
-  -c "lua require('claude-code.mcp').generate_config('test-workspace-config.json', 'workspace')" \
+  -c "lua require('claude-code.claude_mcp').generate_config('test-workspace-config.json', 'workspace')" \
   -c "qa!"
 
 if [ -f "test-workspace-config.json" ]; then

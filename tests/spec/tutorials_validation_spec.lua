@@ -24,7 +24,7 @@ describe('Tutorials Validation', function()
 
     config = require('claude-code.config')
     terminal = require('claude-code.terminal')
-    mcp = require('claude-code.mcp')
+    mcp = require('claude-code.claude_mcp')
     utils = require('claude-code.utils')
   end)
 

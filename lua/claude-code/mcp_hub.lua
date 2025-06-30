@@ -10,7 +10,6 @@ M.registry = {
   config_path = vim.fn.stdpath('data') .. '/claude-code/mcp-hub',
 }
 
-
 -- Default MCP Hub servers
 M.default_servers = {
   ['claude-code-neovim'] = {
@@ -400,7 +399,7 @@ function M.start_server(server_name)
     end
 
     -- Generate MCP configuration
-    local mcp = require('claude-code.mcp')
+    local mcp = require('claude-code.claude_mcp')
     local success, config_path = mcp.generate_config(nil, 'claude-code')
 
     if success then

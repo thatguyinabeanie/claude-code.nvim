@@ -213,7 +213,7 @@ function M.register_commands(claude_code)
   -- MCP configuration helper
   vim.api.nvim_create_user_command('ClaudeCodeMCPConfig', function(opts)
     local config_type = opts.args or 'claude-code'
-    local mcp_module = require('claude-code.mcp')
+    local mcp_module = require('claude-code.claude_mcp')
     local success = mcp_module.setup_claude_integration(config_type)
     if not success then
       vim.notify('Failed to generate MCP configuration', vim.log.levels.ERROR)

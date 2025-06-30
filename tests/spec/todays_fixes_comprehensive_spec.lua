@@ -286,7 +286,7 @@ describe("Today's CI and Feature Fixes", function()
 
     it('should handle MCP module loading with error handling', function()
       local function safe_mcp_load()
-        local ok, mcp = pcall(require, 'claude-code.mcp')
+        local ok, mcp = pcall(require, 'claude-code.claude_mcp')
         return ok, ok and 'MCP loaded' or 'Failed: ' .. tostring(mcp)
       end
 
