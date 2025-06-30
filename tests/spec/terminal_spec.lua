@@ -22,7 +22,21 @@ describe('terminal module', function()
     _G.vim.api = _G.vim.api or {}
     _G.vim.fn = _G.vim.fn or {}
     _G.vim.bo = _G.vim.bo or {}
-    _G.vim.o = _G.vim.o or { lines = 100 }
+    -- Set up vim.o with numeric values that are protected from corruption
+    _G.vim.o = setmetatable({
+      lines = 100,
+      columns = 100,
+      cmdheight = 1
+    }, {
+      __newindex = function(t, k, v)
+        -- Ensure lines and columns are always numbers
+        if k == 'lines' or k == 'columns' or k == 'cmdheight' then
+          rawset(t, k, tonumber(v) or rawget(t, k) or 1)
+        else
+          rawset(t, k, v)
+        end
+      end
+    })
 
     -- Mock vim.cmd
     _G.vim.cmd = function(cmd)
@@ -558,7 +572,6 @@ describe('terminal module', function()
       end
 
       -- Mock vim.o.columns and vim.o.lines for percentage calculations
-      _G.vim.o = _G.vim.o or {}
       _G.vim.o.columns = 120
       _G.vim.o.lines = 40
       _G.vim.o.cmdheight = 1
