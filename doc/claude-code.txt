@@ -9,18 +9,32 @@ CONTENTS                                                   *claude-code-contents
   4. Configuration ........................ |claude-code-configuration|
   5. Commands ............................. |claude-code-commands|
   6. Mappings ............................. |claude-code-mappings|
-  7. Contributing ......................... |claude-code-contributing|
-  8. License .............................. |claude-code-license|
+  7. MCP Integration ...................... |claude-code-mcp|
+  8. Tutorials ............................ |claude-code-tutorials|
+  9. Troubleshooting ...................... |claude-code-troubleshooting|
+  10. Contributing ........................ |claude-code-contributing|
+  11. License ............................. |claude-code-license|
 
 ==============================================================================
 1. INTRODUCTION                                        *claude-code-introduction*
 
 Claude Code is a plugin that provides seamless integration between the Claude
-Code AI assistant (command-line tool) and Neovim. It allows you to:
+Code AI assistant (command-line tool) and Neovim. It provides:
 
-- Toggle Claude Code in a terminal window at the bottom of your Neovim screen
-- Automatically detect and reload files modified by Claude Code
-- Keep your Neovim buffers in sync with any changes made by Claude
+- **Context-aware commands** that automatically pass file content, selections, 
+  and workspace context to Claude Code
+- **Traditional terminal interface** for interactive conversations
+- **Enhanced MCP (Model Context Protocol) server** that allows Claude Code to 
+  directly read and edit your Neovim buffers, execute commands, and access 
+  project context
+
+Key features:
+- Toggle Claude Code in a terminal window within Neovim
+- Multi-instance support (one Claude instance per git repository)
+- Automatic file change detection and buffer reloading
+- MCP integration for direct file manipulation by Claude
+- Context-aware commands for passing current file or selection to Claude
+- Safe window toggle to hide/show without interrupting Claude execution
 
 NOTE: This plugin requires the official Claude Code CLI tool to be installed
 and available in your system's PATH.
@@ -68,6 +82,19 @@ PREREQUISITES:
 - Neovim 0.7.0 or later
 - Claude Code CLI tool (https://github.com/anthropics/claude-code)
 - plenary.nvim plugin (https://github.com/nvim-lua/plenary.nvim) for git operations
+
+POST-INSTALLATION (Optional):
+To use the `claude-nvim` wrapper from anywhere:
+>bash
+  # Add to your shell configuration (.bashrc, .zshrc, etc.)
+  export PATH="$PATH:~/.local/share/nvim/lazy/claude-code.nvim/bin"
+  
+  # Or create a symlink
+  ln -s ~/.local/share/nvim/lazy/claude-code.nvim/bin/claude-nvim ~/.local/bin/
+  
+  # Now you can use from anywhere:
+  claude-nvim "Help me with this code"
+<
 
 ==============================================================================
 3. USAGE                                                    *claude-code-usage*
@@ -180,14 +207,145 @@ to re-enter insert mode so you can continue typing to Claude Code.
 You can customize these mappings in the configuration.
 
 ==============================================================================
-7. CONTRIBUTING                                          *claude-code-contributing*
+7. MCP INTEGRATION                                              *claude-code-mcp*
+
+The plugin provides Model Context Protocol (MCP) integration that enables 
+Claude Code to directly read and edit your Neovim buffers, execute commands, 
+and access project context.
+
+MCP SERVER SETUP                                         *claude-code-mcp-setup*
+
+The plugin uses an enhanced fork of `mcp-neovim-server` by default. Everything 
+is handled automatically by the `claude-nvim` wrapper.
+
+For manual configuration, create a config file:
+>json
+  {
+    "mcpServers": {
+      "neovim": {
+        "command": "mcp-neovim-server",
+        "env": {
+          "NVIM_SOCKET_PATH": "/tmp/nvim",
+          "ALLOW_SHELL_COMMANDS": "false"
+        }
+      }
+    }
+  }
+<
+
+Save to `~/.config/claude-code/mcp.json` and use:
+>bash
+  claude --mcp-config ~/.config/claude-code/mcp.json "Your prompt"
+<
+
+MCPHUB.NVIM INTEGRATION                                *claude-code-mcp-mcphub*
+
+For managing multiple MCP servers, consider MCPHub.nvim:
+>lua
+  {
+    "ravitemer/mcphub.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("mcphub").setup({
+        port = 3000,
+        config = vim.fn.expand("~/.config/nvim/mcpservers.json"),
+      })
+    end,
+  }
+<
+
+This provides:
+- Multiple MCP server management
+- Integration with chat plugins (Avante, CodeCompanion, CopilotChat)
+- Server discovery and configuration
+- Support for both stdio and HTTP-based MCP servers
+
+EXTENDING MCP-NEOVIM-SERVER                           *claude-code-mcp-extending*
+
+If you need additional functionality not provided by `mcp-neovim-server`:
+
+1. **Submit a PR** to mcp-neovim-server to add the feature
+2. **Create a supplementary MCP server** that provides only the missing features
+3. **Use MCPHub.nvim** to run multiple MCP servers together
+
+==============================================================================
+8. TUTORIALS                                              *claude-code-tutorials*
+
+RESUME PREVIOUS CONVERSATIONS                      *claude-code-tutorials-resume*
+
+Continue your work seamlessly when you've been working on a task with Claude 
+Code and need to continue where you left off in a later session.
+
+Commands for resuming:
+- `:ClaudeCodeResume` - Resume a previously suspended session
+- `:ClaudeCode --continue` - Continue with command variants
+- `<leader>cc` - Use configured keymap for continuation
+
+How it works:
+- Session Management: Claude Code sessions can be suspended and resumed
+- Context Preservation: The entire conversation context is maintained
+- Multi-Instance Support: Each git repository can have its own Claude instance
+- Buffer State: The terminal buffer preserves full conversation history
+
+Tips:
+- Use `:ClaudeCodeSuspend` to pause a session without losing context
+- Sessions are tied to git repositories when `git.multi_instance` is enabled
+- Use safe toggle (`:ClaudeCodeSafeToggle`) to hide Claude without stopping it
+
+UNDERSTAND NEW CODEBASES                        *claude-code-tutorials-codebase*
+
+Get a quick overview when you've just joined a new project:
+
+1. Open Neovim in the project root
+2. Start Claude Code with `:ClaudeCode`
+3. Ask Claude to analyze the codebase structure
+4. Use context-aware commands to share specific files
+
+The MCP integration allows Claude to directly explore your project structure
+and understand the codebase without manual file copying.
+
+==============================================================================
+9. TROUBLESHOOTING                                  *claude-code-troubleshooting*
+
+COMMON ISSUES                                  *claude-code-troubleshooting-common*
+
+Claude Code command not found:
+- Ensure Claude Code CLI is installed and in PATH
+- Check the `command` configuration option
+- Use `cli_path` config for custom installation paths
+
+MCP server not working:
+- Verify `mcp-neovim-server` is installed: `npm install -g mcp-neovim-server`
+- Check that Neovim server socket is running
+- Ensure MCP integration is enabled in configuration
+
+File changes not detected:
+- Check `refresh.enable` is set to `true` in configuration
+- Verify `refresh.timer_interval` setting (default: 1000ms)
+- Ensure file is opened in a Neovim buffer
+
+Multi-instance conflicts:
+- Each git repository should have its own Claude instance
+- Use `:ClaudeCodeListInstances` to see active instances
+- Configure `git.multi_instance` to control this behavior
+
+CLI DETECTION ORDER                        *claude-code-troubleshooting-detection*
+
+The plugin uses this priority order to find Claude:
+
+1. **Custom path** (highest priority): `cli_path` configuration option
+2. **Local installation** (preferred): `~/.claude/local/claude`
+3. **PATH fallback** (last resort): `claude` command in system PATH
+
+==============================================================================
+10. CONTRIBUTING                                        *claude-code-contributing*
 
 Contributions to Claude Code are welcome! If you would like to contribute,
 please check the CONTRIBUTING.md file in the repository for guidelines:
 https://github.com/greggh/claude-code.nvim/blob/main/CONTRIBUTING.md
 
 ==============================================================================
-8. LICENSE                                                  *claude-code-license*
+11. LICENSE                                                 *claude-code-license*
 
 MIT License
 

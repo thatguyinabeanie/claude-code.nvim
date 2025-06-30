@@ -1,4 +1,3 @@
-
 # Contributing to claude-Code.nvim
 
 Thank you for your interest in contributing to Claude-Code.nvim! This document provides guidelines and instructions to help you contribute effectively.
@@ -344,4 +343,3 @@ By contributing to Claude-Code.nvim, you agree that your contributions will be l
 If you have any questions about contributing, please open an issue with your question.
 
 Thank you for contributing to Claude-Code.nvim!
-
