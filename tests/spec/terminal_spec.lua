@@ -350,7 +350,8 @@ describe('terminal module', function()
           -- Extract buffer name from the file command and check it doesn't have invalid chars
           local buffer_name = cmd:match('file (.+)')
           if buffer_name then
-            assert.is_nil(buffer_name:match('[^%w%-_]'), 'Buffer name should not contain special characters')
+            -- Buffer names should only contain alphanumeric, hyphen, and underscore
+            assert.is_nil(buffer_name:match('[^%w%-_]'), 'Buffer name should only contain [a-zA-Z0-9_-]')
           end
           break
         end
@@ -668,9 +669,11 @@ describe('terminal module', function()
       local expected_height = math.floor(editor_height * 0.5) -- 50% of 38
       assert.are.equal(expected_width, nvim_open_win_config.width)
       assert.are.equal(expected_height, nvim_open_win_config.height)
-      -- Verify percentage calculations are independent of hardcoded values
-      assert.are.equal(96, expected_width)
-      assert.are.equal(19, expected_height) -- floor(38 * 0.5) = 19
+      -- Verify percentage calculations match expected formula
+      local mock_columns = 120
+      local mock_editor_height = 38
+      assert.are.equal(math.floor(mock_columns * 0.8), expected_width)
+      assert.are.equal(math.floor(mock_editor_height * 0.5), expected_height)
     end)
 
     it('should center floating window when position is "center"', function()
@@ -717,10 +720,13 @@ describe('terminal module', function()
 
       -- Should open floating window with existing buffer
       assert.is_true(nvim_open_win_called, 'nvim_open_win should be called')
-      -- Validate the window was created successfully
-      assert.is_not_nil(nvim_open_win_config)
-      -- In the reuse case, the buffer validation happens inside create_float
-      -- This test primarily ensures the floating window path is taken correctly
+      -- Verify floating window configuration is correct
+      assert.is_not_nil(nvim_open_win_config, 'Window config should be provided')
+      assert.are.equal('editor', nvim_open_win_config.relative)
+      assert.are.equal('none', nvim_open_win_config.border)
+      
+      -- Verify existing buffer is reused (buffer 42 from instances)
+      -- The specific buffer reuse logic is tested implicitly through the toggle function
     end)
 
     it('should handle out-of-bounds dimensions gracefully', function()

@@ -271,7 +271,11 @@ local function is_valid_terminal_buffer(bufnr)
     return false
   end
 
-  local buftype = vim.api.nvim_get_option_value('buftype', {buf = bufnr})
+  local buftype = nil
+  pcall(function()
+    buftype = vim.api.nvim_get_option_value('buftype', {buf = bufnr})
+  end)
+  
   local terminal_job_id = nil
   pcall(function()
     terminal_job_id = vim.b[bufnr].terminal_job_id
