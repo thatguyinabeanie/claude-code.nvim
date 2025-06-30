@@ -101,11 +101,15 @@ local function create_float(config, existing_bufnr)
   if not bufnr then
     bufnr = vim.api.nvim_create_buf(false, true) -- unlisted, scratch
   else
-    -- Validate existing buffer is still a terminal
-    local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
-    if buftype ~= 'terminal' then
-      -- Buffer exists but is no longer a terminal, create a new one
+    -- Validate existing buffer is still valid and a terminal
+    if not vim.api.nvim_buf_is_valid(bufnr) then
       bufnr = vim.api.nvim_create_buf(false, true) -- unlisted, scratch
+    else
+      local buftype = vim.api.nvim_get_option_value('buftype', {buf = bufnr})
+      if buftype ~= 'terminal' then
+        -- Buffer exists but is no longer a terminal, create a new one
+        bufnr = vim.api.nvim_create_buf(false, true) -- unlisted, scratch
+      end
     end
   end
 
@@ -150,12 +154,12 @@ end
 --- @private
 local function configure_window_options(win_id, config)
   if config.window.hide_numbers then
-    vim.api.nvim_win_set_option(win_id, 'number', false)
-    vim.api.nvim_win_set_option(win_id, 'relativenumber', false)
+    vim.api.nvim_set_option_value('number', false, {win = win_id})
+    vim.api.nvim_set_option_value('relativenumber', false, {win = win_id})
   end
 
   if config.window.hide_signcolumn then
-    vim.api.nvim_win_set_option(win_id, 'signcolumn', 'no')
+    vim.api.nvim_set_option_value('signcolumn', 'no', {win = win_id})
   end
 end
 
@@ -267,10 +271,10 @@ local function is_valid_terminal_buffer(bufnr)
     return false
   end
 
-  local buftype = vim.api.nvim_buf_get_option(bufnr, 'buftype')
+  local buftype = vim.api.nvim_get_option_value('buftype', {buf = bufnr})
   local terminal_job_id = nil
   pcall(function()
-    terminal_job_id = vim.api.nvim_buf_get_var(bufnr, 'terminal_job_id')
+    terminal_job_id = vim.b[bufnr].terminal_job_id
   end)
 
   return buftype == 'terminal'
@@ -315,7 +319,7 @@ local function create_new_instance(claude_code, config, git, instance_id)
   if config.window.position == 'float' then
     -- For floating window, create buffer first with terminal
     local new_bufnr = vim.api.nvim_create_buf(false, true) -- unlisted, scratch
-    vim.api.nvim_buf_set_option(new_bufnr, 'bufhidden', 'hide')
+    vim.api.nvim_set_option_value('bufhidden', 'hide', {buf = new_bufnr})
 
     -- Create the floating window
     local win_id = create_float(config, new_bufnr)
