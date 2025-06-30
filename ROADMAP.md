@@ -29,7 +29,7 @@ This document outlines the planned development path for the Claude Code Neovim p
   - Make CI tests more flexible (avoid hardcoded expectations)
   - Make protocol version configurable in mcp/server.lua
   - Add headless mode check for file descriptor usage in mcp/server.lua
-  - Make server path configurable in test_mcp.sh
+  - Make server path configurable in scripts/test_mcp.sh
   - Fix markdown formatting issues in documentation files
 
 - **Development Infrastructure Enhancements**
