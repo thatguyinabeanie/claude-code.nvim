@@ -59,7 +59,7 @@ describe('terminal module', function()
     
     -- Mock vim.api.nvim_get_option_value (new API)
     _G.vim.api.nvim_get_option_value = function(option, opts)
-      if option == 'buftype' and opts and opts.buf then
+      if option == 'buftype' then
         return 'terminal'  -- Always return terminal for valid buffers in tests
       end
       return ''
@@ -250,8 +250,13 @@ describe('terminal module', function()
 
       -- Create a function to clear the win_ids array
       _G.vim.api.nvim_win_close = function(win_id, force)
-        -- Remove all windows from win_ids
-        win_ids = {}
+        -- Remove the specific window from win_ids
+        for i, id in ipairs(win_ids) do
+          if id == win_id then
+            table.remove(win_ids, i)
+            break
+          end
+        end
         return true
       end
 
@@ -269,6 +274,9 @@ describe('terminal module', function()
       claude_code.claude_code.current_instance = instance_id
       win_ids = {} -- No windows displaying the buffer
 
+      -- Debug: Check that we're testing the reopen case properly
+      -- Ensure buffer 42 will be treated as a valid terminal
+      
       -- Call toggle
       terminal.toggle(claude_code, config, git)
 
@@ -286,6 +294,7 @@ describe('terminal module', function()
           buffer_cmd_found = true
         end
       end
+
 
       assert.is_true(botright_cmd_found, 'Botright split command should be called')
       assert.is_true(resize_cmd_found, 'Resize command should be called')
