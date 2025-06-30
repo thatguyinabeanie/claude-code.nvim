@@ -35,9 +35,17 @@ describe('terminal module', function()
       return bufnr ~= nil and bufnr > 0
     end
     
-    -- Mock vim.api.nvim_buf_get_option
+    -- Mock vim.api.nvim_buf_get_option (deprecated)
     _G.vim.api.nvim_buf_get_option = function(bufnr, option)
       if option == 'buftype' then
+        return 'terminal'  -- Always return terminal for valid buffers in tests
+      end
+      return ''
+    end
+    
+    -- Mock vim.api.nvim_get_option_value (new API)
+    _G.vim.api.nvim_get_option_value = function(option, opts)
+      if option == 'buftype' and opts and opts.buf then
         return 'terminal'  -- Always return terminal for valid buffers in tests
       end
       return ''
@@ -49,6 +57,24 @@ describe('terminal module', function()
         return 12345  -- Return a mock job ID
       end
       error('Invalid buffer variable: ' .. varname)
+    end
+    
+    -- Mock vim.b for buffer variables (new API)
+    _G.vim.b = setmetatable({}, {
+      __index = function(t, bufnr)
+        if not t[bufnr] then
+          t[bufnr] = {
+            terminal_job_id = 12345  -- Mock job ID
+          }
+        end
+        return t[bufnr]
+      end
+    })
+    
+    -- Mock vim.api.nvim_set_option_value (new API for both buffer and window options)
+    _G.vim.api.nvim_set_option_value = function(option, value, opts)
+      -- Just mock this to do nothing for tests
+      return true
     end
     
     -- Mock vim.fn.jobwait
