@@ -112,7 +112,7 @@ function M.test_mcp_hub_integration()
   print(color('cyan', '\n🌐 Test 2: MCP Hub Integration'))
 
   -- Test hub functionality
-  local hub = require('claude-code.mcp.hub')
+  local hub = require('claude-code.mcp_hub')
 
   -- Run hub's built-in test
   local hub_test_passed = hub.live_test()

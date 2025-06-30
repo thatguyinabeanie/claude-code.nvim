@@ -25,12 +25,11 @@ describe('MCP Integration', function()
     end
 
     -- Reset package loaded state
-    package.loaded['claude-code.mcp'] = nil
-    package.loaded['claude-code.mcp.init'] = nil
-    package.loaded['claude-code.mcp.tools'] = nil
-    package.loaded['claude-code.mcp.resources'] = nil
-    package.loaded['claude-code.mcp.server'] = nil
-    package.loaded['claude-code.mcp.hub'] = nil
+    package.loaded['claude-code.claude_mcp'] = nil
+    package.loaded['claude-code.mcp_tools'] = nil
+    package.loaded['claude-code.mcp_resources'] = nil
+    package.loaded['claude-code.mcp_internal_server'] = nil
+    package.loaded['claude-code.mcp_hub'] = nil
   end)
 
   describe('Module Loading', function()
@@ -115,8 +114,8 @@ describe('MCP Tools', function()
   local tools
 
   before_each(function()
-    package.loaded['claude-code.mcp.tools'] = nil
-    local ok, module = pcall(require, 'claude-code.mcp.tools')
+    package.loaded['claude-code.mcp_tools'] = nil
+    local ok, module = pcall(require, 'claude-code.mcp_tools')
     if ok then
       tools = module
     end
@@ -124,7 +123,7 @@ describe('MCP Tools', function()
 
   after_each(function()
     -- Clean up tools module
-    package.loaded['claude-code.mcp.tools'] = nil
+    package.loaded['claude-code.mcp_tools'] = nil
   end)
 
   it('should load tools module', function()
@@ -182,8 +181,8 @@ describe('MCP Resources', function()
   local resources
 
   before_each(function()
-    package.loaded['claude-code.mcp.resources'] = nil
-    local ok, module = pcall(require, 'claude-code.mcp.resources')
+    package.loaded['claude-code.mcp_resources'] = nil
+    local ok, module = pcall(require, 'claude-code.mcp_resources')
     if ok then
       resources = module
     end
@@ -191,7 +190,7 @@ describe('MCP Resources', function()
 
   after_each(function()
     -- Clean up resources module
-    package.loaded['claude-code.mcp.resources'] = nil
+    package.loaded['claude-code.mcp_resources'] = nil
   end)
 
   it('should load resources module', function()
@@ -241,8 +240,8 @@ describe('MCP Hub', function()
   local hub
 
   before_each(function()
-    package.loaded['claude-code.mcp.hub'] = nil
-    local ok, module = pcall(require, 'claude-code.mcp.hub')
+    package.loaded['claude-code.mcp_hub'] = nil
+    local ok, module = pcall(require, 'claude-code.mcp_hub')
     if ok then
       hub = module
     end
@@ -250,7 +249,7 @@ describe('MCP Hub', function()
 
   after_each(function()
     -- Clean up hub module
-    package.loaded['claude-code.mcp.hub'] = nil
+    package.loaded['claude-code.mcp_hub'] = nil
   end)
 
   it('should load hub module', function()

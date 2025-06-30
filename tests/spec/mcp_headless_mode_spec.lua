@@ -10,11 +10,11 @@ describe('MCP External Server Integration', function()
 
   before_each(function()
     -- Clear module cache
-    package.loaded['claude-code.mcp'] = nil
+    package.loaded['claude-code.claude_mcp'] = nil
     package.loaded['claude-code.utils'] = nil
 
     -- Load modules
-    mcp = require('claude-code.mcp')
+    mcp = require('claude-code.claude_mcp')
     utils = require('claude-code.utils')
 
     -- Store original executable function

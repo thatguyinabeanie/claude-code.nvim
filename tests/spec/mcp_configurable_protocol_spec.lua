@@ -9,11 +9,11 @@ describe('MCP Configurable Protocol Version', function()
 
   before_each(function()
     -- Clear module cache
-    package.loaded['claude-code.mcp.server'] = nil
+    package.loaded['claude-code.mcp_internal_server'] = nil
     package.loaded['claude-code.config'] = nil
 
     -- Load fresh server module
-    server = require('claude-code.mcp.server')
+    server = require('claude-code.mcp_internal_server')
 
     -- Mock config with original values
     original_config = {

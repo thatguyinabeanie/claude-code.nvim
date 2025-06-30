@@ -6,7 +6,7 @@ describe('test_mcp.sh Configurability', function()
   describe('server path configuration', function()
     it('should support configurable server path via environment variable', function()
       -- Read the test script content
-      local test_script_path = vim.fn.getcwd() .. '/test_mcp.sh'
+      local test_script_path = vim.fn.getcwd() .. '/scripts/test_mcp.sh'
       local content = ''
 
       local file = io.open(test_script_path, 'r')

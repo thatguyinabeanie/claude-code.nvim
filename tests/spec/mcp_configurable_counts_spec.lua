@@ -10,14 +10,14 @@ describe('MCP Configurable Counts', function()
 
   before_each(function()
     -- Clear module cache
-    package.loaded['claude-code.mcp.tools'] = nil
-    package.loaded['claude-code.mcp.resources'] = nil
-    package.loaded['claude-code.mcp'] = nil
+    package.loaded['claude-code.mcp_tools'] = nil
+    package.loaded['claude-code.mcp_resources'] = nil
+    package.loaded['claude-code.claude_mcp'] = nil
 
     -- Load modules
-    local tools_ok, tools_module = pcall(require, 'claude-code.mcp.tools')
-    local resources_ok, resources_module = pcall(require, 'claude-code.mcp.resources')
-    local mcp_ok, mcp_module = pcall(require, 'claude-code.mcp')
+    local tools_ok, tools_module = pcall(require, 'claude-code.mcp_tools')
+    local resources_ok, resources_module = pcall(require, 'claude-code.mcp_resources')
+    local mcp_ok, mcp_module = pcall(require, 'claude-code.claude_mcp')
 
     if tools_ok then
       tools = tools_module

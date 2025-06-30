@@ -10,14 +10,14 @@ describe('MCP Resources Git Validation', function()
 
   before_each(function()
     -- Clear module cache
-    package.loaded['claude-code.mcp.resources'] = nil
+    package.loaded['claude-code.mcp_resources'] = nil
     package.loaded['claude-code.utils'] = nil
 
     -- Store original io.popen for restoration
     original_popen = io.popen
 
     -- Load modules
-    resources = require('claude-code.mcp.resources')
+    resources = require('claude-code.mcp_resources')
     utils = require('claude-code.utils')
   end)
 
