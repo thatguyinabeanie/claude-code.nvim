@@ -127,3 +127,5 @@ luacov.report.out
 .vale/styles/*
 !.vale/styles/.vale-config/
 .vale/cache/
+
+GEMINI.md
