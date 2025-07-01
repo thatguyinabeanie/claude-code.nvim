@@ -20,8 +20,6 @@ The Project Tree Helper provides utilities for generating comprehensive file tre
 ```vim
 :ClaudeCodeWithProjectTree
 
-```text
-
 This command generates a project file tree and passes it to Claude Code as context.
 
 ### Example output
