@@ -557,6 +557,8 @@ describe('Safe Window Toggle', function()
           },
           command = 'echo test',
         }, {})
+        -- Add a small delay to allow async operations to complete
+        vim.loop.sleep(10)  -- 10 milliseconds
       end
 
       -- Verify: Instance still tracked after multiple toggles

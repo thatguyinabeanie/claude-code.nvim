@@ -6,13 +6,13 @@ export GITHUB_ACTIONS=true
 export GITHUB_WORKFLOW="CI"
 export GITHUB_RUN_ID="12345678"
 export GITHUB_RUN_NUMBER="1"
-export GITHUB_SHA="$(git rev-parse HEAD)"
-export GITHUB_REF="refs/heads/$(git branch --show-current)"
+GITHUB_SHA="$(git rev-parse HEAD)"; export GITHUB_SHA
+GITHUB_REF="refs/heads/$(git branch --show-current)"; export GITHUB_REF
 export RUNNER_OS="Linux"
 export RUNNER_TEMP="/tmp"
 
 # Plugin-specific test variables
-export PLUGIN_ROOT="$(pwd)"
+PLUGIN_ROOT="$(pwd)"; export PLUGIN_ROOT
 export CLAUDE_CODE_TEST_MODE="true"
 
 # GitHub Actions uses Ubuntu, so simulate that

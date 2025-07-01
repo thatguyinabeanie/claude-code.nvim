@@ -54,6 +54,9 @@ end
 
 -- Load server registry from disk
 function M.load_registry()
+  -- Start with a fresh copy of default servers
+  M.registry.servers = vim.deepcopy(M.default_servers)
+
   local registry_file = M.registry.config_path .. '/registry.json'
 
   if vim.fn.filereadable(registry_file) == 1 then
@@ -64,15 +67,17 @@ function M.load_registry()
 
       local ok, data = pcall(vim.json.decode, content)
       if ok and data then
-        M.registry.servers = vim.tbl_deep_extend('force', M.default_servers, data)
-        M.registry.loaded = true
-        return true
+        -- Merge saved servers into the defaults
+        M.registry.servers = vim.tbl_deep_extend('force', M.registry.servers, data)
       end
     end
   end
 
-  -- Fall back to default servers
-  M.registry.servers = vim.deepcopy(M.default_servers)
+  -- Ensure claude-code-neovim is always native
+  if M.registry.servers['claude-code-neovim'] then
+    M.registry.servers['claude-code-neovim'].native = true
+  end
+
   M.registry.loaded = true
   return true
 end

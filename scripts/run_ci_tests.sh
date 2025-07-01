@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 export CI=true
 export GITHUB_ACTIONS=true
 export GITHUB_WORKFLOW="CI"
-export PLUGIN_ROOT="$(pwd)"
+PLUGIN_ROOT="$(pwd)"; export PLUGIN_ROOT
 export CLAUDE_CODE_TEST_MODE="true"
 export RUNNER_OS="Linux"
 export OSTYPE="linux-gnu"
@@ -36,7 +36,8 @@ echo ""
 # Function to run a single test
 run_test() {
     local test_file=$1
-    local test_name=$(basename "$test_file")
+    local test_name
+    test_name=$(basename "$test_file")
     
     echo -e "${YELLOW}Running: $test_name${NC}"
     

@@ -292,7 +292,7 @@ describe('CLI detection', function()
       end
 
       -- Parse config without silent mode
-      local result = config.parse_config({})
+      local result = config.parse_config({ cli_notification = { enabled = true } })
 
       -- Check notification
       assert.equals(1, #notifications)
@@ -325,7 +325,7 @@ describe('CLI detection', function()
       end
 
       -- Parse config without silent mode
-      local result = config.parse_config({})
+      local result = config.parse_config({ cli_notification = { enabled = true } })
 
       -- Check notification
       assert.equals(1, #notifications)
@@ -351,7 +351,7 @@ describe('CLI detection', function()
       end
 
       -- Parse config without silent mode
-      local result = config.parse_config({})
+      local result = config.parse_config({ cli_notification = { enabled = true } })
 
       -- Check warning notification
       assert.equals(1, #notifications)
@@ -386,7 +386,7 @@ describe('CLI detection', function()
       end
 
       -- Parse config with custom CLI path
-      local result = config.parse_config({ cli_path = '/custom/path/claude' }, false)
+      local result = config.parse_config({ cli_path = '/custom/path/claude', cli_notification = { enabled = true } }, false)
 
       -- Should use custom CLI path
       assert.equals('/custom/path/claude', result.command)
@@ -412,7 +412,7 @@ describe('CLI detection', function()
       end
 
       -- Parse config with invalid custom CLI path
-      local result = config.parse_config({ cli_path = '/invalid/path/claude' }, false)
+      local result = config.parse_config({ cli_path = '/invalid/path/claude', cli_notification = { enabled = true } }, false)
 
       -- Should fall back to default command
       assert.equals('claude', result.command)

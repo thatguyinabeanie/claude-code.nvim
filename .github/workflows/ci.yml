@@ -227,19 +227,8 @@ jobs:
           mkdir -p ~/.local/share/nvim/site/pack/vendor/start
           git clone --depth 1 https://github.com/nvim-lua/plenary.nvim ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim
 
-      - name: Test MCP wrapper script
+      - name: Test MCP module loading
         run: |
-          # Test that claude-nvim wrapper exists and is executable
-          echo "Testing claude-nvim wrapper..."
-          if [ -x ./bin/claude-nvim ]; then
-            echo "✅ claude-nvim wrapper is executable"
-            # Test basic functionality (should fail without nvim socket but show help)
-            ./bin/claude-nvim --help 2>&1 | head -20 || true
-          else
-            echo "❌ claude-nvim wrapper not found or not executable"
-            exit 1
-          fi
-
           # Test MCP module loading
           echo "Testing MCP module loading..."
           nvim --headless --noplugin -u tests/mcp-test-init.lua \
@@ -293,8 +282,7 @@ jobs:
           neovim: true
           version: stable
 
-      - name: Make MCP server executable
-        run: chmod +x ./bin/claude-nvim
+      
 
       - name: Test MCP server initialization
         run: |
