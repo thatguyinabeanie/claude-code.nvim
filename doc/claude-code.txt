@@ -9,32 +9,18 @@ CONTENTS                                                   *claude-code-contents
   4. Configuration ........................ |claude-code-configuration|
   5. Commands ............................. |claude-code-commands|
   6. Mappings ............................. |claude-code-mappings|
-  7. MCP Integration ...................... |claude-code-mcp|
-  8. Tutorials ............................ |claude-code-tutorials|
-  9. Troubleshooting ...................... |claude-code-troubleshooting|
-  10. Contributing ........................ |claude-code-contributing|
-  11. License ............................. |claude-code-license|
+  7. Contributing ......................... |claude-code-contributing|
+  8. License .............................. |claude-code-license|
 
 ==============================================================================
 1. INTRODUCTION                                        *claude-code-introduction*
 
 Claude Code is a plugin that provides seamless integration between the Claude
-Code AI assistant (command-line tool) and Neovim. It provides:
+Code AI assistant (command-line tool) and Neovim. It allows you to:
 
-- **Context-aware commands** that automatically pass file content, selections, 
-  and workspace context to Claude Code
-- **Traditional terminal interface** for interactive conversations
-- **Enhanced MCP (Model Context Protocol) server** that allows Claude Code to 
-  directly read and edit your Neovim buffers, execute commands, and access 
-  project context
-
-Key features:
-- Toggle Claude Code in a terminal window within Neovim
-- Multi-instance support (one Claude instance per git repository)
-- Automatic file change detection and buffer reloading
-- MCP integration for direct file manipulation by Claude
-- Context-aware commands for passing current file or selection to Claude
-- Safe window toggle to hide/show without interrupting Claude execution
+- Toggle Claude Code in a terminal window at the bottom of your Neovim screen
+- Automatically detect and reload files modified by Claude Code
+- Keep your Neovim buffers in sync with any changes made by Claude
 
 NOTE: This plugin requires the official Claude Code CLI tool to be installed
 and available in your system's PATH.
@@ -83,19 +69,6 @@ PREREQUISITES:
 - Claude Code CLI tool (https://github.com/anthropics/claude-code)
 - plenary.nvim plugin (https://github.com/nvim-lua/plenary.nvim) for git operations
 
-POST-INSTALLATION (Optional):
-To use the `claude-nvim` wrapper from anywhere:
->bash
-  # Add to your shell configuration (.bashrc, .zshrc, etc.)
-  export PATH="$PATH:~/.local/share/nvim/lazy/claude-code.nvim/bin"
-  
-  # Or create a symlink
-  ln -s ~/.local/share/nvim/lazy/claude-code.nvim/bin/claude-nvim ~/.local/bin/
-  
-  # Now you can use from anywhere:
-  claude-nvim "Help me with this code"
-<
-
 ==============================================================================
 3. USAGE                                                    *claude-code-usage*
 
@@ -106,36 +79,6 @@ To use the `claude-nvim` wrapper from anywhere:
   automatically reloaded
 - When in a git repository, Claude Code will automatically use the git root
   directory as its working directory using pushd/popd commands (configurable)
-
-FLOATING WINDOW MODE                                *claude-code-usage-floating*
-
-Claude Code supports floating window mode for a more modern interface:
-
-To enable floating windows:
->lua
-  require("claude-code").setup({
-    window = {
-      position = "float",
-      float = {
-        width = 0.8,          -- 80% of screen width
-        height = 0.8,         -- 80% of screen height
-        border = "rounded",   -- Rounded border
-        title = " Claude Code ",
-      },
-    },
-  })
-<
-
-Floating window features:
-- Appears as an overlay on top of your current workspace
-- Configurable size, position, and border style
-- Toggle to show/hide without terminating Claude process
-- Supports all standard Claude Code functionality
-
-Window positioning options:
-- `relative = "editor"` - Position relative to the entire editor
-- `relative = "cursor"` - Position relative to cursor (useful for context-aware prompts)
-- `row` and `col` values are percentages (0.0-1.0) of screen dimensions
 
 ==============================================================================
 4. CONFIGURATION                                    *claude-code-configuration*
@@ -148,21 +91,20 @@ default configuration:
     -- Terminal window settings
     window = {
       split_ratio = 0.3,      -- Percentage of screen for the terminal window (height or width)
-      position = "botright",  -- Position: "botright", "topleft", "vertical", "float", "current", etc.
+      position = "botright",  -- Position of the window: "botright", "topleft", "vertical"/"vsplit", "float", etc.
       enter_insert = true,    -- Whether to enter insert mode when opening Claude Code
       start_in_normal_mode = false, -- Whether to start in normal mode instead of insert mode
       hide_numbers = true,    -- Hide line numbers in the terminal window
       hide_signcolumn = true, -- Hide the sign column in the terminal window
-      -- Floating window configuration (used when position = "float")
+      
+      -- Floating window configuration (only applies when position = "float")
       float = {
-        relative = "editor",  -- 'editor' or 'cursor'
-        width = 0.8,          -- Width as percentage of editor width (0.0-1.0)
-        height = 0.8,         -- Height as percentage of editor height (0.0-1.0)
-        row = 0.1,            -- Row position as percentage (0.0-1.0), 0.1 = 10% from top
-        col = 0.1,            -- Column position as percentage (0.0-1.0), 0.1 = 10% from left
-        border = "rounded",   -- Border: 'none', 'single', 'double', 'rounded', 'solid', 'shadow'
-        title = " Claude Code ", -- Window title
-        title_pos = "center", -- Title position: 'left', 'center', 'right'
+        width = "80%",        -- Width: number of columns or percentage string
+        height = "80%",       -- Height: number of rows or percentage string
+        row = "center",       -- Row position: number, "center", or percentage string
+        col = "center",       -- Column position: number, "center", or percentage string
+        relative = "editor",  -- Relative to: "editor" or "cursor"
+        border = "rounded",   -- Border style: "none", "single", "double", "rounded", "solid", "shadow"
       },
     },
     -- File refresh settings
@@ -248,145 +190,14 @@ to re-enter insert mode so you can continue typing to Claude Code.
 You can customize these mappings in the configuration.
 
 ==============================================================================
-7. MCP INTEGRATION                                              *claude-code-mcp*
-
-The plugin provides Model Context Protocol (MCP) integration that enables 
-Claude Code to directly read and edit your Neovim buffers, execute commands, 
-and access project context.
-
-MCP SERVER SETUP                                         *claude-code-mcp-setup*
-
-The plugin uses an enhanced fork of `mcp-neovim-server` by default. Everything 
-is handled automatically by the `claude-nvim` wrapper.
-
-For manual configuration, create a config file:
->json
-  {
-    "mcpServers": {
-      "neovim": {
-        "command": "mcp-neovim-server",
-        "env": {
-          "NVIM_SOCKET_PATH": "/tmp/nvim",
-          "ALLOW_SHELL_COMMANDS": "false"
-        }
-      }
-    }
-  }
-<
-
-Save to `~/.config/claude-code/mcp.json` and use:
->bash
-  claude --mcp-config ~/.config/claude-code/mcp.json "Your prompt"
-<
-
-MCPHUB.NVIM INTEGRATION                                *claude-code-mcp-mcphub*
-
-For managing multiple MCP servers, consider MCPHub.nvim:
->lua
-  {
-    "ravitemer/mcphub.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    config = function()
-      require("mcphub").setup({
-        port = 3000,
-        config = vim.fn.expand("~/.config/nvim/mcpservers.json"),
-      })
-    end,
-  }
-<
-
-This provides:
-- Multiple MCP server management
-- Integration with chat plugins (Avante, CodeCompanion, CopilotChat)
-- Server discovery and configuration
-- Support for both stdio and HTTP-based MCP servers
-
-EXTENDING MCP-NEOVIM-SERVER                           *claude-code-mcp-extending*
-
-If you need additional functionality not provided by `mcp-neovim-server`:
-
-1. **Submit a PR** to mcp-neovim-server to add the feature
-2. **Create a supplementary MCP server** that provides only the missing features
-3. **Use MCPHub.nvim** to run multiple MCP servers together
-
-==============================================================================
-8. TUTORIALS                                              *claude-code-tutorials*
-
-RESUME PREVIOUS CONVERSATIONS                      *claude-code-tutorials-resume*
-
-Continue your work seamlessly when you've been working on a task with Claude 
-Code and need to continue where you left off in a later session.
-
-Commands for resuming:
-- `:ClaudeCodeResume` - Resume a previously suspended session
-- `:ClaudeCode --continue` - Continue with command variants
-- `<leader>cc` - Use configured keymap for continuation
-
-How it works:
-- Session Management: Claude Code sessions can be suspended and resumed
-- Context Preservation: The entire conversation context is maintained
-- Multi-Instance Support: Each git repository can have its own Claude instance
-- Buffer State: The terminal buffer preserves full conversation history
-
-Tips:
-- Use `:ClaudeCodeSuspend` to pause a session without losing context
-- Sessions are tied to git repositories when `git.multi_instance` is enabled
-- Use safe toggle (`:ClaudeCodeSafeToggle`) to hide Claude without stopping it
-
-UNDERSTAND NEW CODEBASES                        *claude-code-tutorials-codebase*
-
-Get a quick overview when you've just joined a new project:
-
-1. Open Neovim in the project root
-2. Start Claude Code with `:ClaudeCode`
-3. Ask Claude to analyze the codebase structure
-4. Use context-aware commands to share specific files
-
-The MCP integration allows Claude to directly explore your project structure
-and understand the codebase without manual file copying.
-
-==============================================================================
-9. TROUBLESHOOTING                                  *claude-code-troubleshooting*
-
-COMMON ISSUES                                  *claude-code-troubleshooting-common*
-
-Claude Code command not found:
-- Ensure Claude Code CLI is installed and in PATH
-- Check the `command` configuration option
-- Use `cli_path` config for custom installation paths
-
-MCP server not working:
-- Verify `mcp-neovim-server` is installed: `npm install -g mcp-neovim-server`
-- Check that Neovim server socket is running
-- Ensure MCP integration is enabled in configuration
-
-File changes not detected:
-- Check `refresh.enable` is set to `true` in configuration
-- Verify `refresh.timer_interval` setting (default: 1000ms)
-- Ensure file is opened in a Neovim buffer
-
-Multi-instance conflicts:
-- Each git repository should have its own Claude instance
-- Use `:ClaudeCodeListInstances` to see active instances
-- Configure `git.multi_instance` to control this behavior
-
-CLI DETECTION ORDER                        *claude-code-troubleshooting-detection*
-
-The plugin uses this priority order to find Claude:
-
-1. **Custom path** (highest priority): `cli_path` configuration option
-2. **Local installation** (preferred): `~/.claude/local/claude`
-3. **PATH fallback** (last resort): `claude` command in system PATH
-
-==============================================================================
-10. CONTRIBUTING                                        *claude-code-contributing*
+7. CONTRIBUTING                                          *claude-code-contributing*
 
 Contributions to Claude Code are welcome! If you would like to contribute,
 please check the CONTRIBUTING.md file in the repository for guidelines:
 https://github.com/greggh/claude-code.nvim/blob/main/CONTRIBUTING.md
 
 ==============================================================================
-11. LICENSE                                                 *claude-code-license*
+8. LICENSE                                                  *claude-code-license*
 
 MIT License
 

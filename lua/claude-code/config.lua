@@ -8,13 +8,19 @@ local M = {}
 
 --- ClaudeCodeWindow class for window configuration
 -- @table ClaudeCodeWindow
--- @field split_ratio number Percentage of screen for the terminal window
--- (height for horizontal, width for vertical splits)
--- @field position string Position of the window: "botright", "topleft", "vertical", etc.
+-- @field split_ratio number Percentage of screen for the terminal window (height for horizontal, width for vertical)
+-- @field position string Position of the window: "botright", "topleft", "vertical", "float" etc.
 -- @field enter_insert boolean Whether to enter insert mode when opening Claude Code
 -- @field start_in_normal_mode boolean Whether to start in normal mode instead of insert mode when opening Claude Code
 -- @field hide_numbers boolean Hide line numbers in the terminal window
 -- @field hide_signcolumn boolean Hide the sign column in the terminal window
+-- @field float table|nil Floating window configuration (only used when position is "float")
+-- @field float.width number|string Width of floating window (number: columns, string: percentage like "80%")
+-- @field float.height number|string Height of floating window (number: rows, string: percentage like "80%")
+-- @field float.row number|string|nil Row position (number: absolute, string: "center" or percentage)
+-- @field float.col number|string|nil Column position (number: absolute, string: "center" or percentage)
+-- @field float.border string Border style: "none", "single", "double", "rounded", "solid", "shadow", or array
+-- @field float.relative string Relative positioning: "editor" or "cursor"
 
 --- ClaudeCodeRefresh class for file refresh configuration
 -- @table ClaudeCodeRefresh
@@ -48,23 +54,21 @@ local M = {}
 -- @field verbose string|boolean Enable verbose logging with full turn-by-turn output
 -- Additional options can be added as needed
 
---- ClaudeCodeMCP class for MCP server configuration
--- @table ClaudeCodeMCP
--- @field enabled boolean Enable MCP server
--- @field http_server table HTTP server configuration
--- @field http_server.host string Host to bind HTTP server to (default: "127.0.0.1")
--- @field http_server.port number Port for HTTP server (default: 27123)
--- @field session_timeout_minutes number Session timeout in minutes (default: 30)
+--- ClaudeCodeShell class for shell configuration
+-- @table ClaudeCodeShell
+-- @field separator string Command separator used in shell commands (e.g., '&&', ';', '|')
+-- @field pushd_cmd string Command to push directory onto stack (e.g., 'pushd' for bash/zsh)
+-- @field popd_cmd string Command to pop directory from stack (e.g., 'popd' for bash/zsh)
 
 --- ClaudeCodeConfig class for main configuration
 -- @table ClaudeCodeConfig
 -- @field window ClaudeCodeWindow Terminal window settings
 -- @field refresh ClaudeCodeRefresh File refresh settings
 -- @field git ClaudeCodeGit Git integration settings
+-- @field shell ClaudeCodeShell Shell-specific configuration
 -- @field command string Command used to launch Claude Code
 -- @field command_variants ClaudeCodeCommandVariants Command variants configuration
 -- @field keymaps ClaudeCodeKeymaps Keymaps configuration
--- @field mcp ClaudeCodeMCP MCP server configuration
 
 --- Default configuration options
 --- @type ClaudeCodeConfig
@@ -73,22 +77,19 @@ M.default_config = {
   window = {
     split_ratio = 0.3, -- Percentage of screen for the terminal window (height or width)
     height_ratio = 0.3, -- DEPRECATED: Use split_ratio instead
-    -- Window position: "current" (default - use current window), "float", "botright", "topleft", "vertical", etc.
-    position = 'current',
+    position = 'botright', -- Position of the window: "botright", "topleft", "vertical", "float", etc.
     enter_insert = true, -- Whether to enter insert mode when opening Claude Code
     start_in_normal_mode = false, -- Whether to start in normal mode instead of insert mode
     hide_numbers = true, -- Hide line numbers in the terminal window
     hide_signcolumn = true, -- Hide the sign column in the terminal window
-    -- Floating window specific settings
+    -- Default floating window configuration
     float = {
-      relative = 'editor', -- 'editor' or 'cursor'
-      width = 0.8, -- Width as percentage of editor width (0.0-1.0)
-      height = 0.8, -- Height as percentage of editor height (0.0-1.0)
-      row = 0.1, -- Row position as percentage (0.0-1.0), 0.1 = 10% from top
-      col = 0.1, -- Column position as percentage (0.0-1.0), 0.1 = 10% from left
-      border = 'rounded', -- Border style: 'none', 'single', 'double', 'rounded', 'solid', 'shadow'
-      title = ' Claude Code ', -- Window title
-      title_pos = 'center', -- Title position: 'left', 'center', 'right'
+      width = '80%', -- Width as percentage of editor
+      height = '80%', -- Height as percentage of editor
+      row = 'center', -- Center vertically
+      col = 'center', -- Center horizontally
+      relative = 'editor', -- Position relative to editor
+      border = 'rounded', -- Border style
     },
   },
   -- File refresh settings
@@ -103,9 +104,14 @@ M.default_config = {
     use_git_root = true, -- Set CWD to git root when opening Claude Code (if in git project)
     multi_instance = true, -- Use multiple Claude instances (one per git root)
   },
+  -- Shell-specific settings
+  shell = {
+    separator = '&&', -- Command separator used in shell commands
+    pushd_cmd = 'pushd', -- Command to push directory onto stack
+    popd_cmd = 'popd', -- Command to pop directory from stack
+  },
   -- Command settings
   command = 'claude', -- Command used to launch Claude Code
-  cli_path = nil, -- Optional custom path to Claude CLI executable
   -- Command variants
   command_variants = {
     -- Conversation management
@@ -114,80 +120,25 @@ M.default_config = {
 
     -- Output options
     verbose = '--verbose', -- Enable verbose logging with full turn-by-turn output
-    -- Debugging options
-    mcp_debug = '--mcp-debug', -- Enable MCP debug mode
   },
   -- Keymaps
   keymaps = {
     toggle = {
-      normal = '<leader>aa', -- Normal mode keymap for toggling Claude Code
-      terminal = '<leader>aa', -- Terminal mode keymap for toggling Claude Code
+      normal = '<C-,>', -- Normal mode keymap for toggling Claude Code
+      terminal = '<C-,>', -- Terminal mode keymap for toggling Claude Code
       variants = {
-        continue = '<leader>ac', -- Normal mode keymap for Claude Code with continue flag
-        verbose = '<leader>av', -- Normal mode keymap for Claude Code with verbose flag
-        mcp_debug = '<leader>ad', -- Normal mode keymap for Claude Code with MCP debug flag
+        continue = '<leader>cC', -- Normal mode keymap for Claude Code with continue flag
+        verbose = '<leader>cV', -- Normal mode keymap for Claude Code with verbose flag
       },
-    },
-    selection = {
-      send = '<leader>as', -- Visual mode keymap for sending selection to Claude Code
-      explain = '<leader>ae', -- Visual mode keymap for explaining selection
-      with_context = '<leader>aw', -- Visual mode keymap for toggling with selection
-    },
-    seamless = {
-      claude = '<leader>cc', -- Normal/visual mode keymap for seamless Claude
-      ask = '<leader>ca', -- Normal mode keymap for quick ask
     },
     window_navigation = true, -- Enable window navigation keymaps (<C-h/j/k/l>)
     scrolling = true, -- Enable scrolling keymaps (<C-f/b>) for page up/down
   },
-  -- MCP server settings
-  mcp = {
-    enabled = true, -- Enable MCP server functionality
-    http_server = {
-      host = '127.0.0.1', -- Host to bind HTTP server to
-      port = 27123, -- Port for HTTP server
-    },
-    session_timeout_minutes = 30, -- Session timeout in minutes
-    auto_start = false, -- Don't auto-start by default (MCP server runs as separate process)
-    auto_server_start = true, -- Auto-start Neovim server socket for seamless MCP connection
-    tools = {
-      buffer = true,
-      command = true,
-      status = true,
-      edit = true,
-      window = true,
-      mark = true,
-      register = true,
-      visual = true,
-    },
-    resources = {
-      current_buffer = true,
-      buffer_list = true,
-      project_structure = true,
-      git_status = true,
-      lsp_diagnostics = true,
-      vim_options = true,
-    },
-    http_server = {
-      host = '127.0.0.1', -- Host to bind HTTP server to
-      port = 27123, -- Port for HTTP server
-    },
-    session_timeout_minutes = 30, -- Session timeout in minutes
-  },
-  -- Startup notification settings
-  startup_notification = {
-    enabled = false, -- Show startup notification when plugin loads (disabled by default)
-    message = 'Claude Code plugin loaded', -- Custom startup message
-    level = vim.log.levels.INFO, -- Log level for startup notification
-  },
-  -- CLI detection notification settings
-  cli_notification = {
-    enabled = false, -- Show CLI detection notifications (disabled by default)
-  },
 }
 
+--- Validate the configuration
 --- Validate window configuration
---- @param window table
+--- @param window table Window configuration
 --- @return boolean valid
 --- @return string? error_message
 local function validate_window_config(window)
@@ -222,8 +173,79 @@ local function validate_window_config(window)
   return true, nil
 end
 
+--- Validate floating window configuration
+--- @param float table Float configuration
+--- @return boolean valid
+--- @return string? error_message
+local function validate_float_config(float)
+  if type(float) ~= 'table' then
+    return false, 'window.float must be a table when position is "float"'
+  end
+
+  -- Validate width (can be number or percentage string)
+  if type(float.width) == 'string' then
+    if not float.width:match('^%d+%%$') then
+      return false, 'window.float.width must be a number or percentage (e.g., "80%")'
+    end
+  elseif type(float.width) ~= 'number' or float.width <= 0 then
+    return false, 'window.float.width must be a positive number or percentage string'
+  end
+
+  -- Validate height (can be number or percentage string)
+  if type(float.height) == 'string' then
+    if not float.height:match('^%d+%%$') then
+      return false, 'window.float.height must be a number or percentage (e.g., "80%")'
+    end
+  elseif type(float.height) ~= 'number' or float.height <= 0 then
+    return false, 'window.float.height must be a positive number or percentage string'
+  end
+
+  -- Validate relative (must be "editor" or "cursor")
+  if float.relative ~= 'editor' and float.relative ~= 'cursor' then
+    return false, 'window.float.relative must be "editor" or "cursor"'
+  end
+
+  -- Validate border (must be valid border style)
+  local valid_borders = { 'none', 'single', 'double', 'rounded', 'solid', 'shadow' }
+  local is_valid_border = false
+  for _, border in ipairs(valid_borders) do
+    if float.border == border then
+      is_valid_border = true
+      break
+    end
+  end
+  -- Also allow array borders
+  if not is_valid_border and type(float.border) ~= 'table' then
+    return false,
+      'window.float.border must be one of: none, single, double, rounded, solid, shadow, or an array'
+  end
+
+  -- Validate row and col if they exist
+  if float.row ~= nil then
+    if type(float.row) == 'string' and float.row ~= 'center' then
+      if not float.row:match('^%d+%%$') then
+        return false, 'window.float.row must be a number, "center", or percentage string'
+      end
+    elseif type(float.row) ~= 'number' and float.row ~= 'center' then
+      return false, 'window.float.row must be a number, "center", or percentage string'
+    end
+  end
+
+  if float.col ~= nil then
+    if type(float.col) == 'string' and float.col ~= 'center' then
+      if not float.col:match('^%d+%%$') then
+        return false, 'window.float.col must be a number, "center", or percentage string'
+      end
+    elseif type(float.col) ~= 'number' and float.col ~= 'center' then
+      return false, 'window.float.col must be a number, "center", or percentage string'
+    end
+  end
+
+  return true, nil
+end
+
 --- Validate refresh configuration
---- @param refresh table
+--- @param refresh table Refresh configuration
 --- @return boolean valid
 --- @return string? error_message
 local function validate_refresh_config(refresh)
@@ -251,7 +273,7 @@ local function validate_refresh_config(refresh)
 end
 
 --- Validate git configuration
---- @param git table
+--- @param git table Git configuration
 --- @return boolean valid
 --- @return string? error_message
 local function validate_git_config(git)
@@ -270,38 +292,35 @@ local function validate_git_config(git)
   return true, nil
 end
 
---- Validate command configuration
---- @param config table
+--- Validate shell configuration
+--- @param shell table Shell configuration
 --- @return boolean valid
 --- @return string? error_message
-local function validate_command_config(config)
-  if type(config.command) ~= 'string' then
-    return false, 'command must be a string'
+local function validate_shell_config(shell)
+  if type(shell) ~= 'table' then
+    return false, 'shell config must be a table'
   end
 
-  if config.cli_path ~= nil and type(config.cli_path) ~= 'string' then
-    return false, 'cli_path must be a string or nil'
+  if type(shell.separator) ~= 'string' then
+    return false, 'shell.separator must be a string'
   end
 
-  if type(config.command_variants) ~= 'table' then
-    return false, 'command_variants config must be a table'
+  if type(shell.pushd_cmd) ~= 'string' then
+    return false, 'shell.pushd_cmd must be a string'
   end
 
-  for variant_name, variant_args in pairs(config.command_variants) do
-    if not (variant_args == false or type(variant_args) == 'string') then
-      return false, 'command_variants.' .. variant_name .. ' must be a string or false'
-    end
+  if type(shell.popd_cmd) ~= 'string' then
+    return false, 'shell.popd_cmd must be a string'
   end
 
   return true, nil
 end
 
 --- Validate keymaps configuration
---- @param keymaps table
---- @param command_variants table
+--- @param keymaps table Keymaps configuration
 --- @return boolean valid
 --- @return string? error_message
-local function validate_keymaps_config(keymaps, command_variants)
+local function validate_keymaps_config(keymaps)
   if type(keymaps) ~= 'table' then
     return false, 'keymaps config must be a table'
   end
@@ -318,45 +337,16 @@ local function validate_keymaps_config(keymaps, command_variants)
     return false, 'keymaps.toggle.terminal must be a string or false'
   end
 
-  -- Validate variant keymaps
+  -- Validate variant keymaps if they exist
   if keymaps.toggle.variants then
     if type(keymaps.toggle.variants) ~= 'table' then
       return false, 'keymaps.toggle.variants must be a table'
     end
 
+    -- Check each variant keymap
     for variant_name, keymap in pairs(keymaps.toggle.variants) do
       if not (keymap == false or type(keymap) == 'string') then
         return false, 'keymaps.toggle.variants.' .. variant_name .. ' must be a string or false'
-      end
-      if keymap ~= false and not command_variants[variant_name] then
-        return false,
-          'keymaps.toggle.variants.' .. variant_name .. ' has no corresponding command variant'
-      end
-    end
-  end
-
-  -- Validate selection keymaps
-  if keymaps.selection then
-    if type(keymaps.selection) ~= 'table' then
-      return false, 'keymaps.selection must be a table'
-    end
-
-    for key_name, keymap in pairs(keymaps.selection) do
-      if not (keymap == false or type(keymap) == 'string' or keymap == nil) then
-        return false, 'keymaps.selection.' .. key_name .. ' must be a string, false, or nil'
-      end
-    end
-  end
-
-  -- Validate seamless keymaps
-  if keymaps.seamless then
-    if type(keymaps.seamless) ~= 'table' then
-      return false, 'keymaps.seamless must be a table'
-    end
-
-    for key_name, keymap in pairs(keymaps.seamless) do
-      if not (keymap == false or type(keymap) == 'string' or keymap == nil) then
-        return false, 'keymaps.seamless.' .. key_name .. ' must be a string, false, or nil'
       end
     end
   end
@@ -372,172 +362,91 @@ local function validate_keymaps_config(keymaps, command_variants)
   return true, nil
 end
 
---- Validate MCP configuration
---- @param mcp table
+--- Validate command variants configuration
+--- @param command_variants table Command variants configuration
 --- @return boolean valid
 --- @return string? error_message
-local function validate_mcp_config(mcp)
-  if type(mcp) ~= 'table' then
-    return false, 'mcp config must be a table'
+local function validate_command_variants_config(command_variants)
+  if type(command_variants) ~= 'table' then
+    return false, 'command_variants config must be a table'
   end
 
-  if type(mcp.enabled) ~= 'boolean' then
-    return false, 'mcp.enabled must be a boolean'
-  end
-
-  if type(mcp.http_server) ~= 'table' then
-    return false, 'mcp.http_server config must be a table'
-  end
-
-  if type(mcp.http_server.host) ~= 'string' then
-    return false, 'mcp.http_server.host must be a string'
-  end
-
-  if type(mcp.http_server.port) ~= 'number' then
-    return false, 'mcp.http_server.port must be a number'
-  end
-
-  if type(mcp.session_timeout_minutes) ~= 'number' then
-    return false, 'mcp.session_timeout_minutes must be a number'
-  end
-
-  if mcp.auto_start ~= nil and type(mcp.auto_start) ~= 'boolean' then
-    return false, 'mcp.auto_start must be a boolean'
+  -- Check each command variant
+  for variant_name, variant_args in pairs(command_variants) do
+    if not (variant_args == false or type(variant_args) == 'string') then
+      return false, 'command_variants.' .. variant_name .. ' must be a string or false'
+    end
   end
 
   return true, nil
 end
 
---- Validate startup notification configuration
---- @param config table
---- @return boolean valid
---- @return string? error_message
-local function validate_startup_notification_config(config)
-  if config.startup_notification == nil then
-    return true, nil
-  end
-
-  if type(config.startup_notification) == 'boolean' then
-    -- Allow simple boolean to enable/disable
-    config.startup_notification = {
-      enabled = config.startup_notification,
-      message = 'Claude Code plugin loaded',
-      level = vim.log.levels.INFO,
-    }
-  elseif type(config.startup_notification) == 'table' then
-    -- Validate table structure
-    if
-      config.startup_notification.enabled ~= nil
-      and type(config.startup_notification.enabled) ~= 'boolean'
-    then
-      return false, 'startup_notification.enabled must be a boolean'
-    end
-
-    if
-      config.startup_notification.message ~= nil
-      and type(config.startup_notification.message) ~= 'string'
-    then
-      return false, 'startup_notification.message must be a string'
-    end
-
-    if
-      config.startup_notification.level ~= nil
-      and type(config.startup_notification.level) ~= 'number'
-    then
-      return false, 'startup_notification.level must be a number'
-    end
-
-    -- Set defaults for missing values
-    if config.startup_notification.enabled == nil then
-      config.startup_notification.enabled = true
-    end
-    if config.startup_notification.message == nil then
-      config.startup_notification.message = 'Claude Code plugin loaded'
-    end
-    if config.startup_notification.level == nil then
-      config.startup_notification.level = vim.log.levels.INFO
-    end
-  else
-    return false, 'startup_notification must be a boolean or table'
-  end
-
-  return true, nil
-end
-
---- Validate the configuration
+--- Validate configuration options
 --- @param config ClaudeCodeConfig
 --- @return boolean valid
 --- @return string? error_message
 local function validate_config(config)
-  local valid, err
-
-  valid, err = validate_window_config(config.window)
+  -- Validate window settings
+  local valid, err = validate_window_config(config.window)
   if not valid then
     return false, err
   end
 
+  -- Validate float configuration if position is "float"
+  if config.window.position == 'float' then
+    valid, err = validate_float_config(config.window.float)
+    if not valid then
+      return false, err
+    end
+  end
+
+  -- Validate refresh settings
   valid, err = validate_refresh_config(config.refresh)
   if not valid then
     return false, err
   end
 
+  -- Validate git settings
   valid, err = validate_git_config(config.git)
   if not valid then
     return false, err
   end
 
-  valid, err = validate_command_config(config)
+  -- Validate shell settings
+  valid, err = validate_shell_config(config.shell)
   if not valid then
     return false, err
   end
 
-  valid, err = validate_keymaps_config(config.keymaps, config.command_variants)
+  -- Validate command settings
+  if type(config.command) ~= 'string' then
+    return false, 'command must be a string'
+  end
+
+  -- Validate command variants settings
+  valid, err = validate_command_variants_config(config.command_variants)
   if not valid then
     return false, err
   end
 
-  valid, err = validate_mcp_config(config.mcp)
+  -- Validate keymaps settings
+  valid, err = validate_keymaps_config(config.keymaps)
   if not valid then
     return false, err
   end
 
-  valid, err = validate_startup_notification_config(config)
-  if not valid then
-    return false, err
+  -- Cross-validate keymaps with command variants
+  if config.keymaps.toggle.variants then
+    for variant_name, keymap in pairs(config.keymaps.toggle.variants) do
+      -- Ensure variant exists in command_variants
+      if keymap ~= false and not config.command_variants[variant_name] then
+        return false,
+          'keymaps.toggle.variants.' .. variant_name .. ' has no corresponding command variant'
+      end
+    end
   end
 
   return true, nil
-end
-
---- Detect Claude Code CLI installation
---- @param custom_path? string Optional custom CLI path to check first
---- @return string|nil The path to Claude Code executable, or nil if not found
-local function detect_claude_cli(custom_path)
-  -- First check custom path if provided
-  if custom_path then
-    if vim.fn.filereadable(custom_path) == 1 and vim.fn.executable(custom_path) == 1 then
-      return custom_path
-    end
-    -- If custom path doesn't work, fall through to default search
-  end
-
-  -- Auto-detect Claude CLI across different installation methods
-  -- Priority order ensures most specific/recent installations are preferred
-  -- Check for local development installation (highest priority)
-  -- ~/.claude/local/claude is used for development builds and custom installations
-  local local_claude = vim.fn.expand('~/.claude/local/claude')
-  if vim.fn.filereadable(local_claude) == 1 and vim.fn.executable(local_claude) == 1 then
-    return local_claude
-  end
-
-  -- Fall back to system-wide installation in PATH
-  -- This handles package manager installations, official releases, etc.
-  if vim.fn.executable('claude') == 1 then
-    return 'claude'
-  end
-
-  -- No Claude CLI found - return nil to trigger user notification
-  return nil
 end
 
 --- Parse user configuration and merge with defaults
@@ -555,56 +464,12 @@ function M.parse_config(user_config, silent)
 
   local config = vim.tbl_deep_extend('force', {}, M.default_config, user_config or {})
 
-  -- Auto-detect Claude CLI if not explicitly set (skip in silent mode for tests)
-  if not silent and (not user_config or not user_config.command) then
-    local custom_path = config.cli_path
-    local detected_cli = detect_claude_cli(custom_path)
-    config.command = detected_cli or 'claude'
-
-    -- Notify user about the CLI selection (only if cli_notification is enabled)
-    if not silent and config.cli_notification.enabled then
-      if custom_path then
-        if detected_cli == custom_path then
-          vim.notify('Claude Code: Using custom CLI at ' .. custom_path, vim.log.levels.INFO)
-        else
-          vim.notify(
-            'Claude Code: Custom CLI path not found: '
-              .. custom_path
-              .. ' - falling back to default detection',
-            vim.log.levels.WARN
-          )
-          -- Continue with default detection notifications
-          if detected_cli == vim.fn.expand('~/.claude/local/claude') then
-            vim.notify(
-              'Claude Code: Using local installation at ~/.claude/local/claude',
-              vim.log.levels.INFO
-            )
-          elseif detected_cli and vim.fn.executable(detected_cli) == 1 then
-            vim.notify("Claude Code: Using 'claude' from PATH", vim.log.levels.INFO)
-          else
-            vim.notify(
-              'Claude Code: CLI not found! Please install Claude Code or set config.command',
-              vim.log.levels.WARN
-            )
-          end
-        end
-      else
-        -- No custom path, use standard detection notifications
-        if detected_cli == vim.fn.expand('~/.claude/local/claude') then
-          vim.notify(
-            'Claude Code: Using local installation at ~/.claude/local/claude',
-            vim.log.levels.INFO
-          )
-        elseif detected_cli and vim.fn.executable(detected_cli) == 1 then
-          vim.notify("Claude Code: Using 'claude' from PATH", vim.log.levels.INFO)
-        else
-          vim.notify(
-            'Claude Code: CLI not found! Please install Claude Code or set config.command',
-            vim.log.levels.WARN
-          )
-        end
-      end
-    end
+  -- If position is float and no float config provided, use default float config
+  if
+    config.window.position == 'float'
+    and not (user_config and user_config.window and user_config.window.float)
+  then
+    config.window.float = vim.deepcopy(M.default_config.window.float)
   end
 
   local valid, err = validate_config(config)
@@ -619,10 +484,5 @@ function M.parse_config(user_config, silent)
 
   return config
 end
-
--- Internal API for testing
-M._internal = {
-  detect_claude_cli = detect_claude_cli,
-}
 
 return M

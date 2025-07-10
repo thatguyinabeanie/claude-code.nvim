@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -10,7 +10,7 @@ on:
       - '.github/workflows/shellcheck.yml'
       - '.github/workflows/yaml-lint.yml'
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
       - '**.md'
       - 'docs/**'
@@ -74,6 +74,11 @@ jobs:
             echo "plenary.nvim directory already exists, updating..."
             cd ~/.local/share/nvim/site/pack/vendor/start/plenary.nvim && git pull origin master
           fi
+
+      - name: Verify test directory structure
+        run: |
+          ls -la ./tests/
+          ls -la ./tests/spec/
 
       - name: Display Neovim version
         run: nvim --version
