@@ -13,7 +13,7 @@ cd "$PLUGIN_DIR"
 echo "Running tests from: $(pwd)"
 
 # Find nvim - ignore NVIM env var if it points to a socket
-if [ -n "$NVIM" ] && [ -x "$NVIM" ] && [ ! -S "$NVIM" ]; then
+if [ -n "${NVIM:-}" ] && [ -x "${NVIM:-}" ] && [ ! -S "${NVIM:-}" ]; then
   # NVIM is set and is an executable file (not a socket)
   echo "Using NVIM from environment: $NVIM"
 else

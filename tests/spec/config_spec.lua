@@ -17,7 +17,7 @@ describe('config', function()
     it('should return default config when no user config is provided', function()
       local result = config.parse_config(nil, true) -- silent mode
       -- Check specific values to avoid floating point comparison issues
-      assert.are.equal('current', result.window.position)
+      assert.are.equal('botright', result.window.position)
       assert.are.equal(true, result.window.enter_insert)
       assert.are.equal(true, result.refresh.enable)
       -- Use near equality for floating point values
@@ -34,7 +34,7 @@ describe('config', function()
       assert.is.near(0.5, result.window.split_ratio, 0.0001)
 
       -- Other values should be set to defaults
-      assert.are.equal('current', result.window.position)
+      assert.are.equal('botright', result.window.position)
       assert.are.equal(true, result.window.enter_insert)
     end)
 
